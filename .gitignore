@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+myvenv/
+venv/
+ENV/
+env/
+
+# Excel files (원본 데이터)
+*.xlsx
+*.XLSX
+*.xls
+
+# Next.js
+app/.next/
+app/out/
+app/node_modules/
+app/.env*.local
+
+# 출력 데이터 (선택적으로 커밋 가능)
+# out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
