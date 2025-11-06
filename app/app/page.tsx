@@ -184,8 +184,8 @@ export default function Dashboard() {
       const categories = result.data;
 
       // 총비용 계산
-      const totalCurrent = categories.reduce((sum, cat) => sum + cat.current, 0);
-      const totalPrevious = categories.reduce((sum, cat) => sum + cat.previous, 0);
+      const totalCurrent = categories.reduce((sum: number, cat: any) => sum + cat.current, 0);
+      const totalPrevious = categories.reduce((sum: number, cat: any) => sum + cat.previous, 0);
       const totalChange = totalCurrent - totalPrevious;
       const totalChangePercent = totalPrevious !== 0 ? (totalCurrent / totalPrevious) * 100 : 0;  // 당년/전년 * 100%
 
