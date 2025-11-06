@@ -4,7 +4,12 @@ __pycache__/
 *$py.class
 *.so
 .Python
-myvenv/
+myvenv/Lib/
+myvenv/Scripts/
+myvenv/Include/
+myvenv/__pycache__/
+myvenv/*.py
+myvenv/*.cfg
 venv/
 ENV/
 env/
