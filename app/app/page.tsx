@@ -596,7 +596,7 @@ export default function Dashboard() {
                         </span>
                       )}
                       onClick={(data) => {
-                        if (data.value !== 'YOY') {
+                        if (data.value && data.value !== 'YOY') {
                           handleDrilldown(data.value);
                         }
                       }}
