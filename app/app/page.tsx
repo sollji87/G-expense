@@ -900,7 +900,7 @@ export default function Dashboard() {
                           radius={[0, 4, 4, 0]}
                           cursor="pointer"
                           onClick={(data) => {
-                            if (accountLevel !== 'detail') {
+                            if (accountLevel !== 'detail' && data.name) {
                               handleAccountClick(data.name);
                             }
                           }}
