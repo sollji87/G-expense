@@ -27,20 +27,21 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const month = searchParams.get('month') || '10';
+    const level = searchParams.get('level') || 'auto'; // major, middle, detail, auto
     
     if (!category) {
       return NextResponse.json({ success: false, error: '카테고리가 필요합니다.' }, { status: 400 });
     }
     
-    // CSV 파일 읽기
-    let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
+    // CSV 파일 읽기 (코스트센터 정보 포함된 파일 사용)
+    let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
     
     if (!fs.existsSync(csvPath)) {
-      csvPath = path.join(process.cwd(), '..', '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
+      csvPath = path.join(process.cwd(), '..', '..', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
     }
     
     if (!fs.existsSync(csvPath)) {
-      csvPath = path.join(process.cwd(), '..', 'myvenv', 'out', 'pivot_by_gl_yyyymm_combined.csv');
+      csvPath = path.join(process.cwd(), '..', 'myvenv', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
     }
     
     if (!fs.existsSync(csvPath)) {
@@ -56,21 +57,35 @@ export async function GET(request: Request) {
     const subcategoryMap = new Map<string, { current: number; previous: number }>();
     
     // 대분류인지 중분류인지 판단
-    const isDrilldownToMiddle = records.some(r => r['계정대분류'] === category);
-    const isDrilldownToDetail = records.some(r => r['계정중분류'] === category);
+    let isDrilldownToDetail = false;
+    let isDrilldownToMiddle = false;
+    
+    if (level === 'major') {
+      // 명시적으로 대분류 → 중분류
+      isDrilldownToMiddle = true;
+    } else if (level === 'middle') {
+      // 명시적으로 중분류 → 소분류
+      isDrilldownToDetail = true;
+    } else {
+      // auto: 자동 판단 (대분류와 중분류 이름이 다른 경우)
+      const hasAsMiddle = records.some(r => r['계정중분류'] === category && r['계정대분류'] !== category);
+      const hasAsMajor = records.some(r => r['계정대분류'] === category);
+      isDrilldownToDetail = hasAsMiddle;
+      isDrilldownToMiddle = !hasAsMiddle && hasAsMajor;
+    }
     
     records.forEach((record: any) => {
       let shouldInclude = false;
       let subcategory = '';
       
-      if (isDrilldownToMiddle && record['계정대분류'] === category) {
-        // 대분류 → 중분류
-        shouldInclude = true;
-        subcategory = record['계정중분류'];
-      } else if (isDrilldownToDetail && record['계정중분류'] === category) {
+      if (isDrilldownToDetail && record['계정중분류'] === category) {
         // 중분류 → 소분류
         shouldInclude = true;
         subcategory = record['G/L 계정 설명'];
+      } else if (isDrilldownToMiddle && record['계정대분류'] === category) {
+        // 대분류 → 중분류
+        shouldInclude = true;
+        subcategory = record['계정중분류'];
       }
       
       if (shouldInclude && subcategory) {
@@ -104,14 +119,14 @@ export async function GET(request: Request) {
         let shouldInclude = false;
         let subcategory = '';
         
-        if (isDrilldownToMiddle && record['계정대분류'] === category) {
-          // 대분류 → 중분류
-          shouldInclude = true;
-          subcategory = record['계정중분류'];
-        } else if (isDrilldownToDetail && record['계정중분류'] === category) {
+        if (isDrilldownToDetail && record['계정중분류'] === category) {
           // 중분류 → 소분류
           shouldInclude = true;
           subcategory = record['G/L 계정 설명'];
+        } else if (isDrilldownToMiddle && record['계정대분류'] === category) {
+          // 대분류 → 중분류
+          shouldInclude = true;
+          subcategory = record['계정중분류'];
         }
         
         if (shouldInclude && subcategory) {
@@ -140,9 +155,9 @@ export async function GET(request: Request) {
       records.forEach((record: any) => {
         let shouldInclude = false;
         
-        if (isDrilldownToMiddle && record['계정대분류'] === category) {
+        if (isDrilldownToDetail && record['계정중분류'] === category) {
           shouldInclude = true;
-        } else if (isDrilldownToDetail && record['계정중분류'] === category) {
+        } else if (isDrilldownToMiddle && record['계정대분류'] === category) {
           shouldInclude = true;
         }
         

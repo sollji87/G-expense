@@ -107,14 +107,16 @@ export async function GET(request: Request) {
     });
     
     // 결과 생성
-    const result = Array.from(accountMap.entries()).map(([name, data]) => ({
-      name,
-      current: data.current / 1_000_000, // 백만원
-      previous: data.previous / 1_000_000,
-      change: (data.current - data.previous) / 1_000_000,
-      yoy: data.previous !== 0 ? (data.current / data.previous) * 100 : 0,
-      parent: data.detail?.parent
-    }));
+    const result = Array.from(accountMap.entries())
+      .map(([name, data]) => ({
+        name,
+        current: data.current / 1_000_000, // 백만원
+        previous: data.previous / 1_000_000,
+        change: (data.current - data.previous) / 1_000_000,
+        yoy: data.previous !== 0 ? (data.current / data.previous) * 100 : 0,
+        parent: data.detail?.parent
+      }))
+      .filter(item => Math.abs(item.current) >= 0.5 || Math.abs(item.previous) >= 0.5); // 당년 또는 전년이 0.5백만원 이상인 항목만
     
     // 금액 순 정렬
     result.sort((a, b) => b.current - a.current);

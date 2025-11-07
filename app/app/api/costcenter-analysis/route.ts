@@ -156,44 +156,46 @@ export async function GET(request: Request) {
     });
     
     // 결과 생성
-    const result = Array.from(costCenterMap.entries()).map(([name, data]) => {
-      // 인원수 조회 (202410, 202510만 있음)
-      let currentHeadcount = null;
-      let previousHeadcount = null;
-      
-      // 코스트센터명에서 "공통_" 제거하여 부서명과 매칭
-      let currentDeptName = data.name.replace('공통_', '');
-      let previousDeptName = data.name.replace('공통_', '');
-      
-      // 프로세스팀의 경우 연도별로 다른 부서명 사용
-      if (currentDeptName === '프로세스팀') {
-        // 25년 10월: 프로세스팀
-        currentDeptName = '프로세스팀';
-        // 24년 10월: AX팀
-        previousDeptName = 'AX팀';
-      }
-      
-      if (currentYearMonth === '202510' || currentYearMonth === '202410') {
-        const currentKey = `${currentYearMonth}_${currentDeptName}`;
-        currentHeadcount = headcountMap.get(currentKey) || null;
-      }
-      
-      if (previousYearMonth === '202410' || previousYearMonth === '202510') {
-        const previousKey = `${previousYearMonth}_${previousDeptName}`;
-        previousHeadcount = headcountMap.get(previousKey) || null;
-      }
-      
-      return {
-        code: name,
-        name: data.name,
-        current: data.current / 1_000_000,
-        previous: data.previous / 1_000_000,
-        change: (data.current - data.previous) / 1_000_000,
-        yoy: data.previous !== 0 ? (data.current / data.previous) * 100 : 0,
-        currentHeadcount,
-        previousHeadcount,
-      };
-    });
+    const result = Array.from(costCenterMap.entries())
+      .map(([name, data]) => {
+        // 인원수 조회 (202410, 202510만 있음)
+        let currentHeadcount = null;
+        let previousHeadcount = null;
+        
+        // 코스트센터명에서 "공통_" 제거하여 부서명과 매칭
+        let currentDeptName = data.name.replace('공통_', '');
+        let previousDeptName = data.name.replace('공통_', '');
+        
+        // 프로세스팀의 경우 연도별로 다른 부서명 사용
+        if (currentDeptName === '프로세스팀') {
+          // 25년 10월: 프로세스팀
+          currentDeptName = '프로세스팀';
+          // 24년 10월: AX팀
+          previousDeptName = 'AX팀';
+        }
+        
+        if (currentYearMonth === '202510' || currentYearMonth === '202410') {
+          const currentKey = `${currentYearMonth}_${currentDeptName}`;
+          currentHeadcount = headcountMap.get(currentKey) || null;
+        }
+        
+        if (previousYearMonth === '202410' || previousYearMonth === '202510') {
+          const previousKey = `${previousYearMonth}_${previousDeptName}`;
+          previousHeadcount = headcountMap.get(previousKey) || null;
+        }
+        
+        return {
+          code: name,
+          name: data.name,
+          current: data.current / 1_000_000,
+          previous: data.previous / 1_000_000,
+          change: (data.current - data.previous) / 1_000_000,
+          yoy: data.previous !== 0 ? (data.current / data.previous) * 100 : 0,
+          currentHeadcount,
+          previousHeadcount,
+        };
+      })
+      .filter(item => Math.abs(item.current) >= 0.5 || Math.abs(item.previous) >= 0.5); // 당년 또는 전년이 0.5백만원 이상인 항목만
     
     // 금액 순 정렬 후 TOP 10
     result.sort((a, b) => b.current - a.current);

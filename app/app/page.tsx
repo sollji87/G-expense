@@ -34,6 +34,7 @@ export default function Dashboard() {
   const [isChartExpanded, setIsChartExpanded] = useState(true);
   const [drilldownCategory, setDrilldownCategory] = useState<string | null>(null);
   const [drilldownData, setDrilldownData] = useState<any[]>([]);
+  const [drilldownLevel, setDrilldownLevel] = useState<'middle' | 'detail'>('middle');
   const [detailDrilldownCategory, setDetailDrilldownCategory] = useState<string | null>(null);
   const [detailDrilldownData, setDetailDrilldownData] = useState<any[]>([]);
   
@@ -157,10 +158,10 @@ export default function Dashboard() {
       setSelectedAccount(accountName);
       setAccountLevel('detail');
     } else if (accountLevel === 'detail') {
-      // 소분류 클릭 → 해당 소분류의 코스트센터 + 월별 추이 업데이트
+      // 소분류 클릭 → 해당 소분류의 코스트센터만 업데이트 (월별 추이 차트는 그대로 유지)
       setSelectedAccount(accountName); // 헤더 표시를 위해 업데이트
       loadCostCenterDataOnly(accountName); // 코스트센터 데이터만 로드
-      handleDrilldown(accountName); // 소분류 월별 추이도 로드
+      // handleDrilldown은 호출하지 않음 - 위에 월별 추이 차트와 독립적으로 동작
     }
   };
 
@@ -439,14 +440,17 @@ export default function Dashboard() {
     setTempDescription('');
   };
 
-  const handleDrilldown = async (category: string) => {
+  const handleDrilldown = async (category: string, fromLevel: 'major' | 'middle' = 'major') => {
     try {
-      const response = await fetch(`/api/drilldown?category=${category}&month=${selectedMonth}`);
+      const response = await fetch(`/api/drilldown?category=${category}&month=${selectedMonth}&level=${fromLevel}`);
       const result = await response.json();
       
       if (result.success) {
         setDrilldownCategory(category);
         setDrilldownData(result.data);
+        
+        // fromLevel이 major면 중분류 차트, middle이면 소분류 차트
+        setDrilldownLevel(fromLevel === 'major' ? 'middle' : 'detail');
       }
     } catch (error) {
       console.error('드릴다운 로드 실패:', error);
@@ -455,7 +459,8 @@ export default function Dashboard() {
   
   const handleDetailDrilldown = async (category: string) => {
     try {
-      const response = await fetch(`/api/drilldown?category=${category}&month=${selectedMonth}`);
+      // 중분류 차트에서 범례를 클릭하면 소분류 차트 생성
+      const response = await fetch(`/api/drilldown?category=${category}&month=${selectedMonth}&level=middle`);
       const result = await response.json();
       
       if (result.success) {
@@ -830,25 +835,27 @@ export default function Dashboard() {
                       stroke="#6b7280"
                       label={{ value: 'YOY (%)', angle: 90, position: 'insideRight', style: { fontSize: 12 } }}
                     />
-                    <Tooltip 
+                    <Tooltip
+                      cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+                      wrapperStyle={{ outline: 'none' }}
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           const data = chartData.find(d => d.month === label);
                           return (
-                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]">
+                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]" style={{ backgroundColor: '#ffffff', opacity: 1 }}>
                               <p className="font-bold text-gray-900 mb-3 pb-2 border-b">{viewMode === 'monthly' ? '25년' : '25년 누적'} {label}</p>
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">총비용:</span>
-                                  <span className="text-sm font-bold text-blue-600">{Math.round(data?.총비용 || 0)}백만원</span>
+                                  <span className="text-sm font-bold text-blue-600">{Math.round(data?.총비용 || 0).toLocaleString()}백만원</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">전년:</span>
-                                  <span className="text-sm font-semibold text-gray-700">{Math.round((data?.총비용 || 0) / (data?.YOY || 100) * 100)}백만원</span>
+                                  <span className="text-sm font-semibold text-gray-700">{Math.round((data?.총비용 || 0) / (data?.YOY || 100) * 100).toLocaleString()}백만원</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">YOY:</span>
-                                  <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0)}%</span>
+                                  <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0).toLocaleString()}%</span>
                                 </div>
                                 <div className="pt-2 border-t">
                                   <p className="text-xs font-semibold text-gray-700 mb-2">중분류별 비중</p>
@@ -867,7 +874,7 @@ export default function Dashboard() {
                                         />
                                         <span className="text-xs text-gray-600">{cat.name}:</span>
                                       </div>
-                                      <span className="text-xs font-semibold text-gray-900">{Math.round(data?.[cat.name] || 0)}</span>
+                                      <span className="text-xs font-semibold text-gray-900">{Math.round(data?.[cat.name] || 0).toLocaleString()}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -953,10 +960,10 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-lg font-bold">
-                    {drilldownCategory} - {accountLevel === 'detail' ? '소분류' : '중분류'} 월별 추이 (2025년)
+                    {drilldownCategory} - {drilldownLevel === 'detail' ? '소분류' : '중분류'} 월별 추이 (2025년)
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {accountLevel === 'detail' ? '계정 소분류별 상세 분석' : '계정 중분류별 상세 분석'}
+                    {drilldownLevel === 'detail' ? '계정 소분류별 상세 분석' : '계정 중분류별 상세 분석'}
           </p>
         </div>
                 <button
@@ -998,7 +1005,9 @@ export default function Dashboard() {
                       stroke="#6b7280"
                       label={{ value: 'YOY (%)', angle: 90, position: 'insideRight', style: { fontSize: 12 } }}
                     />
-                    <Tooltip 
+                    <Tooltip
+                      cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+                      wrapperStyle={{ outline: 'none' }}
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           const data = drilldownData.find(d => d.month === label);
@@ -1010,20 +1019,20 @@ export default function Dashboard() {
                           const prevTotal = totalCost / (data?.YOY || 100) * 100;
                           
                           return (
-                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]">
+                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]" style={{ backgroundColor: '#ffffff', opacity: 1 }}>
                               <p className="font-bold text-gray-900 mb-3 pb-2 border-b">25년 {label}</p>
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">총비용:</span>
-                                  <span className="text-sm font-bold text-blue-600">{Math.round(totalCost)}백만원</span>
+                                  <span className="text-sm font-bold text-blue-600">{Math.round(totalCost).toLocaleString()}백만원</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">전년:</span>
-                                  <span className="text-sm font-semibold text-gray-700">{Math.round(prevTotal)}백만원</span>
+                                  <span className="text-sm font-semibold text-gray-700">{Math.round(prevTotal).toLocaleString()}백만원</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">YOY:</span>
-                                  <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0)}%</span>
+                                  <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0).toLocaleString()}%</span>
                                 </div>
                                 <div className="pt-2 border-t">
                                   <p className="text-xs font-semibold text-gray-700 mb-2">중분류별 비중</p>
@@ -1036,7 +1045,7 @@ export default function Dashboard() {
                                         />
                                         <span className="text-xs text-gray-600">{cat}:</span>
                                       </div>
-                                      <span className="text-xs font-semibold text-gray-900">{Math.round(data?.[cat] || 0)}</span>
+                                      <span className="text-xs font-semibold text-gray-900">{Math.round(data?.[cat] || 0).toLocaleString()}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -1177,30 +1186,36 @@ export default function Dashboard() {
                       domain={[0, 200]}
                       label={{ value: 'YOY (%)', angle: 90, position: 'insideRight', style: { fontSize: 12, fill: '#6b7280' } }}
                     />
-                    <Tooltip 
+                    <Tooltip
+                      cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+                      wrapperStyle={{ outline: 'none', zIndex: 9999 }}
+                      contentStyle={{ backgroundColor: 'white', opacity: 1, border: 'none' }}
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           const data = detailDrilldownData.find(d => d.month === label);
                           const subcategories = Object.keys(data || {}).filter(key => key !== 'month' && key !== 'monthNum' && key !== 'YOY');
                           const colors = ['#a7c7e7', '#f4a6c3', '#b4e7ce', '#ffd4a3', '#e0b0ff', '#c9b7eb', '#ffc9c9', '#b5e7a0'];
                           
+                          const totalCost = subcategories.reduce((sum, cat) => sum + (data?.[cat] || 0), 0);
+                          const prevTotal = totalCost / (data?.YOY || 100) * 100;
+                          
                           return (
-                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]">
+                            <div className="p-3 border border-gray-200 rounded-lg shadow-xl min-w-[200px]" style={{ backgroundColor: 'rgb(255, 255, 255)', opacity: 1 }}>
                               <p className="font-bold text-gray-900 mb-3 pb-2 border-b">{label}</p>
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">총비용:</span>
                                   <span className="text-sm font-bold text-blue-600">
-                                    {subcategories.reduce((sum, cat) => sum + (data?.[cat] || 0), 0).toFixed(0)}백만원
+                                    {Math.round(totalCost).toLocaleString()}백만원
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">전년:</span>
-                                  <span className="text-sm font-semibold text-gray-700">264백만원</span>
+                                  <span className="text-sm font-semibold text-gray-700">{Math.round(prevTotal).toLocaleString()}백만원</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">YOY:</span>
-                                  <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0)}%</span>
+                                  <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0).toLocaleString()}%</span>
                                 </div>
                                 <div className="pt-2 border-t">
                                   <p className="text-xs font-semibold text-gray-700 mb-2">중분류별 비중</p>
@@ -1213,12 +1228,12 @@ export default function Dashboard() {
                                         />
                                         <span className="text-xs text-gray-600">{cat}:</span>
                                       </div>
-                                      <span className="text-xs font-semibold text-gray-900">{data?.[cat]?.toFixed(0)}</span>
+                                      <span className="text-xs font-semibold text-gray-900">{Math.round(data?.[cat] || 0).toLocaleString()}</span>
                                     </div>
                                   ))}
                                 </div>
                               </div>
-                            </div>
+    </div>
                           );
                         }
                         return null;
@@ -1388,12 +1403,14 @@ export default function Dashboard() {
                           stroke="#6b7280"
                           width={150}
                         />
-                        <Tooltip 
+                        <Tooltip
+                          cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
+                          wrapperStyle={{ outline: 'none' }}
                           content={({ active, payload }) => {
                             if (active && payload && payload.length) {
                               const data = payload[0].payload;
                               return (
-                                <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-gray-200 min-w-[220px]">
+                                <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-gray-200 min-w-[220px]" style={{ backgroundColor: '#ffffff', opacity: 1 }}>
                                   <p className="font-bold text-sm mb-2">{data.name}</p>
                                   <div className="space-y-1 text-xs">
                                     <div className="flex justify-between">
@@ -1577,7 +1594,7 @@ export default function Dashboard() {
                       <th className="px-4 py-3 text-center font-semibold text-gray-700">당년</th>
                       <th className="px-4 py-3 text-center font-semibold text-gray-700">차이</th>
                       <th className="px-4 py-3 text-center font-semibold text-gray-700">YOY</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">당월 설명</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">설명</th>
                     </tr>
                   </thead>
                   <tbody>
