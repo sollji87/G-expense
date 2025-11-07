@@ -25,6 +25,10 @@ app/out/
 app/node_modules/
 app/.env*.local
 
+# Environment variables
+.env
+myvenv/.env
+
 # 출력 데이터 (선택적으로 커밋 가능)
 # out/
 

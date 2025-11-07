@@ -34,6 +34,8 @@ export default function Dashboard() {
   const [isChartExpanded, setIsChartExpanded] = useState(true);
   const [drilldownCategory, setDrilldownCategory] = useState<string | null>(null);
   const [drilldownData, setDrilldownData] = useState<any[]>([]);
+  const [detailDrilldownCategory, setDetailDrilldownCategory] = useState<string | null>(null);
+  const [detailDrilldownData, setDetailDrilldownData] = useState<any[]>([]);
   
   // 계정별/코스트센터별 분석
   const [accountViewMode, setAccountViewMode] = useState<'monthly' | 'ytd'>('monthly');
@@ -54,6 +56,19 @@ export default function Dashboard() {
   const [editingDescription, setEditingDescription] = useState<string | null>(null);
   const [tempDescription, setTempDescription] = useState<string>('');
   const [isGeneratingAI, setIsGeneratingAI] = useState<string | null>(null);
+  
+  // 로컬 스토리지에서 저장된 설명 불러오기
+  useEffect(() => {
+    const savedDescriptions = localStorage.getItem('account_descriptions');
+    if (savedDescriptions) {
+      try {
+        const parsed = JSON.parse(savedDescriptions);
+        setDescriptions(prev => ({ ...prev, ...parsed }));
+      } catch (error) {
+        console.error('저장된 설명 로드 실패:', error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -142,9 +157,10 @@ export default function Dashboard() {
       setSelectedAccount(accountName);
       setAccountLevel('detail');
     } else if (accountLevel === 'detail') {
-      // 소분류 클릭 → 해당 소분류의 코스트센터만 업데이트 (차트는 그대로 유지)
+      // 소분류 클릭 → 해당 소분류의 코스트센터 + 월별 추이 업데이트
       setSelectedAccount(accountName); // 헤더 표시를 위해 업데이트
       loadCostCenterDataOnly(accountName); // 코스트센터 데이터만 로드
+      handleDrilldown(accountName); // 소분류 월별 추이도 로드
     }
   };
 
@@ -218,6 +234,20 @@ export default function Dashboard() {
   
   const generateDescriptionForLevel = (data: any, glAnalysisMap: Record<string, any>) => {
     const accountName = data.name;
+    
+    // 사용자가 편집한 설명이 있으면 그대로 유지
+    const savedDescriptions = localStorage.getItem('account_descriptions');
+    if (savedDescriptions) {
+      try {
+        const parsed = JSON.parse(savedDescriptions);
+        if (parsed[accountName]) {
+          console.log('📝 저장된 설명 사용:', accountName);
+          return; // 저장된 설명이 있으면 자동 생성하지 않음
+        }
+      } catch (error) {
+        console.error('저장된 설명 확인 실패:', error);
+      }
+    }
     
     // OpenAI 분석 결과가 있으면 직접 사용 (소분류)
     if (glAnalysisMap[accountName]) {
@@ -385,10 +415,21 @@ export default function Dashboard() {
   };
   
   const saveDescription = (accountName: string) => {
-    setDescriptions(prev => ({
-      ...prev,
+    const newDescriptions = {
+      ...descriptions,
       [accountName]: tempDescription
-    }));
+    };
+    
+    setDescriptions(newDescriptions);
+    
+    // 로컬 스토리지에 저장
+    try {
+      localStorage.setItem('account_descriptions', JSON.stringify(newDescriptions));
+      console.log('✅ 설명 저장 완료:', accountName);
+    } catch (error) {
+      console.error('❌ 설명 저장 실패:', error);
+    }
+    
     setEditingDescription(null);
     setTempDescription('');
   };
@@ -409,6 +450,20 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('드릴다운 로드 실패:', error);
+    }
+  };
+  
+  const handleDetailDrilldown = async (category: string) => {
+    try {
+      const response = await fetch(`/api/drilldown?category=${category}&month=${selectedMonth}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        setDetailDrilldownCategory(category);
+        setDetailDrilldownData(result.data);
+      }
+    } catch (error) {
+      console.error('소분류 드릴다운 로드 실패:', error);
     }
   };
 
@@ -514,7 +569,7 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return (
+  return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -780,25 +835,23 @@ export default function Dashboard() {
                         if (active && payload && payload.length) {
                           const data = chartData.find(d => d.month === label);
                           return (
-                            <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-gray-200 min-w-[200px]">
-                              <p className="font-bold text-sm mb-2">{viewMode === 'monthly' ? '25년' : '25년 누적'} {label}</p>
-                              <div className="space-y-1">
+                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]">
+                              <p className="font-bold text-gray-900 mb-3 pb-2 border-b">{viewMode === 'monthly' ? '25년' : '25년 누적'} {label}</p>
+                              <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-xs font-semibold text-blue-600">총비용:</span>
-                                  <span className="text-sm font-bold">{formatNumber(data?.총비용 || 0)}백만원</span>
+                                  <span className="text-sm text-gray-600">총비용:</span>
+                                  <span className="text-sm font-bold text-blue-600">{Math.round(data?.총비용 || 0)}백만원</span>
                                 </div>
-                                <div className="text-xs text-gray-600 space-y-0.5 mt-2">
-                                  <div className="flex justify-between">
-                                    <span>전년:</span>
-                                    <span className="font-medium">{formatNumber((data?.총비용 || 0) / (data?.YOY || 100) * 100)}백만원</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>YOY:</span>
-                                    <span className="font-bold text-red-600">{formatNumber(data?.YOY || 0)}%</span>
-                                  </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">전년:</span>
+                                  <span className="text-sm font-semibold text-gray-700">{Math.round((data?.총비용 || 0) / (data?.YOY || 100) * 100)}백만원</span>
                                 </div>
-                                <div className="border-t pt-2 mt-2 space-y-1">
-                                  <p className="text-xs font-semibold text-gray-700 mb-1">카테고리별 비용</p>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">YOY:</span>
+                                  <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0)}%</span>
+                                </div>
+                                <div className="pt-2 border-t">
+                                  <p className="text-xs font-semibold text-gray-700 mb-2">중분류별 비중</p>
                                   {[
                                     { name: '인건비', color: '#a7c7e7' },
                                     { name: 'IT수수료', color: '#f4a6c3' },
@@ -806,15 +859,15 @@ export default function Dashboard() {
                                     { name: '직원경비', color: '#ffd4a3' },
                                     { name: '기타비용', color: '#e0b0ff' }
                                   ].map((cat) => (
-                                    <div key={cat.name} className="flex items-center justify-between text-xs">
+                                    <div key={cat.name} className="flex items-center justify-between mb-1">
                                       <div className="flex items-center gap-1.5">
                                         <div 
                                           className="w-2.5 h-2.5 rounded-full" 
                                           style={{ backgroundColor: cat.color }}
                                         />
-                                        <span className="text-gray-600">{cat.name}:</span>
+                                        <span className="text-xs text-gray-600">{cat.name}:</span>
                                       </div>
-                                      <span className="font-medium">{formatNumber(data?.[cat.name] || 0)}</span>
+                                      <span className="text-xs font-semibold text-gray-900">{Math.round(data?.[cat.name] || 0)}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -866,6 +919,11 @@ export default function Dashboard() {
                             cursor: value !== 'YOY' ? 'pointer' : 'default',
                             transition: 'all 0.2s'
                           }}
+                          onClick={() => {
+                            if (value !== 'YOY') {
+                              handleDrilldown(value);
+                            }
+                          }}
                           onMouseEnter={(e) => {
                             if (value !== 'YOY') {
                               e.currentTarget.style.color = '#000000';
@@ -880,11 +938,6 @@ export default function Dashboard() {
                           {value}
                         </span>
                       )}
-                      onClick={(data) => {
-                        if (data.value && data.value !== 'YOY') {
-                          handleDrilldown(data.value);
-                        }
-                      }}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
@@ -899,17 +952,22 @@ export default function Dashboard() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg font-bold">{drilldownCategory} - 소분류 월별 추이 (2025년)</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">계정 중분류별 상세 분석</p>
-                </div>
+                  <CardTitle className="text-lg font-bold">
+                    {drilldownCategory} - {accountLevel === 'detail' ? '소분류' : '중분류'} 월별 추이 (2025년)
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {accountLevel === 'detail' ? '계정 소분류별 상세 분석' : '계정 중분류별 상세 분석'}
+          </p>
+        </div>
                 <button
                   onClick={() => {
                     setDrilldownCategory(null);
                     setDrilldownData([]);
                   }}
-                  className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
                 >
-                  닫기 ✕
+                  접기
+                  <ChevronUpIcon className="w-4 h-4" />
                 </button>
               </div>
             </CardHeader>
@@ -952,35 +1010,33 @@ export default function Dashboard() {
                           const prevTotal = totalCost / (data?.YOY || 100) * 100;
                           
                           return (
-                            <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-gray-200 min-w-[200px]">
-                              <p className="font-bold text-sm mb-2">25년 {label}</p>
-                              <div className="space-y-1">
+                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]">
+                              <p className="font-bold text-gray-900 mb-3 pb-2 border-b">25년 {label}</p>
+                              <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-xs font-semibold text-blue-600">총비용:</span>
-                                  <span className="text-sm font-bold">{formatNumber(totalCost)}백만원</span>
+                                  <span className="text-sm text-gray-600">총비용:</span>
+                                  <span className="text-sm font-bold text-blue-600">{Math.round(totalCost)}백만원</span>
                                 </div>
-                                <div className="text-xs text-gray-600 space-y-0.5 mt-2">
-                                  <div className="flex justify-between">
-                                    <span>전년:</span>
-                                    <span className="font-medium">{formatNumber(prevTotal)}백만원</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>YOY:</span>
-                                    <span className="font-bold text-red-600">{formatNumber(data?.YOY || 0)}%</span>
-                                  </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">전년:</span>
+                                  <span className="text-sm font-semibold text-gray-700">{Math.round(prevTotal)}백만원</span>
                                 </div>
-                                <div className="border-t pt-2 mt-2 space-y-1">
-                                  <p className="text-xs font-semibold text-gray-700 mb-1">중분류별 비용</p>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">YOY:</span>
+                                  <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0)}%</span>
+                                </div>
+                                <div className="pt-2 border-t">
+                                  <p className="text-xs font-semibold text-gray-700 mb-2">중분류별 비중</p>
                                   {subcategories.map((cat, idx) => (
-                                    <div key={cat} className="flex items-center justify-between text-xs">
+                                    <div key={cat} className="flex items-center justify-between mb-1">
                                       <div className="flex items-center gap-1.5">
                                         <div 
                                           className="w-2.5 h-2.5 rounded-full" 
                                           style={{ backgroundColor: colors[idx % colors.length] }}
                                         />
-                                        <span className="text-gray-600">{cat}:</span>
+                                        <span className="text-xs text-gray-600">{cat}:</span>
                                       </div>
-                                      <span className="font-medium">{formatNumber(data?.[cat] || 0)}</span>
+                                      <span className="text-xs font-semibold text-gray-900">{Math.round(data?.[cat] || 0)}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -1031,9 +1087,191 @@ export default function Dashboard() {
                     />
                     
                     <Legend 
-                      wrapperStyle={{ fontSize: '12px' }}
+                      wrapperStyle={{ 
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
                       iconType="circle"
-                      formatter={(value) => <span style={{ color: '#6b7280' }}>{value}</span>}
+                      formatter={(value) => (
+                        <span 
+                          style={{ 
+                            color: '#6b7280',
+                            cursor: value !== 'YOY' ? 'pointer' : 'default',
+                            transition: 'all 0.2s'
+                          }}
+                          onClick={() => {
+                            if (value !== 'YOY') {
+                              handleDetailDrilldown(value);
+                            }
+                          }}
+                          onMouseEnter={(e) => {
+                            if (value !== 'YOY') {
+                              e.currentTarget.style.color = '#000000';
+                              e.currentTarget.style.fontWeight = 'bold';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = '#6b7280';
+                            e.currentTarget.style.fontWeight = 'normal';
+                          }}
+                        >
+                          {value}
+                        </span>
+                      )}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+        </div>
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* 소분류 드릴다운 차트 (새로 추가) */}
+        {detailDrilldownCategory && detailDrilldownData.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-bold">
+                    {detailDrilldownCategory} - 소분류 월별 추이 (2025년)
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">계정 소분류별 상세 분석</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setDetailDrilldownCategory(null);
+                    setDetailDrilldownData([]);
+                  }}
+                  className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
+                >
+                  접기
+                  <ChevronUpIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[400px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart
+                    data={detailDrilldownData}
+                    margin={{ top: 20, right: 80, bottom: 20, left: 20 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis 
+                      dataKey="month" 
+                      stroke="#6b7280"
+                      style={{ fontSize: '12px' }}
+                    />
+                    <YAxis 
+                      yAxisId="left"
+                      stroke="#6b7280"
+                      style={{ fontSize: '12px', fill: '#6b7280' }}
+                      tickFormatter={(value) => `${value.toLocaleString()}`}
+                      label={{ value: '비용 (백만원)', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#6b7280' } }}
+                    />
+                    <YAxis 
+                      yAxisId="right"
+                      orientation="right"
+                      stroke="#6b7280"
+                      style={{ fontSize: '12px', fill: '#6b7280' }}
+                      domain={[0, 200]}
+                      label={{ value: 'YOY (%)', angle: 90, position: 'insideRight', style: { fontSize: 12, fill: '#6b7280' } }}
+                    />
+                    <Tooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          const data = detailDrilldownData.find(d => d.month === label);
+                          const subcategories = Object.keys(data || {}).filter(key => key !== 'month' && key !== 'monthNum' && key !== 'YOY');
+                          const colors = ['#a7c7e7', '#f4a6c3', '#b4e7ce', '#ffd4a3', '#e0b0ff', '#c9b7eb', '#ffc9c9', '#b5e7a0'];
+                          
+                          return (
+                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]">
+                              <p className="font-bold text-gray-900 mb-3 pb-2 border-b">{label}</p>
+                              <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">총비용:</span>
+                                  <span className="text-sm font-bold text-blue-600">
+                                    {subcategories.reduce((sum, cat) => sum + (data?.[cat] || 0), 0).toFixed(0)}백만원
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">전년:</span>
+                                  <span className="text-sm font-semibold text-gray-700">264백만원</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">YOY:</span>
+                                  <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0)}%</span>
+                                </div>
+                                <div className="pt-2 border-t">
+                                  <p className="text-xs font-semibold text-gray-700 mb-2">중분류별 비중</p>
+                                  {subcategories.map((cat, idx) => (
+                                    <div key={cat} className="flex items-center justify-between mb-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <div 
+                                          className="w-2.5 h-2.5 rounded-full" 
+                                          style={{ backgroundColor: colors[idx % colors.length] }}
+                                        />
+                                        <span className="text-xs text-gray-600">{cat}:</span>
+                                      </div>
+                                      <span className="text-xs font-semibold text-gray-900">{data?.[cat]?.toFixed(0)}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    
+                    <ReferenceLine 
+                      yAxisId="right"
+                      y={100} 
+                      stroke="#9ca3af" 
+                      strokeDasharray="5 5"
+                      strokeWidth={2}
+                      label={{ value: '100%', position: 'right', fill: '#6b7280', fontSize: 11 }}
+                    />
+                    
+                    {detailDrilldownData.length > 0 && Object.keys(detailDrilldownData[0])
+                      .filter(key => key !== 'month' && key !== 'monthNum' && key !== 'YOY')
+                      .map((subcategory, index) => {
+                        const colors = ['#a7c7e7', '#f4a6c3', '#b4e7ce', '#ffd4a3', '#e0b0ff', '#c9b7eb', '#ffc9c9', '#b5e7a0'];
+                        return (
+                          <Bar
+                            key={subcategory}
+                            yAxisId="left"
+                            dataKey={subcategory}
+                            stackId="a"
+                            fill={colors[index % colors.length]}
+                            name={subcategory}
+                          />
+                        );
+                      })
+                    }
+                    
+                    <Line 
+                      yAxisId="right"
+                      type="monotone" 
+                      dataKey="YOY" 
+                      stroke="#ef4444" 
+                      strokeWidth={3}
+                      dot={{ fill: '#ef4444', r: 5 }}
+                      name="YOY"
+                    />
+                    
+                    <Legend 
+                      wrapperStyle={{ 
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                      iconType="circle"
+                      formatter={(value) => (
+                        <span style={{ color: '#6b7280' }}>
+                          {value}
+                        </span>
+                      )}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
@@ -1279,7 +1517,7 @@ export default function Dashboard() {
         
         {/* 구조화된 테이블 (계층형) */}
         <Card className="shadow-lg mt-8">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
+          <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-bold text-gray-800">비용 계정 상세 분석 (계층형)</CardTitle>
               
