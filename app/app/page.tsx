@@ -272,50 +272,15 @@ export default function Dashboard() {
     
     let description = '';
     
-    // 인건비인 경우 인원수 정보 추가
+    // 인건비인 경우 인원수 정보 추가 (하드코딩)
     if (accountName === '인건비') {
-      console.log('👥 인건비 분석 시작...');
-      try {
-        // 인원수 데이터 가져오기
-        const currentYearMonth = `2025${selectedMonth.padStart(2, '0')}`;
-        const previousYearMonth = `2024${selectedMonth.padStart(2, '0')}`;
-        
-        const response = await fetch(`/api/headcount-comparison?currentMonth=${currentYearMonth}&previousMonth=${previousYearMonth}`);
-        const result = await response.json();
-        
-        if (result.success) {
-          const { currentTotal, previousTotal, departments } = result.data;
-          const headcountChange = currentTotal - previousTotal;
-          const headcountDirection = headcountChange > 0 ? '증가' : '감소';
-          
-          description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
-          description += `인원수 전년 ${previousTotal}명 → 당년 ${currentTotal}명 (${headcountChange >= 0 ? '+' : ''}${headcountChange}명). `;
-          
-          // 부서별 차이가 있는 경우 (상위 5개만)
-          if (departments && departments.length > 0) {
-            const increases = departments.filter((d: any) => d.change > 0).slice(0, 3);
-            const decreases = departments.filter((d: any) => d.change < 0).slice(0, 3);
-            
-            if (increases.length > 0 || decreases.length > 0) {
-              description += `주요 변동: `;
-              
-              const changes = [...increases, ...decreases];
-              const changeTexts = changes.map((d: any) => 
-                `${d.department}(${d.change >= 0 ? '+' : ''}${d.change}명)`
-              );
-              description += changeTexts.join(', ') + '.';
-            }
-          }
-        } else {
-          // 인원수 데이터가 없는 경우 기본 설명
-          description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
-          description += `전년 대비 ${changeAmount.toFixed(0)}백만원 ${changeDirection}.`;
-        }
-      } catch (error) {
-        console.error('인원수 데이터 로드 실패:', error);
-        description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
-        description += `전년 대비 ${changeAmount.toFixed(0)}백만원 ${changeDirection}.`;
-      }
+      console.log('👥 인건비 분석 (하드코딩된 데이터 사용)');
+      
+      // ⚠️ 매월 업데이트 필요: 인원수 및 부서별 변동 내역을 수동으로 업데이트하세요!
+      // 현재 데이터: 2025년 10월 기준
+      description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+      description += `인원수 전년 241명 → 당년 245명 (+4명). `;
+      description += `주요 변동: 해외사업팀+10명, 통합소싱팀+8명, 통합영업팀+4명, 글로벌슈즈팀-10명, 임원-2명, 이비즈-3명, IT/프로세스-3명.`;
     } else {
       // 인건비가 아닌 경우 - OpenAI 분석 결과 사용 또는 상세 CSV 분석
       console.log('📊 OpenAI 분석 결과 확인:', accountName);
@@ -833,6 +798,7 @@ export default function Dashboard() {
                       orientation="right"
                       tick={{ fontSize: 12 }}
                       stroke="#6b7280"
+                      tickFormatter={(value) => Math.round(value).toString()}
                       label={{ value: 'YOY (%)', angle: 90, position: 'insideRight', style: { fontSize: 12 } }}
                     />
                     <Tooltip
@@ -1003,6 +969,7 @@ export default function Dashboard() {
                       orientation="right"
                       tick={{ fontSize: 12 }}
                       stroke="#6b7280"
+                      tickFormatter={(value) => Math.round(value).toString()}
                       label={{ value: 'YOY (%)', angle: 90, position: 'insideRight', style: { fontSize: 12 } }}
                     />
                     <Tooltip
@@ -1183,6 +1150,7 @@ export default function Dashboard() {
                       orientation="right"
                       stroke="#6b7280"
                       style={{ fontSize: '12px', fill: '#6b7280' }}
+                      tickFormatter={(value) => Math.round(value).toString()}
                       domain={[0, 200]}
                       label={{ value: 'YOY (%)', angle: 90, position: 'insideRight', style: { fontSize: 12, fill: '#6b7280' } }}
                     />
