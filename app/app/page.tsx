@@ -14,6 +14,66 @@ const COST_CATEGORIES = {
   기타비용: '기타비용'
 };
 
+// 계정별 고정 색상 매핑 (월 변경 시에도 동일한 색상 유지)
+const getColorForAccount = (accountName: string): string => {
+  const colorMap: Record<string, string> = {
+    // 대분류 (메인 차트)
+    '인건비': '#a7c7e7',
+    'IT수수료': '#f4a6c3',
+    '지급수수료': '#b4e7ce',
+    '직원경비': '#ffd4a3',
+    '기타비용': '#e0b0ff',
+    
+    // 중분류/소분류 (드릴다운 차트) - 추가 색상
+    '급여': '#a7c7e7',
+    '상여': '#8fb3d9',
+    '퇴직급여': '#779fcb',
+    '복리후생비': '#5f8bbd',
+    
+    '라이센스': '#f4a6c3',
+    '유지보수': '#e88aad',
+    'IT컨설팅': '#dc6e97',
+    
+    '전문용역': '#b4e7ce',
+    '지급용역비': '#9ad9ba',
+    '지급수수료_기타': '#80cba6',
+    
+    '교육훈련비': '#ffd4a3',
+    '복리후생': '#ffbe7a',
+    '출장비': '#ffa851',
+    '직원경비_기타': '#ff9228',
+    
+    '감가상각비': '#e0b0ff',
+    '세금과공과': '#c9b7eb',
+    '도서인쇄비': '#c9b7eb',
+    '소모품비': '#b29ed7',
+    '통신비': '#9b85c3',
+    '운반비': '#8470af',
+    '지급임차료': '#6d5b9b',
+    '보험료': '#564687',
+    '기타': '#ffc9c9',
+  };
+  
+  // 매핑에 없는 경우 해시 기반으로 일관된 색상 생성
+  if (colorMap[accountName]) {
+    return colorMap[accountName];
+  }
+  
+  // 해시 함수로 문자열을 숫자로 변환
+  let hash = 0;
+  for (let i = 0; i < accountName.length; i++) {
+    hash = accountName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  // 기본 색상 팔레트
+  const defaultColors = [
+    '#a7c7e7', '#f4a6c3', '#b4e7ce', '#ffd4a3', '#e0b0ff', 
+    '#c9b7eb', '#ffc9c9', '#b5e7a0', '#ffb3ba', '#bae1ff'
+  ];
+  
+  return defaultColors[Math.abs(hash) % defaultColors.length];
+};
+
 interface KpiData {
   category: string;
   current: number;
@@ -272,15 +332,74 @@ export default function Dashboard() {
     
     let description = '';
     
-    // 인건비인 경우 인원수 정보 추가 (하드코딩)
+    // 인건비인 경우 인원수 정보 추가
     if (accountName === '인건비') {
-      console.log('👥 인건비 분석 (하드코딩된 데이터 사용)');
+      console.log('👥 인건비 분석 시작...');
       
-      // ⚠️ 매월 업데이트 필요: 인원수 및 부서별 변동 내역을 수동으로 업데이트하세요!
-      // 현재 데이터: 2025년 10월 기준
-      description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
-      description += `인원수 전년 241명 → 당년 245명 (+4명). `;
-      description += `주요 변동: 해외사업팀+10명, 통합소싱팀+8명, 통합영업팀+4명, 글로벌슈즈팀-10명, 임원-2명, 이비즈-3명, IT/프로세스-3명.`;
+      // ⚠️ 월별 하드코딩 데이터: 새로운 월 추가 시 여기에 데이터를 추가하세요!
+      const headcountData: Record<string, { current: number; previous: number; changes: string }> = {
+        '10': {
+          current: 245,
+          previous: 241,
+          changes: '해외사업팀+10명, 통합소싱팀+8명, 통합영업팀+4명, 글로벌슈즈팀-10명, 임원-2명, 이비즈-3명, IT/프로세스-3명'
+        },
+        // 새로운 월 추가 예시:
+        // '11': {
+        //   current: 250,
+        //   previous: 245,
+        //   changes: '영업팀+5명, 마케팅팀+3명'
+        // },
+      };
+      
+      const monthData = headcountData[selectedMonth];
+      
+      if (monthData) {
+        // 하드코딩된 데이터가 있는 경우
+        const headcountChange = monthData.current - monthData.previous;
+        description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+        description += `인원수 전년 ${monthData.previous}명 → 당년 ${monthData.current}명 (${headcountChange >= 0 ? '+' : ''}${headcountChange}명). `;
+        description += `주요 변동: ${monthData.changes}.`;
+      } else {
+        // 하드코딩된 데이터가 없는 경우 API 호출
+        try {
+          const currentYearMonth = `2025${selectedMonth.padStart(2, '0')}`;
+          const previousYearMonth = `2024${selectedMonth.padStart(2, '0')}`;
+          
+          const response = await fetch(`/api/headcount-comparison?currentMonth=${currentYearMonth}&previousMonth=${previousYearMonth}`);
+          const result = await response.json();
+          
+          if (result.success) {
+            const { currentTotal, previousTotal, departments } = result.data;
+            const headcountChange = currentTotal - previousTotal;
+            
+            description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+            description += `인원수 전년 ${previousTotal}명 → 당년 ${currentTotal}명 (${headcountChange >= 0 ? '+' : ''}${headcountChange}명). `;
+            
+            // 부서별 차이가 있는 경우
+            if (departments && departments.length > 0) {
+              const increases = departments.filter((d: any) => d.change > 0).slice(0, 3);
+              const decreases = departments.filter((d: any) => d.change < 0).slice(0, 3);
+              
+              if (increases.length > 0 || decreases.length > 0) {
+                description += `주요 변동: `;
+                const changes = [...increases, ...decreases];
+                const changeTexts = changes.map((d: any) => 
+                  `${d.department}${d.change >= 0 ? '+' : ''}${d.change}명`
+                );
+                description += changeTexts.join(', ') + '.';
+              }
+            }
+          } else {
+            // API 실패 시 기본 설명
+            description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+            description += `전년 대비 ${changeAmount.toFixed(0)}백만원 ${changeDirection}.`;
+          }
+        } catch (error) {
+          console.error('인원수 데이터 로드 실패:', error);
+          description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+          description += `전년 대비 ${changeAmount.toFixed(0)}백만원 ${changeDirection}.`;
+        }
+      }
     } else {
       // 인건비가 아닌 경우 - OpenAI 분석 결과 사용 또는 상세 CSV 분석
       console.log('📊 OpenAI 분석 결과 확인:', accountName);
@@ -974,12 +1093,12 @@ export default function Dashboard() {
                     />
                     <Tooltip
                       cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
-                      wrapperStyle={{ outline: 'none' }}
+                      wrapperStyle={{ outline: 'none', zIndex: 9999 }}
+                      contentStyle={{ backgroundColor: 'white', opacity: 1, border: 'none' }}
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           const data = drilldownData.find(d => d.month === label);
                           const subcategories = Object.keys(data || {}).filter(key => key !== 'month' && key !== 'monthNum' && key !== 'YOY');
-                          const colors = ['#a7c7e7', '#f4a6c3', '#b4e7ce', '#ffd4a3', '#e0b0ff', '#c9b7eb', '#ffc9c9', '#b5e7a0'];
                           
                           // 총비용 계산
                           const totalCost = subcategories.reduce((sum, cat) => sum + (data?.[cat] || 0), 0);
@@ -1008,7 +1127,7 @@ export default function Dashboard() {
                                       <div className="flex items-center gap-1.5">
                                         <div 
                                           className="w-2.5 h-2.5 rounded-full" 
-                                          style={{ backgroundColor: colors[idx % colors.length] }}
+                                          style={{ backgroundColor: getColorForAccount(cat) }}
                                         />
                                         <span className="text-xs text-gray-600">{cat}:</span>
                                       </div>
@@ -1038,14 +1157,13 @@ export default function Dashboard() {
                     {drilldownData.length > 0 && Object.keys(drilldownData[0])
                       .filter(key => key !== 'month' && key !== 'monthNum' && key !== 'YOY')
                       .map((subcategory, index) => {
-                        const colors = ['#a7c7e7', '#f4a6c3', '#b4e7ce', '#ffd4a3', '#e0b0ff', '#c9b7eb', '#ffc9c9', '#b5e7a0'];
                         return (
                           <Bar 
                             key={subcategory}
                             yAxisId="left" 
                             dataKey={subcategory} 
                             stackId="a" 
-                            fill={colors[index % colors.length]} 
+                            fill={getColorForAccount(subcategory)} 
                             name={subcategory}
                           />
                         );
@@ -1162,7 +1280,6 @@ export default function Dashboard() {
                         if (active && payload && payload.length) {
                           const data = detailDrilldownData.find(d => d.month === label);
                           const subcategories = Object.keys(data || {}).filter(key => key !== 'month' && key !== 'monthNum' && key !== 'YOY');
-                          const colors = ['#a7c7e7', '#f4a6c3', '#b4e7ce', '#ffd4a3', '#e0b0ff', '#c9b7eb', '#ffc9c9', '#b5e7a0'];
                           
                           const totalCost = subcategories.reduce((sum, cat) => sum + (data?.[cat] || 0), 0);
                           const prevTotal = totalCost / (data?.YOY || 100) * 100;
@@ -1192,7 +1309,7 @@ export default function Dashboard() {
                                       <div className="flex items-center gap-1.5">
                                         <div 
                                           className="w-2.5 h-2.5 rounded-full" 
-                                          style={{ backgroundColor: colors[idx % colors.length] }}
+                                          style={{ backgroundColor: getColorForAccount(cat) }}
                                         />
                                         <span className="text-xs text-gray-600">{cat}:</span>
                                       </div>
@@ -1220,14 +1337,13 @@ export default function Dashboard() {
                     {detailDrilldownData.length > 0 && Object.keys(detailDrilldownData[0])
                       .filter(key => key !== 'month' && key !== 'monthNum' && key !== 'YOY')
                       .map((subcategory, index) => {
-                        const colors = ['#a7c7e7', '#f4a6c3', '#b4e7ce', '#ffd4a3', '#e0b0ff', '#c9b7eb', '#ffc9c9', '#b5e7a0'];
                         return (
                           <Bar
                             key={subcategory}
                             yAxisId="left"
                             dataKey={subcategory}
                             stackId="a"
-                            fill={colors[index % colors.length]}
+                            fill={getColorForAccount(subcategory)}
                             name={subcategory}
                           />
                         );
