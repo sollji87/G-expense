@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowUpIcon, ArrowDownIcon, TrendingUpIcon, CalendarIcon, PencilIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
+import { ArrowUpIcon, ArrowDownIcon, TrendingUpIcon, CalendarIcon, PencilIcon, ChevronUpIcon, ChevronDownIcon, ChevronRightIcon, SaveIcon, XIcon, SparklesIcon } from 'lucide-react';
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, BarChart, Cell } from 'recharts';
 
 // 비용 카테고리 정의
@@ -43,6 +43,17 @@ export default function Dashboard() {
   const [accountData, setAccountData] = useState<any[]>([]);
   const [costCenterData, setCostCenterData] = useState<any[]>([]);
   const [hoveredAccount, setHoveredAccount] = useState<string | null>(null);
+  
+  // 구조화된 테이블 (계층형)
+  const [tableViewMode, setTableViewMode] = useState<'monthly' | 'ytd'>('monthly');
+  const [isTableExpanded, setIsTableExpanded] = useState(true);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [hierarchyData, setHierarchyData] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'data' | 'description'>('data');
+  const [descriptions, setDescriptions] = useState<Record<string, string>>({});
+  const [editingDescription, setEditingDescription] = useState<string | null>(null);
+  const [tempDescription, setTempDescription] = useState<string>('');
+  const [isGeneratingAI, setIsGeneratingAI] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -51,7 +62,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadAccountData();
-  }, [accountViewMode, selectedMonth, accountLevel, selectedAccount]);
+  }, [accountViewMode, selectedMonth, accountLevel]);
+  
+  // selectedAccount가 변경되고 accountLevel이 detail이 아닐 때만 코스트센터 로드
+  useEffect(() => {
+    if (selectedAccount && accountLevel !== 'detail') {
+      loadCostCenterData();
+    }
+  }, [selectedAccount]);
+  
+  useEffect(() => {
+    loadHierarchyData();
+  }, [tableViewMode, selectedMonth]);
 
   const loadAccountData = async () => {
     try {
@@ -63,6 +85,7 @@ export default function Dashboard() {
         url += `&category=${encodeURIComponent(selectedAccount)}`;
       }
       
+      // 계정 차트 데이터 로드
       const response = await fetch(url);
       const result = await response.json();
       
@@ -70,31 +93,58 @@ export default function Dashboard() {
         setAccountData(result.data);
       }
       
-      // 선택된 계정이 있으면 코스트센터 데이터도 로드
-      if (selectedAccount) {
-        const ccResponse = await fetch(`/api/costcenter-analysis?mode=${accountViewMode}&month=${selectedMonth}&account=${encodeURIComponent(selectedAccount)}`);
-        const ccResult = await ccResponse.json();
-        
-        if (ccResult.success) {
-          setCostCenterData(ccResult.data);
-        }
-      } else {
-        setCostCenterData([]);
-      }
+      // 코스트센터 데이터는 별도 useEffect에서 처리
     } catch (error) {
       console.error('계정 데이터 로드 실패:', error);
+    }
+  };
+  
+  // 코스트센터 데이터만 로드
+  const loadCostCenterData = async () => {
+    if (!selectedAccount) {
+      setCostCenterData([]);
+      return;
+    }
+    
+    try {
+      const ccResponse = await fetch(`/api/costcenter-analysis?mode=${accountViewMode}&month=${selectedMonth}&account=${encodeURIComponent(selectedAccount)}`);
+      const ccResult = await ccResponse.json();
+      
+      if (ccResult.success) {
+        setCostCenterData(ccResult.data);
+      }
+    } catch (error) {
+      console.error('코스트센터 데이터 로드 실패:', error);
+    }
+  };
+  
+  // 코스트센터 데이터만 로드 (특정 계정명으로)
+  const loadCostCenterDataOnly = async (accountName: string) => {
+    try {
+      const ccResponse = await fetch(`/api/costcenter-analysis?mode=${accountViewMode}&month=${selectedMonth}&account=${encodeURIComponent(accountName)}`);
+      const ccResult = await ccResponse.json();
+      
+      if (ccResult.success) {
+        setCostCenterData(ccResult.data);
+      }
+    } catch (error) {
+      console.error('코스트센터 데이터 로드 실패:', error);
     }
   };
 
   const handleAccountClick = (accountName: string) => {
     if (accountLevel === 'major') {
-      // 대분류 클릭 → 중분류로
+      // 대분류 클릭 → 중분류로 드릴다운
       setSelectedAccount(accountName);
       setAccountLevel('middle');
     } else if (accountLevel === 'middle') {
-      // 중분류 클릭 → 소분류로
+      // 중분류 클릭 → 소분류로 드릴다운
       setSelectedAccount(accountName);
       setAccountLevel('detail');
+    } else if (accountLevel === 'detail') {
+      // 소분류 클릭 → 해당 소분류의 코스트센터만 업데이트 (차트는 그대로 유지)
+      setSelectedAccount(accountName); // 헤더 표시를 위해 업데이트
+      loadCostCenterDataOnly(accountName); // 코스트센터 데이터만 로드
     }
   };
 
@@ -111,6 +161,241 @@ export default function Dashboard() {
     if (middleItem && middleItem.parent) {
       setSelectedAccount(middleItem.parent);
     }
+  };
+  
+  const loadHierarchyData = async () => {
+    try {
+      const response = await fetch(`/api/hierarchy?mode=${tableViewMode}&month=${selectedMonth}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        setHierarchyData(result.data);
+        
+        // OpenAI 분석 데이터 로드
+        loadGLAnalysisData(result.data);
+      }
+    } catch (error) {
+      console.error('계층 데이터 로드 실패:', error);
+    }
+  };
+  
+  const loadGLAnalysisData = async (hierarchyData: any[]) => {
+    try {
+      // OpenAI로 생성한 GL 분석 데이터 가져오기
+      const response = await fetch('/api/gl-analysis');
+      const result = await response.json();
+      
+      if (result.success) {
+        const glAnalysisMap = result.data;
+        console.log('✅ GL 분석 데이터 로드 완료:', Object.keys(glAnalysisMap).length, '개');
+        
+        // 모든 계층(대분류, 중분류, 소분류)에 대해 설명 생성
+        hierarchyData.forEach((major: any) => {
+          // 대분류 설명 생성
+          generateDescriptionForLevel(major, glAnalysisMap);
+          
+          // 중분류 설명 생성
+          if (major.children) {
+            major.children.forEach((middle: any) => {
+              generateDescriptionForLevel(middle, glAnalysisMap);
+              
+              // 소분류 설명 생성
+              if (middle.children) {
+                middle.children.forEach((detail: any) => {
+                  generateDescriptionForLevel(detail, glAnalysisMap);
+                });
+              }
+            });
+          }
+        });
+      } else {
+        console.error('GL 분석 데이터 로드 실패:', result.error);
+      }
+    } catch (error) {
+      console.error('GL 분석 데이터 로드 오류:', error);
+    }
+  };
+  
+  const generateDescriptionForLevel = (data: any, glAnalysisMap: Record<string, any>) => {
+    const accountName = data.name;
+    
+    // OpenAI 분석 결과가 있으면 직접 사용 (소분류)
+    if (glAnalysisMap[accountName]) {
+      setDescriptions(prev => ({
+        ...prev,
+        [accountName]: glAnalysisMap[accountName].description
+      }));
+      return;
+    }
+    
+    // OpenAI 분석 결과가 없으면 자동 생성 (대분류, 중분류, 인건비)
+    generateAIDescriptionAuto(accountName, data, glAnalysisMap);
+  };
+  
+  const generateAIDescriptionAuto = async (accountName: string, data: any, glAnalysisMap: Record<string, any> = {}) => {
+    console.log('🔍 설명 생성 시작:', accountName, data);
+    
+    const yoyChange = data.yoy - 100;
+    const changeDirection = yoyChange > 0 ? '증가' : '감소';
+    const changeAmount = Math.abs(data.change);
+    
+    let description = '';
+    
+    // 인건비인 경우 인원수 정보 추가
+    if (accountName === '인건비') {
+      console.log('👥 인건비 분석 시작...');
+      try {
+        // 인원수 데이터 가져오기
+        const currentYearMonth = `2025${selectedMonth.padStart(2, '0')}`;
+        const previousYearMonth = `2024${selectedMonth.padStart(2, '0')}`;
+        
+        const response = await fetch(`/api/headcount-comparison?currentMonth=${currentYearMonth}&previousMonth=${previousYearMonth}`);
+        const result = await response.json();
+        
+        if (result.success) {
+          const { currentTotal, previousTotal, departments } = result.data;
+          const headcountChange = currentTotal - previousTotal;
+          const headcountDirection = headcountChange > 0 ? '증가' : '감소';
+          
+          description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+          description += `인원수 전년 ${previousTotal}명 → 당년 ${currentTotal}명 (${headcountChange >= 0 ? '+' : ''}${headcountChange}명). `;
+          
+          // 부서별 차이가 있는 경우 (상위 5개만)
+          if (departments && departments.length > 0) {
+            const increases = departments.filter((d: any) => d.change > 0).slice(0, 3);
+            const decreases = departments.filter((d: any) => d.change < 0).slice(0, 3);
+            
+            if (increases.length > 0 || decreases.length > 0) {
+              description += `주요 변동: `;
+              
+              const changes = [...increases, ...decreases];
+              const changeTexts = changes.map((d: any) => 
+                `${d.department}(${d.change >= 0 ? '+' : ''}${d.change}명)`
+              );
+              description += changeTexts.join(', ') + '.';
+            }
+          }
+        } else {
+          // 인원수 데이터가 없는 경우 기본 설명
+          description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+          description += `전년 대비 ${changeAmount.toFixed(0)}백만원 ${changeDirection}.`;
+        }
+      } catch (error) {
+        console.error('인원수 데이터 로드 실패:', error);
+        description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+        description += `전년 대비 ${changeAmount.toFixed(0)}백만원 ${changeDirection}.`;
+      }
+    } else {
+      // 인건비가 아닌 경우 - OpenAI 분석 결과 사용 또는 상세 CSV 분석
+      console.log('📊 OpenAI 분석 결과 확인:', accountName);
+      
+      // 먼저 중분류의 모든 소분류 설명을 수집
+      const relatedDescriptions: string[] = [];
+      
+      if (data.children && data.children.length > 0) {
+        // 중분류인 경우: 소분류들의 설명을 모아서 요약
+        data.children.forEach((child: any) => {
+          if (glAnalysisMap[child.name]) {
+            relatedDescriptions.push(glAnalysisMap[child.name].description);
+          }
+        });
+        
+        if (relatedDescriptions.length > 0) {
+          // 소분류 설명들을 요약하여 중분류 설명 생성
+          const totalChange = data.change;
+          const changeDirection = totalChange >= 0 ? '증가' : '감소';
+          description = `전년 대비 ${Math.abs(totalChange).toFixed(0)}백만원 ${changeDirection}. `;
+          
+          // 주요 소분류 변동 (상위 3개)
+          const sortedChildren = [...data.children].sort((a: any, b: any) => Math.abs(b.change) - Math.abs(a.change));
+          const topChildren = sortedChildren.slice(0, 3).filter((c: any) => Math.abs(c.change) >= 1);
+          
+          if (topChildren.length > 0) {
+            description += `주요 변동: `;
+            const childTexts = topChildren.map((c: any) => {
+              const sign = c.change >= 0 ? '+' : '';
+              return `${c.name}(${sign}${c.change.toFixed(0)}백만원)`;
+            });
+            description += childTexts.join(', ') + '.';
+          }
+        } else {
+          // OpenAI 분석 결과가 없으면 기본 설명
+          description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+          description += `전년 대비 ${changeAmount.toFixed(0)}백만원 ${changeDirection}.`;
+        }
+      } else {
+        // 소분류 또는 대분류인 경우: 기본 설명
+        description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
+        description += `전년 대비 ${changeAmount.toFixed(0)}백만원 ${changeDirection}.`;
+      }
+    }
+    
+    setDescriptions(prev => ({
+      ...prev,
+      [accountName]: description
+    }));
+  };
+  
+  const toggleRow = (rowId: string) => {
+    const newExpanded = new Set(expandedRows);
+    if (newExpanded.has(rowId)) {
+      newExpanded.delete(rowId);
+    } else {
+      newExpanded.add(rowId);
+    }
+    setExpandedRows(newExpanded);
+  };
+  
+  const generateAIDescription = async (accountName: string, data: any) => {
+    setIsGeneratingAI(accountName);
+    
+    try {
+      // AI 설명 생성 시뮬레이션 (실제로는 API 호출)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const yoyChange = data.yoy - 100;
+      const changeDirection = yoyChange > 0 ? '증가' : '감소';
+      const changeAmount = Math.abs(data.change);
+      
+      let description = `${accountName}은(는) 전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}했습니다. `;
+      description += `절대 금액으로는 ${changeAmount.toFixed(0)}백만원의 ${changeDirection}이 발생했습니다. `;
+      
+      if (yoyChange > 10) {
+        description += `이는 상당한 증가폭으로, 해당 비용 항목에 대한 면밀한 검토가 필요합니다.`;
+      } else if (yoyChange < -10) {
+        description += `비용 절감 효과가 나타나고 있으며, 긍정적인 추세입니다.`;
+      } else {
+        description += `전년 대비 안정적인 수준을 유지하고 있습니다.`;
+      }
+      
+      setDescriptions(prev => ({
+        ...prev,
+        [accountName]: description
+      }));
+    } catch (error) {
+      console.error('AI 설명 생성 실패:', error);
+    } finally {
+      setIsGeneratingAI(null);
+    }
+  };
+  
+  const startEditDescription = (accountName: string) => {
+    setEditingDescription(accountName);
+    setTempDescription(descriptions[accountName] || '');
+  };
+  
+  const saveDescription = (accountName: string) => {
+    setDescriptions(prev => ({
+      ...prev,
+      [accountName]: tempDescription
+    }));
+    setEditingDescription(null);
+    setTempDescription('');
+  };
+  
+  const cancelEditDescription = () => {
+    setEditingDescription(null);
+    setTempDescription('');
   };
 
   const handleDrilldown = async (category: string) => {
@@ -900,7 +1185,7 @@ export default function Dashboard() {
                           radius={[0, 4, 4, 0]}
                           cursor="pointer"
                           onClick={(data) => {
-                            if (accountLevel !== 'detail' && data.name) {
+                            if (data.name) {
                               handleAccountClick(data.name);
                             }
                           }}
@@ -991,7 +1276,247 @@ export default function Dashboard() {
             </CardContent>
           )}
         </Card>
+        
+        {/* 구조화된 테이블 (계층형) */}
+        <Card className="shadow-lg mt-8">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-bold text-gray-800">비용 계정 상세 분석 (계층형)</CardTitle>
+              
+              <div className="flex items-center gap-3">
+                {/* 당월/누적 토글 */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setTableViewMode('monthly')}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      tableViewMode === 'monthly'
+                        ? 'bg-purple-600 text-white font-semibold'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    당월
+                  </button>
+                  <button
+                    onClick={() => setTableViewMode('ytd')}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      tableViewMode === 'ytd'
+                        ? 'bg-purple-600 text-white font-semibold'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    누적
+                  </button>
+                </div>
+                
+                {/* 접기/펼치기 */}
+                <button
+                  onClick={() => setIsTableExpanded(!isTableExpanded)}
+                  className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  {isTableExpanded ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+          </CardHeader>
+          
+          {isTableExpanded && (
+            <CardContent className="p-6">
+              {/* 데이터 테이블 */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm table-fixed">
+                  <colgroup>
+                    <col className="w-[25%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[10%]" />
+                    <col className="w-[35%]" />
+                  </colgroup>
+                  <thead className="bg-gray-50 sticky top-0">
+                    <tr className="border-b-2 border-gray-200">
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">계정(백만원)</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">전년</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">당년</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">차이</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">YOY</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">당월 설명</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {hierarchyData.map((major) => (
+                      <HierarchyRow
+                        key={major.id}
+                        data={major}
+                        level={0}
+                        expandedRows={expandedRows}
+                        toggleRow={toggleRow}
+                        descriptions={descriptions}
+                        generateAIDescription={generateAIDescription}
+                        startEditDescription={startEditDescription}
+                        isGeneratingAI={isGeneratingAI}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+                
+                {hierarchyData.length === 0 && (
+                  <div className="text-center py-12 text-gray-400">
+                    데이터를 불러오는 중...
+                  </div>
+                )}
+              </div>
+              
+              {/* 설명 편집 모달 */}
+              {editingDescription && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 shadow-2xl">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-gray-800">{editingDescription} - 설명 편집</h3>
+                      <button
+                        onClick={cancelEditDescription}
+                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <XIcon className="w-5 h-5 text-gray-600" />
+                      </button>
+                    </div>
+                    <textarea
+                      value={tempDescription}
+                      onChange={(e) => setTempDescription(e.target.value)}
+                      className="w-full p-3 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      rows={6}
+                      placeholder="설명을 입력하세요..."
+                      autoFocus
+                    />
+                    <div className="flex justify-end gap-2 mt-4">
+                      <button
+                        onClick={cancelEditDescription}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                      >
+                        취소
+                      </button>
+                      <button
+                        onClick={() => saveDescription(editingDescription)}
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                      >
+                        저장
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          )}
+        </Card>
         </div>
     </div>
+  );
+}
+
+// 계층형 행 컴포넌트
+interface HierarchyRowProps {
+  data: any;
+  level: number;
+  expandedRows: Set<string>;
+  toggleRow: (id: string) => void;
+  descriptions: Record<string, string>;
+  generateAIDescription: (name: string, data: any) => void;
+  startEditDescription: (name: string) => void;
+  isGeneratingAI: string | null;
+}
+
+function HierarchyRow({ 
+  data, 
+  level, 
+  expandedRows, 
+  toggleRow,
+  descriptions,
+  generateAIDescription,
+  startEditDescription,
+  isGeneratingAI
+}: HierarchyRowProps) {
+  const isExpanded = expandedRows.has(data.id);
+  const hasChildren = data.children && data.children.length > 0;
+  const indent = level * 24;
+  
+  const formatNumber = (num: number) => {
+    return Math.round(num).toLocaleString();
+  };
+  
+  return (
+    <>
+      <tr 
+        className={`border-b hover:bg-gray-50 transition-colors ${
+          level === 0 ? 'bg-blue-50 font-semibold' : 
+          level === 1 ? 'bg-white' : 
+          'bg-gray-50'
+        }`}
+      >
+        <td className="px-4 py-3">
+          <div className="flex items-center" style={{ paddingLeft: `${indent}px` }}>
+            {hasChildren ? (
+              <button
+                onClick={() => toggleRow(data.id)}
+                className="mr-2 p-1 hover:bg-gray-200 rounded transition-colors"
+              >
+                {isExpanded ? (
+                  <ChevronDownIcon className="w-4 h-4 text-gray-600" />
+                ) : (
+                  <ChevronRightIcon className="w-4 h-4 text-gray-600" />
+                )}
+              </button>
+            ) : (
+              <span className="mr-2 w-6"></span>
+            )}
+            <span className={level === 0 ? 'font-bold text-gray-900' : 'text-gray-700'}>
+              {data.name}
+            </span>
+          </div>
+        </td>
+        <td className="px-4 py-3 text-right text-blue-600 font-medium">
+          {formatNumber(data.previous)}
+        </td>
+        <td className="px-4 py-3 text-right text-gray-900 font-bold">
+          {formatNumber(data.current)}
+        </td>
+        <td className={`px-4 py-3 text-right font-semibold ${
+          data.change >= 0 ? 'text-red-600' : 'text-green-600'
+        }`}>
+          {data.change >= 0 ? '+' : ''}{formatNumber(data.change)}
+        </td>
+        <td className={`px-4 py-3 text-right font-bold ${
+          data.yoy >= 100 ? 'text-red-600' : 'text-green-600'
+        }`}>
+          {formatNumber(data.yoy)}%
+        </td>
+        <td className="px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-600 flex-1">
+              {descriptions[data.name] || '설명을 불러오는 중...'}
+            </span>
+            <button
+              onClick={() => startEditDescription(data.name)}
+              className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+              title="편집"
+            >
+              <PencilIcon className="w-3 h-3" />
+            </button>
+          </div>
+        </td>
+      </tr>
+      
+      {isExpanded && hasChildren && data.children.map((child: any) => (
+        <HierarchyRow
+          key={child.id}
+          data={child}
+          level={level + 1}
+          expandedRows={expandedRows}
+          toggleRow={toggleRow}
+          descriptions={descriptions}
+          generateAIDescription={generateAIDescription}
+          startEditDescription={startEditDescription}
+          isGeneratingAI={isGeneratingAI}
+        />
+      ))}
+    </>
   );
 }
