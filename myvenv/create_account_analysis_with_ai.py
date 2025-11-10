@@ -12,15 +12,45 @@ if sys.platform == 'win32':
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
 
 # ============================================
-# 여기에 OpenAI API 키를 직접 입력하세요
+# .env 파일에서 OpenAI API 키 로드
 # ============================================
-OPENAI_API_KEY = "your-openai-api-key-here"  # 실제 API 키로 교체하세요
+# 직접 .env 파일 읽기 (인코딩 문제 해결)
+OPENAI_API_KEY = None
 OPENAI_MODEL = "gpt-4o-mini"
+
+env_path = Path('.env')
+if env_path.exists():
+    print(f"✓ .env 파일 발견: {env_path.absolute()}")
+    for encoding in ['utf-16', 'utf-16-le', 'utf-16-be', 'utf-8', 'utf-8-sig', 'cp949']:
+        try:
+            with open(env_path, 'r', encoding=encoding) as f:
+                content = f.read()
+                for line in content.split('\n'):
+                    line = line.strip()
+                    if line.startswith('OPENAI_API_KEY='):
+                        OPENAI_API_KEY = line.split('=', 1)[1].strip()
+                        print(f"✓ API 키 로드 성공 (길이: {len(OPENAI_API_KEY)})")
+                    elif line.startswith('OPENAI_MODEL='):
+                        OPENAI_MODEL = line.split('=', 1)[1].strip()
+                        print(f"✓ 모델 설정: {OPENAI_MODEL}")
+            break
+        except Exception as e:
+            print(f"⚠ {encoding} 인코딩 실패: {e}")
+            continue
+else:
+    print(f"⚠ .env 파일을 찾을 수 없습니다: {env_path.absolute()}")
+
+# 환경변수에서도 시도
+if not OPENAI_API_KEY:
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_MODEL:
+    OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 # ============================================
 
-if OPENAI_API_KEY == "여기에_API_키를_입력하세요":
-    print("❌ OPENAI_API_KEY를 입력해주세요!")
-    print("   스크립트 상단의 OPENAI_API_KEY 변수에 API 키를 입력하세요.")
+if not OPENAI_API_KEY:
+    print("❌ OPENAI_API_KEY를 찾을 수 없습니다!")
+    print("   .env 파일에 OPENAI_API_KEY를 설정해주세요.")
+    print("   예: OPENAI_API_KEY=sk-...")
     exit(1)
 
 # OpenAI 클라이언트 초기화

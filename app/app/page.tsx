@@ -295,13 +295,14 @@ export default function Dashboard() {
   
   const generateDescriptionForLevel = (data: any, glAnalysisMap: Record<string, any>) => {
     const accountName = data.name;
+    const accountId = data.id; // 고유 ID 사용 (대분류와 중분류 구분)
     
     // 사용자가 편집한 설명이 있으면 그대로 유지
     const savedDescriptions = localStorage.getItem('account_descriptions');
     if (savedDescriptions) {
       try {
         const parsed = JSON.parse(savedDescriptions);
-        if (parsed[accountName]) {
+        if (parsed[accountId]) {
           console.log('📝 저장된 설명 사용:', accountName);
           return; // 저장된 설명이 있으면 자동 생성하지 않음
         }
@@ -314,17 +315,17 @@ export default function Dashboard() {
     if (glAnalysisMap[accountName]) {
       setDescriptions(prev => ({
         ...prev,
-        [accountName]: glAnalysisMap[accountName].description
+        [accountId]: glAnalysisMap[accountName].description
       }));
       return;
     }
     
     // OpenAI 분석 결과가 없으면 자동 생성 (대분류, 중분류, 인건비)
-    generateAIDescriptionAuto(accountName, data, glAnalysisMap);
+    generateAIDescriptionAuto(accountId, accountName, data, glAnalysisMap);
   };
   
-  const generateAIDescriptionAuto = async (accountName: string, data: any, glAnalysisMap: Record<string, any> = {}) => {
-    console.log('🔍 설명 생성 시작:', accountName, data);
+  const generateAIDescriptionAuto = async (accountId: string, accountName: string, data: any, glAnalysisMap: Record<string, any> = {}) => {
+    console.log('🔍 설명 생성 시작:', accountId, accountName, data);
     
     const yoyChange = data.yoy - 100;
     const changeDirection = yoyChange > 0 ? '증가' : '감소';
@@ -447,7 +448,7 @@ export default function Dashboard() {
     
     setDescriptions(prev => ({
       ...prev,
-      [accountName]: description
+      [accountId]: description
     }));
   };
   
@@ -494,15 +495,15 @@ export default function Dashboard() {
     }
   };
   
-  const startEditDescription = (accountName: string) => {
-    setEditingDescription(accountName);
-    setTempDescription(descriptions[accountName] || '');
+  const startEditDescription = (accountId: string) => {
+    setEditingDescription(accountId);
+    setTempDescription(descriptions[accountId] || '');
   };
   
-  const saveDescription = (accountName: string) => {
+  const saveDescription = (accountId: string) => {
     const newDescriptions = {
       ...descriptions,
-      [accountName]: tempDescription
+      [accountId]: tempDescription
     };
     
     setDescriptions(newDescriptions);
@@ -510,7 +511,7 @@ export default function Dashboard() {
     // 로컬 스토리지에 저장
     try {
       localStorage.setItem('account_descriptions', JSON.stringify(newDescriptions));
-      console.log('✅ 설명 저장 완료:', accountName);
+      console.log('✅ 설명 저장 완료:', accountId);
     } catch (error) {
       console.error('❌ 설명 저장 실패:', error);
     }
@@ -1830,10 +1831,10 @@ function HierarchyRow({
         <td className="px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-600 flex-1">
-              {descriptions[data.name] || '설명을 불러오는 중...'}
+              {descriptions[data.id] || '설명을 불러오는 중...'}
             </span>
             <button
-              onClick={() => startEditDescription(data.name)}
+              onClick={() => startEditDescription(data.id)}
               className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
               title="편집"
             >
