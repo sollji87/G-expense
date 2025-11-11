@@ -114,7 +114,7 @@ export default function Dashboard() {
   const [hierarchyData, setHierarchyData] = useState<any[]>([]);
   
   // AI 인사이트
-  const [aiInsight, setAiInsight] = useState<string>('이번 달 공통비 데이터를 분석하여 주요 인사이트를 생성하고 있습니다...');
+  const [aiInsight, setAiInsight] = useState<string>('총비용은 6,098백만원으로 전년 대비 41백만원(+0.7%) 증가했습니다. 지급수수료(+224백, +26%)는 모빈 분쟁 대응 법률비용, 인사채용 수수료, 파견직 용역비 증가 영향입니다. 반면 직원경비(-150백, -48%), 복리후생비(-86백, -47%), 해외출장비(-48백, -76%) 절감으로 전반적인 비용 구조 효율화는 유지되고 있습니다.');
   const [activeTab, setActiveTab] = useState<'data' | 'description'>('data');
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [editingDescription, setEditingDescription] = useState<string | null>(null);
@@ -139,12 +139,12 @@ export default function Dashboard() {
     loadChartData();
   }, [viewMode, selectedMonth]);
   
-  // chartData가 업데이트되면 인사이트 재생성
-  useEffect(() => {
-    if (kpiData.length > 0 && chartData.length > 0) {
-      generateAIInsight(kpiData);
-    }
-  }, [chartData]);
+  // chartData가 업데이트되면 인사이트 재생성 (현재는 고정 텍스트 사용)
+  // useEffect(() => {
+  //   if (kpiData.length > 0 && chartData.length > 0) {
+  //     generateAIInsight(kpiData);
+  //   }
+  // }, [chartData]);
 
   useEffect(() => {
     loadAccountData();
@@ -643,8 +643,8 @@ export default function Dashboard() {
       
       setKpiData(mockData);
       
-      // AI 인사이트 생성
-      generateAIInsight(mockData);
+      // AI 인사이트는 고정 텍스트 사용
+      // generateAIInsight(mockData);
     } catch (error) {
       console.error('데이터 로드 실패:', error);
     } finally {
