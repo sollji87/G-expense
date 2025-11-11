@@ -114,7 +114,7 @@ export default function Dashboard() {
   const [hierarchyData, setHierarchyData] = useState<any[]>([]);
   
   // AI 인사이트
-  const [aiInsight, setAiInsight] = useState<string>('총비용은 6,098백만원으로 전년 대비 41백만원(+0.7%) 증가했습니다. 지급수수료(+224백, +26%)는 모빈 분쟁 대응 법률비용, 인사채용 수수료, 파견직 용역비 증가 영향입니다. 반면 직원경비(-150백, -48%), 복리후생비(-86백, -47%), 해외출장비(-48백, -76%) 절감으로 전반적인 비용 구조 효율화는 유지되고 있습니다.');
+  const [aiInsight, setAiInsight] = useState<string>('총비용은 6,098백만원으로 전년 대비 41백만원(+0.7%) 증가했습니다. 전반적인 비용 수준은 안정적이지만, 일부 항목에서 구조적 변동이 발생했습니다.\n\n특히 지급수수료는 +224백만원(+26%) 증가하며 전체 비용 상승의 주요 요인으로 작용했습니다. 증가 요인은 모빈 분쟁 대응 관련 법률비용, 인사채용 수수료, 파견직 용역비 등 인력 및 외부 자문 중심 항목에서 발생했습니다.\n\n반면 직원경비(-150백, -48%), 복리후생비(-86백, -47%), 해외출장비(-48백, -76%)는 전년 대비 큰 폭 감소하며 비용 절감 효과를 견인했습니다.\n\n인건비는 전년 수준(3,261백만원, +0.2%)으로 안정세를 유지하고 있으며, 신규 인원(해외사업·소싱 부문 중심) 증가분은 기존 부서 효율화로 상쇄되었습니다.\n\n결과적으로 고정성 비용 비중은 완화되고, 외주 및 수수료성 비용 중심의 변동성 확대가 관찰되어 향후 지급수수료 관리가 주요 리스크 요인으로 판단됩니다.');
   const [activeTab, setActiveTab] = useState<'data' | 'description'>('data');
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [editingDescription, setEditingDescription] = useState<string | null>(null);
@@ -960,7 +960,7 @@ export default function Dashboard() {
               </div>
               <div className="flex-1">
                 <h3 className="text-base font-bold text-purple-900 mb-2">💡 AI 인사이트</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                   {aiInsight}
                 </p>
               </div>
@@ -1743,6 +1743,29 @@ export default function Dashboard() {
                     누적
                   </button>
                 </div>
+                
+                {/* 모두 접기/펼치기 */}
+                <button
+                  onClick={() => {
+                    if (expandedRows.size > 0) {
+                      setExpandedRows(new Set());
+                    } else {
+                      const allIds = new Set<string>();
+                      hierarchyData.forEach(major => {
+                        if (!major.isTotal) {
+                          allIds.add(major.id);
+                          major.children?.forEach((middle: any) => {
+                            allIds.add(middle.id);
+                          });
+                        }
+                      });
+                      setExpandedRows(allIds);
+                    }
+                  }}
+                  className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  {expandedRows.size > 0 ? '모두 접기' : '모두 펼치기'}
+                </button>
                 
                 {/* 접기/펼치기 */}
                 <button
