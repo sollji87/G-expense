@@ -203,11 +203,32 @@ export async function GET(request: Request) {
       return a.name.localeCompare(b.name);
     });
     
+    // 공통비 합계 계산
+    const totalCurrent = result.reduce((sum, item) => sum + item.current, 0);
+    const totalPrevious = result.reduce((sum, item) => sum + item.previous, 0);
+    const totalChange = totalCurrent - totalPrevious;
+    const totalYoy = totalPrevious !== 0 ? (totalCurrent / totalPrevious) * 100 : 0;
+    
+    // 공통비 합계를 맨 앞에 추가
+    const finalResult = [
+      {
+        id: '공통비합계',
+        name: '공통비 합계',
+        current: totalCurrent,
+        previous: totalPrevious,
+        change: totalChange,
+        yoy: totalYoy,
+        children: [],
+        isTotal: true // 합계 행임을 표시
+      },
+      ...result
+    ];
+    
     return NextResponse.json({
       success: true,
       mode,
       month,
-      data: result,
+      data: finalResult,
     });
     
   } catch (error) {

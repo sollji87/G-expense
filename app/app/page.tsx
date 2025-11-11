@@ -112,6 +112,9 @@ export default function Dashboard() {
   const [isTableExpanded, setIsTableExpanded] = useState(true);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [hierarchyData, setHierarchyData] = useState<any[]>([]);
+  
+  // AI 인사이트
+  const [aiInsight, setAiInsight] = useState<string>('이번 달 공통비 데이터를 분석하여 주요 인사이트를 생성하고 있습니다...');
   const [activeTab, setActiveTab] = useState<'data' | 'description'>('data');
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [editingDescription, setEditingDescription] = useState<string | null>(null);
@@ -135,6 +138,13 @@ export default function Dashboard() {
     loadData();
     loadChartData();
   }, [viewMode, selectedMonth]);
+  
+  // chartData가 업데이트되면 인사이트 재생성
+  useEffect(() => {
+    if (kpiData.length > 0 && chartData.length > 0) {
+      generateAIInsight(kpiData);
+    }
+  }, [chartData]);
 
   useEffect(() => {
     loadAccountData();
@@ -632,11 +642,79 @@ export default function Dashboard() {
       ];
       
       setKpiData(mockData);
+      
+      // AI 인사이트 생성
+      generateAIInsight(mockData);
     } catch (error) {
       console.error('데이터 로드 실패:', error);
     } finally {
       setLoading(false);
     }
+  };
+  
+  const generateAIInsight = (kpiData: KpiData[]) => {
+    // 총비용 데이터
+    const total = kpiData[0];
+    const categories = kpiData.slice(1);
+    
+    // 증가한 항목과 감소한 항목 찾기
+    const increased = categories.filter(c => c.change > 0).sort((a, b) => b.change - a.change);
+    const decreased = categories.filter(c => c.change < 0).sort((a, b) => a.change - b.change);
+    
+    // 이미 백만원 단위로 변환된 값이므로 그대로 반올림
+    const totalChangeMillion = Math.round(total.change);
+    
+    // 월별 트렌드 분석 (chartData 활용)
+    let trendInsight = '';
+    if (chartData && chartData.length > 0) {
+      // 최근 3개월 평균과 비교
+      const recentMonths = chartData.slice(-3);
+      const avgRecent = recentMonths.reduce((sum, m) => sum + m['총비용'], 0) / recentMonths.length;
+      const currentMonth = chartData[chartData.length - 1];
+      
+      if (currentMonth && currentMonth['총비용'] > avgRecent * 1.05) {
+        trendInsight = ' 최근 3개월 평균 대비 높은 수준입니다.';
+      } else if (currentMonth && currentMonth['총비용'] < avgRecent * 0.95) {
+        trendInsight = ' 최근 3개월 평균 대비 낮은 수준입니다.';
+      }
+      
+      // 연속 증가/감소 패턴 찾기
+      if (chartData.length >= 3) {
+        const last3Months = chartData.slice(-3);
+        const isIncreasing = last3Months.every((m, i) => i === 0 || m['총비용'] >= last3Months[i-1]['총비용']);
+        const isDecreasing = last3Months.every((m, i) => i === 0 || m['총비용'] <= last3Months[i-1]['총비용']);
+        
+        if (isIncreasing) {
+          trendInsight += ' 3개월 연속 증가 추세입니다.';
+        } else if (isDecreasing) {
+          trendInsight += ' 3개월 연속 감소 추세입니다.';
+        }
+      }
+    }
+    
+    // 인사이트 생성
+    let insight = `${selectedMonth}월 공통비는 전년 대비 ${totalChangeMillion >= 0 ? '+' : ''}${totalChangeMillion}백만원(${(total.changePercent - 100).toFixed(1)}%) ${total.change >= 0 ? '증가' : '감소'}했습니다.${trendInsight} `;
+    
+    // 주요 증감 항목
+    if (increased.length > 0) {
+      const topIncreased = increased.slice(0, 2).map(c => {
+        const changeMillion = Math.round(c.change);
+        const changePercent = ((c.changePercent - 100)).toFixed(1);
+        return `${c.category}(+${changeMillion}백, +${changePercent}%)`;
+      }).join(', ');
+      insight += `주요 증가: ${topIncreased}. `;
+    }
+    
+    if (decreased.length > 0) {
+      const topDecreased = decreased.slice(0, 2).map(c => {
+        const changeMillion = Math.round(c.change);
+        const changePercent = ((c.changePercent - 100)).toFixed(1);
+        return `${c.category}(${changeMillion}백, ${changePercent}%)`;
+      }).join(', ');
+      insight += `주요 감소: ${topDecreased}.`;
+    }
+    
+    setAiInsight(insight);
   };
 
   const formatNumber = (num: number) => {
@@ -871,6 +949,24 @@ export default function Dashboard() {
           ))}
         </div>
 
+        {/* AI 인사이트 요약 */}
+        <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-purple-900 mb-2">💡 AI 인사이트</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {aiInsight}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* 월별 비용 추이 및 YOY 비교 차트 */}
         <Card className="mb-8">
@@ -1777,6 +1873,7 @@ function HierarchyRow({
   const isExpanded = expandedRows.has(data.id);
   const hasChildren = data.children && data.children.length > 0;
   const indent = level * 24;
+  const isTotal = data.isTotal === true; // 공통비 합계 행인지 확인
   
   const formatNumber = (num: number) => {
     return Math.round(num).toLocaleString();
@@ -1785,15 +1882,16 @@ function HierarchyRow({
   return (
     <>
       <tr 
-        className={`border-b hover:bg-gray-50 transition-colors ${
-          level === 0 ? 'bg-blue-50 font-semibold' : 
-          level === 1 ? 'bg-white' : 
-          'bg-gray-50'
+        className={`transition-colors ${
+          isTotal ? 'bg-purple-100 font-bold border-b-2 border-purple-300' : 
+          'border-b ' + (level === 0 ? 'bg-blue-50 font-semibold hover:bg-gray-50' : 
+          level === 1 ? 'bg-white hover:bg-gray-50' : 
+          'bg-gray-50 hover:bg-gray-50')
         }`}
       >
         <td className="px-4 py-3">
           <div className="flex items-center" style={{ paddingLeft: `${indent}px` }}>
-            {hasChildren ? (
+            {!isTotal && hasChildren ? (
               <button
                 onClick={() => toggleRow(data.id)}
                 className="mr-2 p-1 hover:bg-gray-200 rounded transition-colors"
@@ -1807,39 +1905,43 @@ function HierarchyRow({
             ) : (
               <span className="mr-2 w-6"></span>
             )}
-            <span className={level === 0 ? 'font-bold text-gray-900' : 'text-gray-700'}>
+            <span className={isTotal ? 'font-bold text-purple-900 text-base' : level === 0 ? 'font-bold text-gray-900' : 'text-gray-700'}>
               {data.name}
             </span>
           </div>
         </td>
-        <td className="px-4 py-3 text-right text-blue-600 font-medium">
+        <td className={`px-4 py-3 text-right ${isTotal ? 'text-purple-700 font-bold' : 'text-blue-600 font-medium'}`}>
           {formatNumber(data.previous)}
         </td>
-        <td className="px-4 py-3 text-right text-gray-900 font-bold">
+        <td className={`px-4 py-3 text-right font-bold ${isTotal ? 'text-purple-900' : 'text-gray-900'}`}>
           {formatNumber(data.current)}
         </td>
         <td className={`px-4 py-3 text-right font-semibold ${
-          data.change >= 0 ? 'text-red-600' : 'text-green-600'
+          isTotal ? (data.change >= 0 ? 'text-red-700' : 'text-green-700') :
+          (data.change >= 0 ? 'text-red-600' : 'text-green-600')
         }`}>
           {data.change >= 0 ? '+' : ''}{formatNumber(data.change)}
         </td>
         <td className={`px-4 py-3 text-right font-bold ${
-          data.yoy >= 100 ? 'text-red-600' : 'text-green-600'
+          isTotal ? (data.yoy >= 100 ? 'text-red-700' : 'text-green-700') :
+          (data.yoy >= 100 ? 'text-red-600' : 'text-green-600')
         }`}>
           {formatNumber(data.yoy)}%
         </td>
         <td className="px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-600 flex-1">
-              {descriptions[data.id] || '설명을 불러오는 중...'}
+            <span className={`text-xs flex-1 ${isTotal ? 'text-purple-700 font-semibold' : 'text-gray-600'}`}>
+              {isTotal ? '전년 대비 0.7% 증가, 전년대비 +41백만원 증가. 주요 증감: 지급수수료 +224백, 직원경비 -150백, 기타비용 -40백, 인건비 외 +8백' : (descriptions[data.id] || '설명을 불러오는 중...')}
             </span>
-            <button
-              onClick={() => startEditDescription(data.id)}
-              className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
-              title="편집"
-            >
-              <PencilIcon className="w-3 h-3" />
-            </button>
+            {!isTotal && (
+              <button
+                onClick={() => startEditDescription(data.id)}
+                className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                title="편집"
+              >
+                <PencilIcon className="w-3 h-3" />
+              </button>
+            )}
           </div>
         </td>
       </tr>
