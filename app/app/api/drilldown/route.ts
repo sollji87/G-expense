@@ -1,26 +1,13 @@
-import { NextResponse } from 'next/server';
+import {
+  parseCSV,
+  findCsvPath,
+  createSuccessResponse,
+  createErrorResponse,
+  toMillions,
+  calculateYoY,
+  isSignificantAmount
+} from '@/lib/csv-utils';
 import fs from 'fs';
-import path from 'path';
-
-// 간단한 CSV 파서
-function parseCSV(content: string): any[] {
-  const lines = content.split('\n').filter(line => line.trim());
-  if (lines.length === 0) return [];
-  
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-  const records = [];
-  
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',');
-    const record: any = {};
-    headers.forEach((header, index) => {
-      record[header] = values[index]?.trim() || '';
-    });
-    records.push(record);
-  }
-  
-  return records;
-}
 
 export async function GET(request: Request) {
   try {
@@ -28,83 +15,66 @@ export async function GET(request: Request) {
     const category = searchParams.get('category');
     const month = searchParams.get('month') || '10';
     const level = searchParams.get('level') || 'auto'; // major, middle, detail, auto
-    
+
     if (!category) {
-      return NextResponse.json({ success: false, error: '카테고리가 필요합니다.' }, { status: 400 });
+      return createErrorResponse('카테고리가 필요합니다.', new Error('Missing category'), 400);
     }
-    
-    // CSV 파일 읽기 (코스트센터 정보 포함된 파일 사용)
-    let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
-    
-    if (!fs.existsSync(csvPath)) {
-      csvPath = path.join(process.cwd(), '..', '..', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
-    }
-    
-    if (!fs.existsSync(csvPath)) {
-      csvPath = path.join(process.cwd(), '..', 'myvenv', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
-    }
-    
-    if (!fs.existsSync(csvPath)) {
-      throw new Error(`CSV 파일을 찾을 수 없습니다.`);
-    }
-    
+
+    // CSV 파일 읽기
+    const csvPath = findCsvPath('pivot_by_gl_cctr_yyyymm_combined.csv');
     const fileContent = fs.readFileSync(csvPath, 'utf-8');
     const records = parseCSV(fileContent);
-    
+
     // 선택한 카테고리의 하위 분류별 데이터 집계
     const monthNum = parseInt(month);
-    const drilldownData: any[] = [];
     const subcategoryMap = new Map<string, { current: number; previous: number }>();
-    
+
     // 대분류인지 중분류인지 판단
     let isDrilldownToDetail = false;
     let isDrilldownToMiddle = false;
-    
+
     if (level === 'major') {
-      // 명시적으로 대분류 → 중분류
       isDrilldownToMiddle = true;
     } else if (level === 'middle') {
-      // 명시적으로 중분류 → 소분류
       isDrilldownToDetail = true;
     } else {
-      // auto: 자동 판단 (대분류와 중분류 이름이 다른 경우)
+      // auto: 자동 판단
       const hasAsMiddle = records.some(r => r['계정중분류'] === category && r['계정대분류'] !== category);
       const hasAsMajor = records.some(r => r['계정대분류'] === category);
       isDrilldownToDetail = hasAsMiddle;
       isDrilldownToMiddle = !hasAsMiddle && hasAsMajor;
     }
-    
-    records.forEach((record: any) => {
-      let shouldInclude = false;
-      let subcategory = '';
-      
+
+    // 헬퍼 함수: 레코드가 포함되어야 하는지 확인하고 서브카테고리 반환
+    const getSubcategory = (record: any): string | null => {
       if (isDrilldownToDetail && record['계정중분류'] === category) {
-        // 중분류 → 소분류
-        shouldInclude = true;
-        subcategory = record['G/L 계정 설명'];
+        return record['G/L 계정 설명'];
       } else if (isDrilldownToMiddle && record['계정대분류'] === category) {
-        // 대분류 → 중분류
-        shouldInclude = true;
-        subcategory = record['계정중분류'];
+        return record['계정중분류'];
       }
-      
-      if (shouldInclude && subcategory) {
-        const currentMonth = `2025${month.padStart(2, '0')}`;
-        const previousMonth = `2024${month.padStart(2, '0')}`;
-        
-        const currentAmount = parseFloat(record[currentMonth] || '0');
-        const previousAmount = parseFloat(record[previousMonth] || '0');
-        
-        if (!subcategoryMap.has(subcategory)) {
-          subcategoryMap.set(subcategory, { current: 0, previous: 0 });
-        }
-        
-        const data = subcategoryMap.get(subcategory)!;
-        data.current += currentAmount;
-        data.previous += previousAmount;
+      return null;
+    };
+
+    // 당월/전년동월 금액 집계
+    records.forEach((record: any) => {
+      const subcategory = getSubcategory(record);
+      if (!subcategory) return;
+
+      const currentMonth = `2025${month.padStart(2, '0')}`;
+      const previousMonth = `2024${month.padStart(2, '0')}`;
+
+      const currentAmount = parseFloat(record[currentMonth] || '0');
+      const previousAmount = parseFloat(record[previousMonth] || '0');
+
+      if (!subcategoryMap.has(subcategory)) {
+        subcategoryMap.set(subcategory, { current: 0, previous: 0 });
       }
+
+      const data = subcategoryMap.get(subcategory)!;
+      data.current += currentAmount;
+      data.previous += previousAmount;
     });
-    
+
     // 월별 데이터 생성
     const months = [];
     for (let m = 1; m <= monthNum; m++) {
@@ -112,91 +82,61 @@ export async function GET(request: Request) {
         month: `${m}월`,
         monthNum: m,
       };
-      
+
       const subcategoryMonthMap = new Map<string, number>();
-      
+
       records.forEach((record: any) => {
-        let shouldInclude = false;
-        let subcategory = '';
-        
-        if (isDrilldownToDetail && record['계정중분류'] === category) {
-          // 중분류 → 소분류
-          shouldInclude = true;
-          subcategory = record['G/L 계정 설명'];
-        } else if (isDrilldownToMiddle && record['계정대분류'] === category) {
-          // 대분류 → 중분류
-          shouldInclude = true;
-          subcategory = record['계정중분류'];
-        }
-        
-        if (shouldInclude && subcategory) {
-          const yearMonth = `2025${m.toString().padStart(2, '0')}`;
-          const amount = parseFloat(record[yearMonth] || '0');
-          
-          if (!subcategoryMonthMap.has(subcategory)) {
-            subcategoryMonthMap.set(subcategory, 0);
-          }
-          subcategoryMonthMap.set(subcategory, subcategoryMonthMap.get(subcategory)! + amount);
-        }
+        const subcategory = getSubcategory(record);
+        if (!subcategory) return;
+
+        const yearMonth = `2025${m.toString().padStart(2, '0')}`;
+        const amount = parseFloat(record[yearMonth] || '0');
+
+        subcategoryMonthMap.set(
+          subcategory,
+          (subcategoryMonthMap.get(subcategory) || 0) + amount
+        );
       });
-      
-      // 각 중분류 데이터 추가 (금액이 있는 것만)
+
+      // 각 서브카테고리 데이터 추가 (금액이 있는 것만)
       subcategoryMonthMap.forEach((amount, subcategory) => {
-        const amountInMillion = amount / 1_000_000;
-        if (Math.abs(amountInMillion) >= 0.5) { // 0.5백만원 이상만 표시
+        const amountInMillion = toMillions(amount);
+        if (isSignificantAmount(amountInMillion)) {
           monthData[subcategory] = amountInMillion;
         }
       });
-      
+
       // YOY 계산
       let totalCurrent = 0;
       let totalPrevious = 0;
-      
+
       records.forEach((record: any) => {
-        let shouldInclude = false;
-        
-        if (isDrilldownToDetail && record['계정중분류'] === category) {
-          shouldInclude = true;
-        } else if (isDrilldownToMiddle && record['계정대분류'] === category) {
-          shouldInclude = true;
-        }
-        
-        if (shouldInclude) {
-          const currentYM = `2025${m.toString().padStart(2, '0')}`;
-          const previousYM = `2024${m.toString().padStart(2, '0')}`;
-          totalCurrent += parseFloat(record[currentYM] || '0');
-          totalPrevious += parseFloat(record[previousYM] || '0');
-        }
+        const subcategory = getSubcategory(record);
+        if (!subcategory) return;
+
+        const currentYM = `2025${m.toString().padStart(2, '0')}`;
+        const previousYM = `2024${m.toString().padStart(2, '0')}`;
+        totalCurrent += parseFloat(record[currentYM] || '0');
+        totalPrevious += parseFloat(record[previousYM] || '0');
       });
-      
-      monthData['YOY'] = totalPrevious !== 0 ? (totalCurrent / totalPrevious) * 100 : 0;
-      
+
+      monthData['YOY'] = calculateYoY(totalCurrent, totalPrevious);
       months.push(monthData);
     }
-    
-    // 중분류 목록 (금액이 있는 것만)
+
+    // 서브카테고리 목록 (금액이 있는 것만)
     const subcategories = Array.from(subcategoryMap.keys()).filter(key => {
       const data = subcategoryMap.get(key)!;
-      return Math.abs(data.current / 1_000_000) >= 0.5 || Math.abs(data.previous / 1_000_000) >= 0.5;
+      return isSignificantAmount(toMillions(data.current)) || isSignificantAmount(toMillions(data.previous));
     });
-    
-    return NextResponse.json({
-      success: true,
+
+    return createSuccessResponse({
       category,
       subcategories,
       data: months,
     });
-    
+
   } catch (error) {
-    console.error('드릴다운 API 오류:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: '드릴다운 데이터를 불러오는데 실패했습니다.',
-        details: error instanceof Error ? error.message : String(error)
-      },
-      { status: 500 }
-    );
+    return createErrorResponse('드릴다운 데이터를 불러오는데 실패했습니다.', error);
   }
 }
-
