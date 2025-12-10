@@ -515,16 +515,14 @@ export default function Dashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          accountId,
-          description: tempDescription
-        })
+        body: JSON.stringify(newDescriptions)
       });
       
       const result = await response.json();
       
       if (result.success) {
         console.log('✅ 서버에 설명 저장 완료:', accountId);
+        alert('설명이 저장되었습니다!');
       } else {
         console.error('❌ 서버 저장 실패:', result.error);
         alert('설명 저장에 실패했습니다: ' + result.error);
