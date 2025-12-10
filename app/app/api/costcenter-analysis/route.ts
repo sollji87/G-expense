@@ -69,7 +69,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('mode') || 'monthly';
-    const month = searchParams.get('month') || '10';
+    const month = searchParams.get('month') || '11';
     const account = searchParams.get('account'); // 선택한 계정
     
     if (!account) {

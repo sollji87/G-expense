@@ -25,8 +25,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const accountName = searchParams.get('account');
-    const currentMonth = searchParams.get('currentMonth') || '202510';
-    const previousMonth = searchParams.get('previousMonth') || '202410';
+    const currentMonth = searchParams.get('currentMonth') || '202511';
+    const previousMonth = searchParams.get('previousMonth') || '202411';
     
     if (!accountName) {
       return NextResponse.json({ success: false, error: 'Account parameter is required' }, { status: 400 });

@@ -86,7 +86,7 @@ export default function Dashboard() {
   const [kpiData, setKpiData] = useState<KpiData[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'monthly' | 'ytd'>('monthly');
-  const [selectedMonth, setSelectedMonth] = useState('10');
+  const [selectedMonth, setSelectedMonth] = useState('11');
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState<Record<string, { amount?: number; comment?: string }>>({});
   const [chartData, setChartData] = useState<any[]>([]);
@@ -114,7 +114,7 @@ export default function Dashboard() {
   const [hierarchyData, setHierarchyData] = useState<any[]>([]);
   
   // AI 인사이트
-  const [aiInsight, setAiInsight] = useState<string>('총비용은 6,098백만원으로 전년 대비 41백만원(+0.7%) 증가했습니다. 전반적인 비용 수준은 안정적이지만, 일부 항목에서 구조적 변동이 발생했습니다.\n\n특히 지급수수료는 +224백만원(+26%) 증가하며 전체 비용 상승의 주요 요인으로 작용했습니다. 증가 요인은 모빈 분쟁 대응 관련 법률비용, 인사채용 수수료, 파견직 용역비 등 인력 및 외부 자문 중심 항목에서 발생했습니다.\n\n반면 직원경비(-150백, -48%), 복리후생비(-86백, -47%), 해외출장비(-48백, -76%)는 전년 대비 큰 폭 감소하며 비용 절감 효과를 견인했습니다.\n\n인건비는 전년 수준(3,261백만원, +0.2%)으로 안정세를 유지하고 있으며, 신규 인원(해외사업·소싱 부문 중심) 증가분은 기존 부서 효율화로 상쇄되었습니다.\n\n결과적으로 고정성 비용 비중은 완화되고, 외주 및 수수료성 비용 중심의 변동성 확대가 관찰되어 향후 지급수수료 관리가 주요 리스크 요인으로 판단됩니다.');
+  const [aiInsight, setAiInsight] = useState<string>('총비용은 5,617백만원으로 전년 대비 39백만원(-0.7%) 감소했습니다. 전반적인 비용 수준은 안정적이지만, 일부 항목에서 구조적 변동이 발생했습니다.\n\n특히 직원경비는 -162백만원(-46.5%) 감소하며 전체 비용 감소의 주요 요인으로 작용했습니다. 복리후생비_기타(-57백만원), 총무지원(-30백만원), 차량유지비(-29백만원) 등에서 비용 절감이 이루어졌습니다.\n\n반면 인건비는 +186백만원(+8.6%) 증가했으며, 급료와임금(+50백만원)과 제수당(+112백만원) 증가가 주요 요인입니다. 지급수수료 내에서는 지급용역비(+44백만원), 인사채용(+39백만원)이 증가했으나, 법률자문료(-79백만원) 감소로 전체적으로는 소폭 감소했습니다.\n\nIT수수료는 소프트웨어 감가상각비 감소(-86백만원)로 -62백만원(-4.1%) 감소했습니다. 기타비용은 접대비 증가(+38백만원)로 인해 소폭 상승했습니다.\n\n결과적으로 인건비 증가에도 불구하고 직원경비 및 IT수수료 절감으로 전체 비용은 안정적으로 관리되고 있으며, 향후 인건비 및 지급용역비 관리가 주요 모니터링 포인트로 판단됩니다.');
   const [activeTab, setActiveTab] = useState<'data' | 'description'>('data');
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [editingDescription, setEditingDescription] = useState<string | null>(null);
@@ -354,8 +354,13 @@ export default function Dashboard() {
           previous: 241,
           changes: '해외사업팀+10명, 통합소싱팀+8명, 통합영업팀+4명, 글로벌슈즈팀-10명, 임원-2명, 이비즈-3명, IT/프로세스-3명'
         },
+        '11': {
+          current: 245,
+          previous: 241,
+          changes: '디지털본부 인원 유지, 주요 부서 변동 없음'
+        },
         // 새로운 월 추가 예시:
-        // '11': {
+        // '12': {
         //   current: 250,
         //   previous: 245,
         //   changes: '영업팀+5명, 마케팅팀+3명'
@@ -781,6 +786,7 @@ export default function Dashboard() {
                 <option value="8">2025년 8월</option>
                 <option value="9">2025년 9월</option>
                 <option value="10">2025년 10월</option>
+                <option value="11">2025년 11월</option>
               </select>
               <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 pointer-events-none" />
               <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">

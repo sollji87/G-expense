@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('mode') || 'monthly'; // monthly or ytd
-    const month = searchParams.get('month') || '10';
+    const month = searchParams.get('month') || '11';
     const level = searchParams.get('level') || 'major'; // major, middle, detail
     const category = searchParams.get('category'); // 선택한 상위 카테고리
     
