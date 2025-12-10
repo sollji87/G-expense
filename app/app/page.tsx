@@ -121,17 +121,23 @@ export default function Dashboard() {
   const [tempDescription, setTempDescription] = useState<string>('');
   const [isGeneratingAI, setIsGeneratingAI] = useState<string | null>(null);
   
-  // 로컬 스토리지에서 저장된 설명 불러오기
+  // 서버에서 저장된 설명 불러오기
   useEffect(() => {
-    const savedDescriptions = localStorage.getItem('account_descriptions');
-    if (savedDescriptions) {
+    const loadDescriptions = async () => {
       try {
-        const parsed = JSON.parse(savedDescriptions);
-        setDescriptions(prev => ({ ...prev, ...parsed }));
+        const response = await fetch('/api/descriptions');
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          setDescriptions(prev => ({ ...prev, ...result.data }));
+          console.log('✅ 서버에서 설명 로드 완료:', Object.keys(result.data).length, '개');
+        }
       } catch (error) {
-        console.error('저장된 설명 로드 실패:', error);
+        console.error('❌ 서버에서 설명 로드 실패:', error);
       }
-    }
+    };
+    
+    loadDescriptions();
   }, []);
 
   useEffect(() => {
@@ -308,17 +314,9 @@ export default function Dashboard() {
     const accountId = data.id; // 고유 ID 사용 (대분류와 중분류 구분)
     
     // 사용자가 편집한 설명이 있으면 그대로 유지
-    const savedDescriptions = localStorage.getItem('account_descriptions');
-    if (savedDescriptions) {
-      try {
-        const parsed = JSON.parse(savedDescriptions);
-        if (parsed[accountId]) {
-          console.log('📝 저장된 설명 사용:', accountName);
-          return; // 저장된 설명이 있으면 자동 생성하지 않음
-        }
-      } catch (error) {
-        console.error('저장된 설명 확인 실패:', error);
-      }
+    if (descriptions[accountId]) {
+      console.log('📝 저장된 설명 사용:', accountName);
+      return; // 저장된 설명이 있으면 자동 생성하지 않음
     }
     
     // OpenAI 분석 결과가 있으면 직접 사용 (소분류)
@@ -435,20 +433,7 @@ export default function Dashboard() {
           // 소분류 설명들을 요약하여 중분류 설명 생성
           const totalChange = data.change;
           const changeDirection = totalChange >= 0 ? '증가' : '감소';
-          description = `전년 대비 ${Math.abs(totalChange).toFixed(0)}백만원 ${changeDirection}. `;
-          
-          // 주요 소분류 변동 (상위 3개)
-          const sortedChildren = [...data.children].sort((a: any, b: any) => Math.abs(b.change) - Math.abs(a.change));
-          const topChildren = sortedChildren.slice(0, 3).filter((c: any) => Math.abs(c.change) >= 1);
-          
-          if (topChildren.length > 0) {
-            description += `주요 변동: `;
-            const childTexts = topChildren.map((c: any) => {
-              const sign = c.change >= 0 ? '+' : '';
-              return `${c.name}(${sign}${c.change.toFixed(0)}백만원)`;
-            });
-            description += childTexts.join(', ') + '.';
-          }
+          description = `전년 대비 ${Math.abs(totalChange).toFixed(0)}백만원 ${changeDirection}.`;
         } else {
           // OpenAI 분석 결과가 없으면 기본 설명
           description = `전년 대비 ${Math.abs(yoyChange).toFixed(1)}% ${changeDirection}. `;
@@ -515,7 +500,7 @@ export default function Dashboard() {
     setTempDescription(descriptions[accountId] || '');
   };
   
-  const saveDescription = (accountId: string) => {
+  const saveDescription = async (accountId: string) => {
     const newDescriptions = {
       ...descriptions,
       [accountId]: tempDescription
@@ -523,12 +508,30 @@ export default function Dashboard() {
     
     setDescriptions(newDescriptions);
     
-    // 로컬 스토리지에 저장
+    // 서버에 저장
     try {
-      localStorage.setItem('account_descriptions', JSON.stringify(newDescriptions));
-      console.log('✅ 설명 저장 완료:', accountId);
+      const response = await fetch('/api/descriptions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          accountId,
+          description: tempDescription
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('✅ 서버에 설명 저장 완료:', accountId);
+      } else {
+        console.error('❌ 서버 저장 실패:', result.error);
+        alert('설명 저장에 실패했습니다: ' + result.error);
+      }
     } catch (error) {
       console.error('❌ 설명 저장 실패:', error);
+      alert('설명 저장에 실패했습니다. 네트워크를 확인해주세요.');
     }
     
     setEditingDescription(null);
@@ -1559,9 +1562,9 @@ export default function Dashboard() {
           
           {isAccountExpanded && (
             <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* 왼쪽: 계정별 분석 (2/3) */}
-                <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* 왼쪽: 계정별 분석 (약 55%) */}
+                <div className="lg:col-span-2 lg:pr-2">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
                     {accountLevel === 'major' && '계정 대분류'}
                     {accountLevel === 'middle' && '계정 중분류'}
@@ -1573,7 +1576,7 @@ export default function Dashboard() {
                       <BarChart
                         data={accountData}
                         layout="vertical"
-                        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                        margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                         <XAxis 
@@ -1588,7 +1591,7 @@ export default function Dashboard() {
                           dataKey="name"
                           tick={{ fontSize: 11 }}
                           stroke="#6b7280"
-                          width={150}
+                          width={120}
                         />
                         <Tooltip
                           cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
@@ -1651,8 +1654,8 @@ export default function Dashboard() {
                   </div>
                 </div>
                 
-                {/* 오른쪽: 코스트센터별 TOP 10 (1/3) */}
-                <div className="lg:col-span-1 border-l pl-6">
+                {/* 오른쪽: 코스트센터별 TOP 10 (약 45%) */}
+                <div className="lg:col-span-1 border-l pl-4">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
                     코스트센터별 (공통 선택 필요)
                   </h3>
@@ -1668,11 +1671,11 @@ export default function Dashboard() {
                         <div>
                           {/* 헤더 */}
                           <div className="flex items-center justify-between text-xs font-semibold text-gray-600 mb-2 pb-2 border-b">
-                            <span className="flex-1">코스트센터 (TOP {costCenterData.length})</span>
-                            <div className="flex items-center gap-4">
-                              <span className="w-16 text-center">당년</span>
-                              <span className="w-16 text-center">전년</span>
-                              <span className="w-16 text-center">YOY</span>
+                            <span className="flex-1 min-w-0 pr-2 truncate">코스트센터 (TOP {costCenterData.length})</span>
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <span className="w-14 text-center">당년</span>
+                              <span className="w-14 text-center">전년</span>
+                              <span className="w-14 text-center">YOY</span>
                             </div>
                           </div>
                           
@@ -1683,17 +1686,17 @@ export default function Dashboard() {
                                 key={cc.code}
                                 className="p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                               >
-                                <div className="flex items-center justify-between text-xs">
-                                  <span className="font-semibold text-gray-800 flex-1 truncate">
+                                <div className="flex items-center justify-between text-xs gap-2">
+                                  <span className="font-semibold text-gray-800 flex-1 min-w-0 truncate">
                                     {cc.name}
                                     {cc.currentHeadcount !== null && (
                                       <span className="text-gray-500 ml-1">({cc.currentHeadcount}명)</span>
                                     )}
                                   </span>
-                                  <div className="flex items-center gap-4">
-                                    <span className="w-16 text-right font-bold text-gray-900">{formatNumber(cc.current)}</span>
-                                    <span className="w-16 text-right font-medium text-blue-600">{formatNumber(cc.previous)}</span>
-                                    <span className={`w-16 text-right font-bold ${cc.yoy >= 100 ? 'text-red-600' : 'text-green-600'}`}>
+                                  <div className="flex items-center gap-3 flex-shrink-0">
+                                    <span className="w-14 text-right font-bold text-gray-900">{formatNumber(cc.current)}</span>
+                                    <span className="w-14 text-right font-medium text-blue-600">{formatNumber(cc.previous)}</span>
+                                    <span className={`w-14 text-right font-bold ${cc.yoy >= 100 ? 'text-red-600' : 'text-green-600'}`}>
                                       {formatNumber(cc.yoy)}%
                                     </span>
                                   </div>
@@ -1960,7 +1963,7 @@ function HierarchyRow({
         <td className="px-4 py-3">
           <div className="flex items-center gap-2">
             <span className={`text-xs flex-1 ${isTotal ? 'text-purple-700 font-semibold' : 'text-gray-600'}`}>
-              {isTotal ? '전년 대비 0.7% 증가, 전년대비 +41백만원 증가. 주요 증감: 지급수수료 +224백, 직원경비 -150백, 기타비용 -40백, 인건비 외 +8백' : (descriptions[data.id] || '설명을 불러오는 중...')}
+              {isTotal ? '전년 대비 0.7% 감소, 전년대비 -39백만원 감소. 주요 증감: 인건비 +186백, 직원경비 -162백, IT수수료 -62백, 지급수수료 -30백, 기타비용 +19백' : (descriptions[data.id] || '설명을 불러오는 중...')}
             </span>
             {!isTotal && (
               <button

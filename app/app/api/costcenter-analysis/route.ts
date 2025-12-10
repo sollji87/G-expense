@@ -51,12 +51,17 @@ function loadHeadcountData(): Map<string, number> {
     const records = parseCSV(content);
     
     records.forEach((record: any) => {
-      const yearMonth = record['기준년월'];
-      const deptName = record['부서명'];
-      const headcount = parseInt(record['정규직인원수'] || '0');
+      const deptName = record['코스트센터명'];
+      const headcount202411 = parseInt(record['202411'] || '0');
+      const headcount202511 = parseInt(record['202511'] || '0');
       
-      const key = `${yearMonth}_${deptName}`;
-      headcountMap.set(key, headcount);
+      // 202411 데이터
+      const key202411 = `202411_${deptName}`;
+      headcountMap.set(key202411, headcount202411);
+      
+      // 202511 데이터
+      const key202511 = `202511_${deptName}`;
+      headcountMap.set(key202511, headcount202511);
     });
   } catch (error) {
     console.error('인원수 데이터 로드 실패:', error);
@@ -158,29 +163,21 @@ export async function GET(request: Request) {
     // 결과 생성
     const result = Array.from(costCenterMap.entries())
       .map(([name, data]) => {
-        // 인원수 조회 (202410, 202510만 있음)
+        // 인원수 조회 (202411, 202511만 있음)
         let currentHeadcount = null;
         let previousHeadcount = null;
         
-        // 코스트센터명에서 "공통_" 제거하여 부서명과 매칭
-        let currentDeptName = data.name.replace('공통_', '');
-        let previousDeptName = data.name.replace('공통_', '');
+        // 코스트센터명 그대로 사용 (CSV에 "공통_" 포함되어 있음)
+        const deptName = data.name;
         
-        // 프로세스팀의 경우 연도별로 다른 부서명 사용
-        if (currentDeptName === '프로세스팀') {
-          // 25년 10월: 프로세스팀
-          currentDeptName = '프로세스팀';
-          // 24년 10월: AX팀
-          previousDeptName = 'AX팀';
-        }
-        
-        if (currentYearMonth === '202510' || currentYearMonth === '202410') {
-          const currentKey = `${currentYearMonth}_${currentDeptName}`;
+        // 202511 또는 202411 데이터 조회
+        if (currentYearMonth === '202511') {
+          const currentKey = `202511_${deptName}`;
           currentHeadcount = headcountMap.get(currentKey) || null;
         }
         
-        if (previousYearMonth === '202410' || previousYearMonth === '202510') {
-          const previousKey = `${previousYearMonth}_${previousDeptName}`;
+        if (previousYearMonth === '202411') {
+          const previousKey = `202411_${deptName}`;
           previousHeadcount = headcountMap.get(previousKey) || null;
         }
         
