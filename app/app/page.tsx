@@ -131,8 +131,11 @@ export default function Dashboard() {
       const result = await response.json();
       
       if (result.success && result.data) {
-        // 서버 데이터로 완전히 교체 (병합이 아닌 교체)
-        setDescriptions(result.data);
+        // 기존 자동 생성된 설명과 병합 (서버 데이터 우선)
+        setDescriptions(prev => ({
+          ...prev,
+          ...result.data
+        }));
         console.log('✅ 서버에서 설명 로드 완료:', Object.keys(result.data).length, '개');
         
         // AI 인사이트도 descriptions에서 불러오기 (특별 키 사용)
@@ -163,10 +166,13 @@ export default function Dashboard() {
       const result = await response.json();
       
       if (result.success) {
-        // 로컬 상태 즉시 업데이트 (서버 응답 사용)
+        // 로컬 상태 즉시 업데이트 (기존 설명과 병합)
         setAiInsight(tempAiInsight);
         if (result.data) {
-          setDescriptions(result.data);
+          setDescriptions(prev => ({
+            ...prev,
+            ...(result.data || {})
+          }));
         }
         setEditingAiInsight(false);
         setTempAiInsight('');
@@ -575,16 +581,12 @@ export default function Dashboard() {
       const result = await response.json();
       
       if (result.success) {
-        // 서버에서 반환된 최신 데이터로 상태 즉시 업데이트
-        if (result.data) {
-          setDescriptions(result.data);
-        } else {
-          // result.data가 없으면 로컬 상태만 업데이트
-          setDescriptions(prev => ({
-            ...prev,
-            [accountId]: tempDescription
-          }));
-        }
+        // 기존 설명과 병합 (자동 생성된 설명 유지 + 저장된 설명 추가)
+        setDescriptions(prev => ({
+          ...prev,
+          [accountId]: tempDescription,
+          ...(result.data || {})
+        }));
         
         console.log('✅ 서버에 설명 저장 완료:', accountId);
         alert('설명이 저장되었습니다!');
