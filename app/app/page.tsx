@@ -508,14 +508,17 @@ export default function Dashboard() {
     
     setDescriptions(newDescriptions);
     
-    // 서버에 저장
+    // 서버에 저장 - 개별 항목만 전송
     try {
       const response = await fetch('/api/descriptions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newDescriptions)
+        body: JSON.stringify({
+          accountId: accountId,
+          description: tempDescription
+        })
       });
       
       const result = await response.json();

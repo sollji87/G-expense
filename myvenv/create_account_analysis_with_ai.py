@@ -115,7 +115,7 @@ def analyze_with_ai(gl_account, current_amount, previous_amount, change, top_des
             desc_summary = f" 주요 변동: {', '.join(desc_list)}."
         return f"전년 대비 {abs(change):.0f}백만원 {direction}.{desc_summary}"
 
-def analyze_account_details(current_month='202510', previous_month='202410'):
+def analyze_account_details(current_month='202511', previous_month='202411'):
     """
     GL 계정별 전년 대비 차이 분석 CSV 생성 (OpenAI 사용)
     """
