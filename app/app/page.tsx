@@ -114,7 +114,10 @@ export default function Dashboard() {
   const [hierarchyData, setHierarchyData] = useState<any[]>([]);
   
   // AI 인사이트
-  const [aiInsight, setAiInsight] = useState<string>('총비용은 5,617백만원으로 전년 대비 39백만원(-0.7%) 감소했습니다. 전반적인 비용 수준은 안정적이지만, 일부 항목에서 구조적 변동이 발생했습니다.\n\n특히 직원경비는 -162백만원(-46.5%) 감소하며 전체 비용 감소의 주요 요인으로 작용했습니다. 복리후생비_기타(-57백만원), 총무지원(-30백만원), 차량유지비(-29백만원) 등에서 비용 절감이 이루어졌습니다.\n\n반면 인건비는 +186백만원(+8.6%) 증가했으며, 급료와임금(+50백만원)과 제수당(+112백만원) 증가가 주요 요인입니다. 지급수수료 내에서는 지급용역비(+44백만원), 인사채용(+39백만원)이 증가했으나, 법률자문료(-79백만원) 감소로 전체적으로는 소폭 감소했습니다.\n\nIT수수료는 소프트웨어 감가상각비 감소(-86백만원)로 -62백만원(-4.1%) 감소했습니다. 기타비용은 접대비 증가(+38백만원)로 인해 소폭 상승했습니다.\n\n결과적으로 인건비 증가에도 불구하고 직원경비 및 IT수수료 절감으로 전체 비용은 안정적으로 관리되고 있으며, 향후 인건비 및 지급용역비 관리가 주요 모니터링 포인트로 판단됩니다.');
+  const defaultAiInsight = '총비용은 5,617백만원으로 전년 대비 39백만원(-0.7%) 감소했습니다. 전반적인 비용 수준은 안정적이지만, 일부 항목에서 구조적 변동이 발생했습니다.\n\n특히 직원경비는 -162백만원(-46.5%) 감소하며 전체 비용 감소의 주요 요인으로 작용했습니다. 복리후생비_기타(-57백만원), 총무지원(-30백만원), 차량유지비(-29백만원) 등에서 비용 절감이 이루어졌습니다.\n\n반면 인건비는 +186백만원(+8.6%) 증가했으며, 급료와임금(+50백만원)과 제수당(+112백만원) 증가가 주요 요인입니다. 지급수수료 내에서는 지급용역비(+44백만원), 인사채용(+39백만원)이 증가했으나, 법률자문료(-79백만원) 감소로 전체적으로는 소폭 감소했습니다.\n\nIT수수료는 소프트웨어 감가상각비 감소(-86백만원)로 -62백만원(-4.1%) 감소했습니다. 기타비용은 접대비 증가(+38백만원)로 인해 소폭 상승했습니다.\n\n결과적으로 인건비 증가에도 불구하고 직원경비 및 IT수수료 절감으로 전체 비용은 안정적으로 관리되고 있으며, 향후 인건비 및 지급용역비 관리가 주요 모니터링 포인트로 판단됩니다.';
+  const [aiInsight, setAiInsight] = useState<string>(defaultAiInsight);
+  const [editingAiInsight, setEditingAiInsight] = useState<boolean>(false);
+  const [tempAiInsight, setTempAiInsight] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'data' | 'description'>('data');
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [editingDescription, setEditingDescription] = useState<string | null>(null);
@@ -131,10 +134,63 @@ export default function Dashboard() {
         // 서버 데이터로 완전히 교체 (병합이 아닌 교체)
         setDescriptions(result.data);
         console.log('✅ 서버에서 설명 로드 완료:', Object.keys(result.data).length, '개');
+        
+        // AI 인사이트도 descriptions에서 불러오기 (특별 키 사용)
+        if (result.data['__AI_INSIGHT__']) {
+          setAiInsight(result.data['__AI_INSIGHT__']);
+          console.log('✅ AI 인사이트 로드 완료');
+        }
       }
     } catch (error) {
       console.error('❌ 서버에서 설명 로드 실패:', error);
     }
+  };
+
+  // AI 인사이트 저장
+  const saveAiInsight = async () => {
+    try {
+      const response = await fetch('/api/descriptions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          accountId: '__AI_INSIGHT__',
+          description: tempAiInsight
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setAiInsight(tempAiInsight);
+        setEditingAiInsight(false);
+        setTempAiInsight('');
+        console.log('✅ AI 인사이트 저장 완료');
+        alert('AI 인사이트가 저장되었습니다!');
+        
+        // 최신 데이터 다시 불러오기
+        await loadDescriptions();
+      } else {
+        console.error('❌ AI 인사이트 저장 실패:', result.error);
+        alert('AI 인사이트 저장에 실패했습니다: ' + result.error);
+      }
+    } catch (error) {
+      console.error('❌ AI 인사이트 저장 실패:', error);
+      alert('AI 인사이트 저장에 실패했습니다. 네트워크를 확인해주세요.');
+    }
+  };
+
+  // AI 인사이트 편집 시작
+  const startEditAiInsight = () => {
+    setEditingAiInsight(true);
+    setTempAiInsight(aiInsight);
+  };
+
+  // AI 인사이트 편집 취소
+  const cancelEditAiInsight = () => {
+    setEditingAiInsight(false);
+    setTempAiInsight('');
   };
 
   useEffect(() => {
@@ -977,7 +1033,18 @@ export default function Dashboard() {
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="text-base font-bold text-purple-900 mb-2">💡 AI 인사이트</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-base font-bold text-purple-900">💡 AI 인사이트</h3>
+                  <button
+                    onClick={startEditAiInsight}
+                    className="p-1.5 rounded-md hover:bg-purple-200 text-purple-600 transition-colors"
+                    title="AI 인사이트 편집"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+                </div>
                 <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                   {aiInsight}
                 </p>
@@ -985,6 +1052,47 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* AI 인사이트 편집 다이얼로그 */}
+        {editingAiInsight && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+              <div className="flex items-center justify-between p-4 border-b">
+                <h3 className="text-lg font-bold text-gray-800">💡 AI 인사이트 편집</h3>
+                <button
+                  onClick={cancelEditAiInsight}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="p-4 flex-1 overflow-auto">
+                <textarea
+                  value={tempAiInsight}
+                  onChange={(e) => setTempAiInsight(e.target.value)}
+                  className="w-full h-80 p-4 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  placeholder="AI 인사이트 내용을 입력하세요..."
+                />
+              </div>
+              <div className="flex justify-end gap-2 p-4 border-t bg-gray-50">
+                <button
+                  onClick={cancelEditAiInsight}
+                  className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={saveAiInsight}
+                  className="px-4 py-2 text-sm bg-purple-600 text-white hover:bg-purple-700 rounded-lg transition-colors"
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 월별 비용 추이 및 YOY 비교 차트 */}
         <Card className="mb-8">
