@@ -163,14 +163,15 @@ export default function Dashboard() {
       const result = await response.json();
       
       if (result.success) {
+        // 로컬 상태 즉시 업데이트 (서버 응답 사용)
         setAiInsight(tempAiInsight);
+        if (result.data) {
+          setDescriptions(result.data);
+        }
         setEditingAiInsight(false);
         setTempAiInsight('');
         console.log('✅ AI 인사이트 저장 완료');
         alert('AI 인사이트가 저장되었습니다!');
-        
-        // 최신 데이터 다시 불러오기
-        await loadDescriptions();
       } else {
         console.error('❌ AI 인사이트 저장 실패:', result.error);
         alert('AI 인사이트 저장에 실패했습니다: ' + result.error);
@@ -574,7 +575,7 @@ export default function Dashboard() {
       const result = await response.json();
       
       if (result.success) {
-        // 서버에서 반환된 최신 데이터로 상태 업데이트
+        // 서버에서 반환된 최신 데이터로 상태 즉시 업데이트
         if (result.data) {
           setDescriptions(result.data);
         } else {
@@ -584,9 +585,6 @@ export default function Dashboard() {
             [accountId]: tempDescription
           }));
         }
-        
-        // 저장 후 최신 데이터 다시 불러오기 (다른 사용자의 변경사항도 반영)
-        await loadDescriptions();
         
         console.log('✅ 서버에 설명 저장 완료:', accountId);
         alert('설명이 저장되었습니다!');
