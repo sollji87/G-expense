@@ -2,7 +2,7 @@ import { kv } from '@vercel/kv';
 
 // Redis 키 상수
 export const REDIS_KEYS = {
-  DESCRIPTIONS: 'account_descriptions',
+  DESCRIPTIONS: 'account_descriptions_v2', // 새 키로 변경 (인코딩 문제 해결)
   INSIGHTS: 'insights',
 } as const;
 
@@ -23,11 +23,19 @@ export type Insight = {
  */
 export async function getAllDescriptions(): Promise<Descriptions> {
   try {
-    const descriptions = await kv.get<Descriptions>(REDIS_KEYS.DESCRIPTIONS);
-    return descriptions || {};
+    // 문자열로 저장된 JSON을 파싱
+    const jsonString = await kv.get<string>(REDIS_KEYS.DESCRIPTIONS);
+    if (!jsonString) return {};
+    
+    // 이미 객체로 파싱된 경우 (kv가 자동으로 파싱할 수 있음)
+    if (typeof jsonString === 'object') {
+      return jsonString as Descriptions;
+    }
+    
+    return JSON.parse(jsonString);
   } catch (error) {
     console.error('Redis getAllDescriptions 오류:', error);
-    throw error;
+    return {}; // 오류 시 빈 객체 반환
   }
 }
 
@@ -51,7 +59,9 @@ export async function saveDescription(accountId: string, description: string): P
   try {
     const descriptions = await getAllDescriptions();
     descriptions[accountId] = description;
-    await kv.set(REDIS_KEYS.DESCRIPTIONS, descriptions);
+    
+    // JSON 문자열로 저장 (한글 인코딩 보장)
+    await kv.set(REDIS_KEYS.DESCRIPTIONS, JSON.stringify(descriptions));
     return descriptions;
   } catch (error) {
     console.error('Redis saveDescription 오류:', error);
@@ -66,7 +76,9 @@ export async function saveDescriptions(newDescriptions: Descriptions): Promise<D
   try {
     const descriptions = await getAllDescriptions();
     const merged = { ...descriptions, ...newDescriptions };
-    await kv.set(REDIS_KEYS.DESCRIPTIONS, merged);
+    
+    // JSON 문자열로 저장 (한글 인코딩 보장)
+    await kv.set(REDIS_KEYS.DESCRIPTIONS, JSON.stringify(merged));
     return merged;
   } catch (error) {
     console.error('Redis saveDescriptions 오류:', error);
@@ -81,7 +93,7 @@ export async function deleteDescription(accountId: string): Promise<Descriptions
   try {
     const descriptions = await getAllDescriptions();
     delete descriptions[accountId];
-    await kv.set(REDIS_KEYS.DESCRIPTIONS, descriptions);
+    await kv.set(REDIS_KEYS.DESCRIPTIONS, JSON.stringify(descriptions));
     return descriptions;
   } catch (error) {
     console.error('Redis deleteDescription 오류:', error);
@@ -101,7 +113,7 @@ export async function saveInsight(insight: Omit<Insight, 'updatedAt'>): Promise<
       ...insight,
       updatedAt: new Date().toISOString(),
     };
-    await kv.set(key, data);
+    await kv.set(key, JSON.stringify(data));
     return data;
   } catch (error) {
     console.error('Redis saveInsight 오류:', error);
@@ -115,7 +127,10 @@ export async function saveInsight(insight: Omit<Insight, 'updatedAt'>): Promise<
 export async function getInsight(id: string): Promise<Insight | null> {
   try {
     const key = `${REDIS_KEYS.INSIGHTS}:${id}`;
-    return await kv.get<Insight>(key);
+    const data = await kv.get<string>(key);
+    if (!data) return null;
+    if (typeof data === 'object') return data as Insight;
+    return JSON.parse(data);
   } catch (error) {
     console.error('Redis getInsight 오류:', error);
     throw error;
@@ -137,5 +152,3 @@ export async function getAllInsightKeys(): Promise<string[]> {
 
 // Vercel KV 인스턴스 직접 export (필요시 사용)
 export { kv };
-
-
