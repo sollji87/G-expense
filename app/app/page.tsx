@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUpIcon, ArrowDownIcon, TrendingUpIcon, CalendarIcon, PencilIcon, ChevronUpIcon, ChevronDownIcon, ChevronRightIcon, SaveIcon, XIcon, SparklesIcon } from 'lucide-react';
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, BarChart, Cell } from 'recharts';
@@ -124,6 +124,9 @@ export default function Dashboard() {
   const [tempDescription, setTempDescription] = useState<string>('');
   const [isGeneratingAI, setIsGeneratingAI] = useState<string | null>(null);
   
+  // 서버에서 저장된 설명을 저장하는 ref (state보다 먼저 접근 가능)
+  const serverDescriptionsRef = useRef<Record<string, string>>({});
+
   // 서버에서 저장된 설명 불러오기
   const loadDescriptions = async () => {
     try {
@@ -131,12 +134,16 @@ export default function Dashboard() {
       const result = await response.json();
       
       if (result.success && result.data) {
+        // ref에 먼저 저장 (즉시 접근 가능)
+        serverDescriptionsRef.current = result.data;
+        
         // 기존 자동 생성된 설명과 병합 (서버 데이터 우선)
         setDescriptions(prev => ({
           ...prev,
           ...result.data
         }));
         console.log('✅ 서버에서 설명 로드 완료:', Object.keys(result.data).length, '개');
+        console.log('✅ 저장된 키 목록:', Object.keys(result.data));
         
         // AI 인사이트도 descriptions에서 불러오기 (특별 키 사용)
         if (result.data['__AI_INSIGHT__']) {
@@ -377,9 +384,15 @@ export default function Dashboard() {
     const accountName = data.name;
     const accountId = data.id; // 고유 ID 사용 (대분류와 중분류 구분)
     
-    // 사용자가 편집한 설명이 있으면 그대로 유지
-    if (descriptions[accountId]) {
-      console.log('📝 저장된 설명 사용:', accountName);
+    // 사용자가 편집한 설명이 있으면 그대로 유지 (ref를 사용하여 최신 서버 데이터 확인)
+    const savedDescription = serverDescriptionsRef.current[accountId];
+    if (savedDescription) {
+      console.log('📝 저장된 설명 사용:', accountName, '→', savedDescription.substring(0, 30) + '...');
+      // 서버에서 가져온 설명을 state에도 반영
+      setDescriptions(prev => ({
+        ...prev,
+        [accountId]: savedDescription
+      }));
       return; // 저장된 설명이 있으면 자동 생성하지 않음
     }
     
