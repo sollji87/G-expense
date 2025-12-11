@@ -122,21 +122,22 @@ export default function Dashboard() {
   const [isGeneratingAI, setIsGeneratingAI] = useState<string | null>(null);
   
   // 서버에서 저장된 설명 불러오기
-  useEffect(() => {
-    const loadDescriptions = async () => {
-      try {
-        const response = await fetch('/api/descriptions');
-        const result = await response.json();
-        
-        if (result.success && result.data) {
-          setDescriptions(prev => ({ ...prev, ...result.data }));
-          console.log('✅ 서버에서 설명 로드 완료:', Object.keys(result.data).length, '개');
-        }
-      } catch (error) {
-        console.error('❌ 서버에서 설명 로드 실패:', error);
+  const loadDescriptions = async () => {
+    try {
+      const response = await fetch('/api/descriptions');
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        // 서버 데이터로 완전히 교체 (병합이 아닌 교체)
+        setDescriptions(result.data);
+        console.log('✅ 서버에서 설명 로드 완료:', Object.keys(result.data).length, '개');
       }
-    };
-    
+    } catch (error) {
+      console.error('❌ 서버에서 설명 로드 실패:', error);
+    }
+  };
+
+  useEffect(() => {
     loadDescriptions();
   }, []);
 
@@ -501,13 +502,6 @@ export default function Dashboard() {
   };
   
   const saveDescription = async (accountId: string) => {
-    const newDescriptions = {
-      ...descriptions,
-      [accountId]: tempDescription
-    };
-    
-    setDescriptions(newDescriptions);
-    
     // 서버에 저장 - 개별 항목만 전송
     try {
       const response = await fetch('/api/descriptions', {
@@ -524,6 +518,20 @@ export default function Dashboard() {
       const result = await response.json();
       
       if (result.success) {
+        // 서버에서 반환된 최신 데이터로 상태 업데이트
+        if (result.data) {
+          setDescriptions(result.data);
+        } else {
+          // result.data가 없으면 로컬 상태만 업데이트
+          setDescriptions(prev => ({
+            ...prev,
+            [accountId]: tempDescription
+          }));
+        }
+        
+        // 저장 후 최신 데이터 다시 불러오기 (다른 사용자의 변경사항도 반영)
+        await loadDescriptions();
+        
         console.log('✅ 서버에 설명 저장 완료:', accountId);
         alert('설명이 저장되었습니다!');
       } else {
