@@ -54,7 +54,12 @@ export async function GET(request: Request) {
     records.forEach((record: any) => {
       const major = record['계정대분류'];
       const middle = record['계정중분류'];
-      const detail = record['G/L 계정 설명'];
+      let detail = record['G/L 계정 설명'];
+      
+      // 복리후생비_근속지원을 복리후생비_총무지원으로 병합
+      if (detail === '복리후생비_근속지원') {
+        detail = '복리후생비_총무지원';
+      }
       
       if (!major || major === '미배정') return;
       

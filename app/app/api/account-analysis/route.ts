@@ -59,6 +59,11 @@ export async function GET(request: Request) {
       let key = '';
       let parentKey = '';
       
+      // 복리후생비_근속지원을 복리후생비_총무지원으로 병합
+      const glDescription = record['G/L 계정 설명'] === '복리후생비_근속지원' 
+        ? '복리후생비_총무지원' 
+        : record['G/L 계정 설명'];
+      
       if (level === 'major') {
         key = record['계정대분류'];
       } else if (level === 'middle') {
@@ -67,7 +72,7 @@ export async function GET(request: Request) {
         parentKey = record['계정대분류'];
       } else if (level === 'detail') {
         if (category && record['계정중분류'] !== category) return;
-        key = record['G/L 계정 설명'];
+        key = glDescription;
         parentKey = record['계정중분류'];
       }
       
