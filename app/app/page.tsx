@@ -214,7 +214,7 @@ export default function Dashboard() {
     
     setIsGeneratingInsight(true);
     try {
-      // KPI 데이터 가져오기 (총비용 = 모든 카테고리 합계)
+      // KPI 데이터 전체 전달 (카테고리별 상세 정보 포함)
       const totalCurrent = kpiData.reduce((sum, k) => sum + k.current, 0);
       const totalPrevious = kpiData.reduce((sum, k) => sum + k.previous, 0);
       const totalChange = totalCurrent - totalPrevious;
@@ -222,8 +222,16 @@ export default function Dashboard() {
       
       const kpiInfo = kpiData.length > 0 ? {
         totalCost: totalCurrent,
+        totalPrevious: totalPrevious,
         change: totalChange,
         changePercent: totalChangePercent,
+        categories: kpiData.map(k => ({
+          category: k.category,
+          current: k.current,
+          previous: k.previous,
+          change: k.change,
+          changePercent: k.changePercent
+        }))
       } : undefined;
       
       const response = await fetch('/api/insights/generate', {

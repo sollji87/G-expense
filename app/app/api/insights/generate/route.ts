@@ -65,34 +65,45 @@ export async function POST(request: Request) {
       descriptionsText += `\n[${category}]\n${items.join('\n')}\n`;
     }
     
-    // KPI 정보 포함
+    // KPI 정보 포함 (카테고리별 상세 정보)
     let kpiText = '';
     if (kpiData) {
       kpiText = `
-**KPI 요약 정보**:
-- 총비용: ${kpiData.totalCost || 'N/A'}백만원
-- 전년 대비 변화: ${kpiData.change || 'N/A'}백만원 (${kpiData.changePercent || 'N/A'}%)
+**[중요] 반드시 아래 KPI 수치를 정확히 사용하세요:**
+
+📊 **총비용**: ${kpiData.totalCost}백만원 (전년 ${kpiData.totalPrevious}백만원)
+📈 **전년 대비 변화**: ${kpiData.change > 0 ? '+' : ''}${kpiData.change}백만원 (${kpiData.changePercent}%)
 `;
+      
+      // 카테고리별 상세 정보 추가
+      if (kpiData.categories && kpiData.categories.length > 0) {
+        kpiText += `\n**카테고리별 현황**:\n`;
+        for (const cat of kpiData.categories) {
+          const changeSign = cat.change > 0 ? '+' : '';
+          kpiText += `- ${cat.category}: ${cat.current}백만원 (전년 ${cat.previous}백만원, ${changeSign}${cat.change}백만원, ${cat.changePercent > 0 ? '+' : ''}${cat.changePercent.toFixed(1)}%)\n`;
+        }
+      }
     }
     
-    const prompt = `당신은 재무 분석 전문가입니다. 아래 계정별 AI 분석 코멘트들을 종합하여 전체 비용 현황에 대한 요약 인사이트를 작성해주세요.
+    const prompt = `당신은 재무 분석 전문가입니다. 아래 KPI 데이터와 계정별 AI 분석 코멘트를 종합하여 전체 비용 현황에 대한 요약 인사이트를 작성해주세요.
 
 ${kpiText}
 
-**계정별 AI 분석 코멘트**:
+**계정별 AI 분석 코멘트** (참고용):
 ${descriptionsText}
 
-**작성 요구사항**:
-1. 전체 비용 규모와 전년 대비 증감을 먼저 언급
-2. 주요 증가/감소 항목을 카테고리별로 정리 (3~5개 핵심 포인트)
-3. 비용 관리 관점에서의 시사점이나 모니터링 포인트 제시
-4. 구어체가 아닌 간결한 문체 사용
-5. 4~5개 문단으로 작성 (각 문단 2~3문장)
-6. 금액은 "백만원" 단위로 표기
+**[필수] 작성 요구사항**:
+1. **반드시 위의 KPI 수치를 정확히 사용** - 총비용 ${kpiData?.totalCost || 'N/A'}백만원, 변화 ${kpiData?.change || 'N/A'}백만원
+2. 전체 비용 규모와 전년 대비 증감을 먼저 언급
+3. 주요 증가/감소 항목을 카테고리별로 정리 (3~5개 핵심 포인트)
+4. 비용 관리 관점에서의 시사점이나 모니터링 포인트 제시
+5. 구어체가 아닌 간결한 문체 사용
+6. 4~5개 문단으로 작성 (각 문단 2~3문장)
+7. 금액은 "백만원" 단위로 표기, 소수점 없이 정수로
 
 **형식**:
-- 첫 문단: 총비용 규모 및 전년 대비 변화 요약
-- 중간 문단들: 주요 증감 항목 설명 (카테고리별)
+- 첫 문단: 총비용 ${kpiData?.totalCost || 'N/A'}백만원, 전년 대비 ${kpiData?.change || 'N/A'}백만원 변화 언급
+- 중간 문단들: 카테고리별 주요 증감 항목 설명
 - 마지막 문단: 종합 분석 및 시사점`;
 
     // OpenAI API 호출
