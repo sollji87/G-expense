@@ -214,11 +214,16 @@ export default function Dashboard() {
     
     setIsGeneratingInsight(true);
     try {
-      // KPI 데이터 가져오기
+      // KPI 데이터 가져오기 (총비용 = 모든 카테고리 합계)
+      const totalCurrent = kpiData.reduce((sum, k) => sum + k.current, 0);
+      const totalPrevious = kpiData.reduce((sum, k) => sum + k.previous, 0);
+      const totalChange = totalCurrent - totalPrevious;
+      const totalChangePercent = totalPrevious !== 0 ? ((totalChange / totalPrevious) * 100).toFixed(1) : '0';
+      
       const kpiInfo = kpiData.length > 0 ? {
-        totalCost: kpiData.find(k => k.title === '총비용')?.amount,
-        change: kpiData.find(k => k.title === '총비용')?.subText?.match(/[+-]?\d+/)?.[0],
-        changePercent: kpiData.find(k => k.title === '총비용')?.changePercent,
+        totalCost: totalCurrent,
+        change: totalChange,
+        changePercent: totalChangePercent,
       } : undefined;
       
       const response = await fetch('/api/insights/generate', {
