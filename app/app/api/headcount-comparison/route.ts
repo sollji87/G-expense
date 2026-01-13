@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-function parseCSV(content: string): any[] {
+function parseCSV(content: string): { headers: string[], records: any[] } {
   const lines = content.split('\n').filter(line => line.trim());
-  if (lines.length === 0) return [];
+  if (lines.length === 0) return { headers: [], records: [] };
   
   const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-  const records = [];
+  const records: any[] = [];
   
   for (let i = 1; i < lines.length; i++) {
     const values = lines[i].split(',');
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     }
     
     const fileContent = fs.readFileSync(headcountPath, 'utf-8');
-    const { headers, records } = parseCSV(fileContent) as { headers: string[], records: any[] };
+    const { headers, records } = parseCSV(fileContent);
     
     // 피벗 형식 CSV 지원: 컬럼명이 YYYYMM 형태인지 확인
     const isPivotFormat = headers.some(h => /^\d{6}$/.test(h));
