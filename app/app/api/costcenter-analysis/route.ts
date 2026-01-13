@@ -29,10 +29,15 @@ function normalizeCostCenterName(name: string): string {
     return '공통_프로세스팀';
   }
   
+  // 마케팅 관련 통합 (통합마케팅팀, 통합인플루언서마케팅팀 → 마케팅본부)
+  if (name.includes('통합마케팅팀') || name.includes('통합인플루언서마케팅팀') || name.includes('통합인플루언서')) {
+    return '공통_마케팅본부';
+  }
+  
   return name;
 }
 
-// 인원수 데이터 로드
+// 인원수 데이터 로드 (피벗 형식 지원)
 function loadHeadcountData(): Map<string, number> {
   const headcountMap = new Map<string, number>();
   
@@ -50,19 +55,47 @@ function loadHeadcountData(): Map<string, number> {
     const content = fs.readFileSync(headcountPath, 'utf-8');
     const records = parseCSV(content);
     
+    // 마케팅 관련 통합 인원수 저장용
+    const marketingTotal: { [key: string]: number } = {};
+    
     records.forEach((record: any) => {
       const deptName = record['코스트센터명'];
-      const headcount202411 = parseInt(record['202411'] || '0');
-      const headcount202511 = parseInt(record['202511'] || '0');
+      const headcount202411 = parseInt(record['202411'] || '0') || 0;
+      const headcount202511 = parseInt(record['202511'] || '0') || 0;
+      const headcount202412 = parseInt(record['202412'] || '0') || 0;
+      const headcount202512 = parseInt(record['202512'] || '0') || 0;
+      
+      // 마케팅 관련 팀은 합산
+      if (deptName.includes('통합마케팅팀') || deptName.includes('통합인플루언서마케팅팀')) {
+        marketingTotal['202411'] = (marketingTotal['202411'] || 0) + headcount202411;
+        marketingTotal['202511'] = (marketingTotal['202511'] || 0) + headcount202511;
+        marketingTotal['202412'] = (marketingTotal['202412'] || 0) + headcount202412;
+        marketingTotal['202512'] = (marketingTotal['202512'] || 0) + headcount202512;
+      }
       
       // 202411 데이터
-      const key202411 = `202411_${deptName}`;
-      headcountMap.set(key202411, headcount202411);
-      
+      headcountMap.set(`202411_${deptName}`, headcount202411);
       // 202511 데이터
-      const key202511 = `202511_${deptName}`;
-      headcountMap.set(key202511, headcount202511);
+      headcountMap.set(`202511_${deptName}`, headcount202511);
+      // 202412 데이터
+      headcountMap.set(`202412_${deptName}`, headcount202412);
+      // 202512 데이터
+      headcountMap.set(`202512_${deptName}`, headcount202512);
     });
+    
+    // 마케팅본부에 통합마케팅+인플루언서 인원 합산 (해당 월에 마케팅본부 자체 인원이 없는 경우)
+    const months = ['202411', '202511', '202412', '202512'];
+    months.forEach(month => {
+      const marketingKey = `${month}_공통_마케팅본부`;
+      const currentMarketingHQ = headcountMap.get(marketingKey) || 0;
+      const additionalMarketing = marketingTotal[month] || 0;
+      
+      // 마케팅본부 인원이 없거나 적으면 통합마케팅팀 인원 합산
+      if (additionalMarketing > 0 && currentMarketingHQ < additionalMarketing) {
+        headcountMap.set(marketingKey, currentMarketingHQ + additionalMarketing);
+      }
+    });
+    
   } catch (error) {
     console.error('인원수 데이터 로드 실패:', error);
   }
@@ -74,7 +107,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('mode') || 'monthly';
-    const month = searchParams.get('month') || '11';
+    const month = searchParams.get('month') || '12';
     const account = searchParams.get('account'); // 선택한 계정
     
     if (!account) {
@@ -168,23 +201,16 @@ export async function GET(request: Request) {
     // 결과 생성
     const result = Array.from(costCenterMap.entries())
       .map(([name, data]) => {
-        // 인원수 조회 (202411, 202511만 있음)
-        let currentHeadcount = null;
-        let previousHeadcount = null;
-        
-        // 코스트센터명 그대로 사용 (CSV에 "공통_" 포함되어 있음)
+        // 인원수 조회 (현재 월 기준)
         const deptName = data.name;
         
-        // 202511 또는 202411 데이터 조회
-        if (currentYearMonth === '202511') {
-          const currentKey = `202511_${deptName}`;
-          currentHeadcount = headcountMap.get(currentKey) || null;
-        }
+        // 25년 해당월 인원수 (현재)
+        const currentKey = `${currentYearMonth}_${deptName}`;
+        const currentHeadcount = headcountMap.get(currentKey) || null;
         
-        if (previousYearMonth === '202411') {
-          const previousKey = `202411_${deptName}`;
-          previousHeadcount = headcountMap.get(previousKey) || null;
-        }
+        // 24년 해당월 인원수 (전년)
+        const previousKey = `${previousYearMonth}_${deptName}`;
+        const previousHeadcount = headcountMap.get(previousKey) || null;
         
         return {
           code: name,
@@ -221,4 +247,3 @@ export async function GET(request: Request) {
     );
   }
 }
-
