@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { 
   getAllDescriptions, 
   saveDescription, 
-  deleteDescription 
+  deleteDescription,
+  clearAllDescriptions
 } from '@/lib/redis';
 
 /**
@@ -80,19 +81,31 @@ export async function POST(request: Request) {
 /**
  * DELETE /api/descriptions
  * 
- * 특정 AI 설명을 Redis에서 삭제합니다.
+ * AI 설명을 Redis에서 삭제합니다.
  * 
  * Body:
- * - accountId: 삭제할 계정 ID
+ * - accountId: 삭제할 계정 ID (없으면 전체 삭제)
+ * - clearAll: true면 전체 삭제
  */
 export async function DELETE(request: Request) {
   try {
     const body = await request.json();
-    const { accountId } = body;
+    const { accountId, clearAll } = body;
+    
+    // 전체 삭제
+    if (clearAll === true) {
+      await clearAllDescriptions();
+      return NextResponse.json({
+        success: true,
+        message: '모든 설명이 삭제되었습니다.',
+        data: {},
+        source: 'redis',
+      });
+    }
     
     if (!accountId) {
       return NextResponse.json(
-        { success: false, error: 'accountId가 필요합니다.' },
+        { success: false, error: 'accountId 또는 clearAll이 필요합니다.' },
         { status: 400 }
       );
     }

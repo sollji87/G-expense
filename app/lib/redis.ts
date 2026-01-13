@@ -101,6 +101,18 @@ export async function deleteDescription(accountId: string): Promise<Descriptions
   }
 }
 
+/**
+ * 모든 설명 삭제 (초기화)
+ */
+export async function clearAllDescriptions(): Promise<void> {
+  try {
+    await kv.set(REDIS_KEYS.DESCRIPTIONS, JSON.stringify({}));
+  } catch (error) {
+    console.error('Redis clearAllDescriptions 오류:', error);
+    throw error;
+  }
+}
+
 // === Insights 관련 함수 (확장용) ===
 
 /**
