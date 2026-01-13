@@ -86,7 +86,7 @@ export default function Dashboard() {
   const [kpiData, setKpiData] = useState<KpiData[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'monthly' | 'ytd'>('monthly');
-  const [selectedMonth, setSelectedMonth] = useState('11');
+  const [selectedMonth, setSelectedMonth] = useState('12');
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState<Record<string, { amount?: number; comment?: string }>>({});
   const [chartData, setChartData] = useState<any[]>([]);
@@ -434,12 +434,12 @@ export default function Dashboard() {
           previous: 241,
           changes: '해외사업팀+9명, 통합소싱팀+8명, 통합영업팀+5명, 통합인플루언서마케팅팀+5명, 글로벌슈즈팀-10명, e-BIZ팀-5명, 통합마케팅팀-4명, 무역팀-3명, 프로세스팀-3명'
         },
-        // 새로운 월 추가 예시:
-        // '12': {
-        //   current: 250,
-        //   previous: 245,
-        //   changes: '영업팀+5명, 마케팅팀+3명'
-        // },
+        // ⚠️ 2025년 12월 데이터 (인원수 확인 필요 - 임시 데이터)
+        '12': {
+          current: 241,
+          previous: 241,
+          changes: '(12월 인원수 데이터 확인 필요)'
+        },
       };
       
       const monthData = headcountData[selectedMonth];
@@ -868,6 +868,7 @@ export default function Dashboard() {
                 <option value="9">2025년 9월</option>
                 <option value="10">2025년 10월</option>
                 <option value="11">2025년 11월</option>
+                <option value="12">2025년 12월</option>
               </select>
               <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 pointer-events-none" />
               <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
