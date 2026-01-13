@@ -18,14 +18,14 @@ function parseCSV(content: string): any[] {
     records.push(record);
   }
   
-  return records;
+  return { headers, records };
 }
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const currentMonth = searchParams.get('currentMonth') || '202510';
-    const previousMonth = searchParams.get('previousMonth') || '202410';
+    const currentMonth = searchParams.get('currentMonth') || '202512';
+    const previousMonth = searchParams.get('previousMonth') || '202412';
     
     let headcountPath = path.join(process.cwd(), '..', 'myvenv', 'out', 'snowflake', 'headcount_monthly_latest.csv');
     
@@ -38,34 +38,49 @@ export async function GET(request: Request) {
     }
     
     const fileContent = fs.readFileSync(headcountPath, 'utf-8');
-    const records = parseCSV(fileContent);
+    const { headers, records } = parseCSV(fileContent) as { headers: string[], records: any[] };
     
-    // 현재 월과 이전 월의 인원수 데이터 필터링
-    const currentData = records.filter((r: any) => r['기준년월'] === currentMonth);
-    const previousData = records.filter((r: any) => r['기준년월'] === previousMonth);
+    // 피벗 형식 CSV 지원: 컬럼명이 YYYYMM 형태인지 확인
+    const isPivotFormat = headers.some(h => /^\d{6}$/.test(h));
     
-    // 부서별 인원수 맵 생성
     const currentDeptMap = new Map<string, number>();
     const previousDeptMap = new Map<string, number>();
     
-    currentData.forEach((r: any) => {
-      const dept = r['부서명'];
-      const headcount = parseInt(r['정규직인원수'] || '0');
-      currentDeptMap.set(dept, (currentDeptMap.get(dept) || 0) + headcount);
-    });
-    
-    previousData.forEach((r: any) => {
-      const dept = r['부서명'];
-      const headcount = parseInt(r['정규직인원수'] || '0');
+    if (isPivotFormat) {
+      // 피벗 형식: 코스트센터명,직군,202411,202511,202412,202512
+      records.forEach((r: any) => {
+        const dept = r['코스트센터명'] || '';
+        const currentHeadcount = parseInt(r[currentMonth] || '0') || 0;
+        const previousHeadcount = parseInt(r[previousMonth] || '0') || 0;
+        
+        if (dept) {
+          // 부서명에서 '공통_' 제거
+          const deptName = dept.replace('공통_', '');
+          currentDeptMap.set(deptName, (currentDeptMap.get(deptName) || 0) + currentHeadcount);
+          previousDeptMap.set(deptName, (previousDeptMap.get(deptName) || 0) + previousHeadcount);
+        }
+      });
+    } else {
+      // 기존 형식: 기준년월, 부서명, 정규직인원수
+      const currentData = records.filter((r: any) => r['기준년월'] === currentMonth);
+      const previousData = records.filter((r: any) => r['기준년월'] === previousMonth);
       
-      // 프로세스팀 처리: 2024년에는 AX팀으로 표시
-      let normalizedDept = dept;
-      if (dept === 'AX팀') {
-        normalizedDept = '프로세스팀';
-      }
+      currentData.forEach((r: any) => {
+        const dept = r['부서명'];
+        const headcount = parseInt(r['정규직인원수'] || '0');
+        currentDeptMap.set(dept, (currentDeptMap.get(dept) || 0) + headcount);
+      });
       
-      previousDeptMap.set(normalizedDept, (previousDeptMap.get(normalizedDept) || 0) + headcount);
-    });
+      previousData.forEach((r: any) => {
+        const dept = r['부서명'];
+        const headcount = parseInt(r['정규직인원수'] || '0');
+        let normalizedDept = dept;
+        if (dept === 'AX팀') {
+          normalizedDept = '프로세스팀';
+        }
+        previousDeptMap.set(normalizedDept, (previousDeptMap.get(normalizedDept) || 0) + headcount);
+      });
+    }
     
     // 총 인원수 계산
     const currentTotal = Array.from(currentDeptMap.values()).reduce((sum, count) => sum + count, 0);
@@ -115,4 +130,3 @@ export async function GET(request: Request) {
     );
   }
 }
-
