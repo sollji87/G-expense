@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('mode') || 'monthly';
-    const month = searchParams.get('month') || '11';
+    const month = searchParams.get('month') || '12';
     
     let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
     

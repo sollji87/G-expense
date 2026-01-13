@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
-    const month = searchParams.get('month') || '11';
+    const month = searchParams.get('month') || '12';
     const level = searchParams.get('level') || 'auto'; // major, middle, detail, auto
     
     if (!category) {

@@ -47,7 +47,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('mode') || 'monthly'; // 'monthly' or 'ytd'
-    const month = searchParams.get('month') || '11'; // 선택된 월 (1-11)
+    const month = searchParams.get('month') || '12'; // 선택된 월 (1-12)
     
     // CSV 파일 읽기 - 여러 경로 시도
     let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
