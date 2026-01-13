@@ -214,18 +214,16 @@ export default function Dashboard() {
     
     setIsGeneratingInsight(true);
     try {
-      // KPI 데이터 전체 전달 (카테고리별 상세 정보 포함)
-      const totalCurrent = kpiData.reduce((sum, k) => sum + k.current, 0);
-      const totalPrevious = kpiData.reduce((sum, k) => sum + k.previous, 0);
-      const totalChange = totalCurrent - totalPrevious;
-      const totalChangePercent = totalPrevious !== 0 ? ((totalChange / totalPrevious) * 100).toFixed(1) : '0';
+      // KPI 데이터: kpiData[0]이 총비용, 나머지가 개별 카테고리
+      const totalData = kpiData[0]; // 총비용
+      const categories = kpiData.slice(1); // 개별 카테고리들 (인건비, IT수수료 등)
       
       const kpiInfo = kpiData.length > 0 ? {
-        totalCost: totalCurrent,
-        totalPrevious: totalPrevious,
-        change: totalChange,
-        changePercent: totalChangePercent,
-        categories: kpiData.map(k => ({
+        totalCost: totalData.current,
+        totalPrevious: totalData.previous,
+        change: totalData.change,
+        changePercent: totalData.changePercent,
+        categories: categories.map(k => ({
           category: k.category,
           current: k.current,
           previous: k.previous,
