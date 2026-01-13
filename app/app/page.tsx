@@ -2050,6 +2050,7 @@ export default function Dashboard() {
                     데이터를 불러오는 중...
                   </div>
                 )}
+              </div>
             </CardContent>
           )}
         </Card>
@@ -2150,11 +2151,7 @@ function HierarchyRow({
           {formatNumber(data.yoy)}%
         </td>
         <td className="px-4 py-3">
-          {isTotal ? (
-            <span className="text-xs text-purple-700 font-semibold">
-              전년 대비 0.7% 감소, 전년대비 -39백만원 감소. 주요 증감: 인건비 +186백, 직원경비 -162백, IT수수료 -62백, 지급수수료 -30백, 기타비용 +19백
-            </span>
-          ) : isEditing ? (
+          {isEditing ? (
             <div className="flex items-center gap-2">
               <textarea
                 value={tempDescription}
@@ -2189,15 +2186,15 @@ function HierarchyRow({
           ) : (
             <div className="flex items-center gap-2 group">
               <span 
-                className="text-xs flex-1 text-gray-600 cursor-pointer hover:text-blue-600"
+                className={`text-xs flex-1 cursor-pointer hover:text-blue-600 ${isTotal ? 'text-purple-700 font-semibold' : 'text-gray-600'}`}
                 onClick={() => onStartEdit(data.id, descriptions[data.id] || '')}
                 title="클릭하여 편집"
               >
-                {descriptions[data.id] || '설명을 불러오는 중...'}
+                {descriptions[data.id] || (isTotal ? '공통비 합계 설명을 입력하세요...' : '설명을 불러오는 중...')}
               </span>
               <button
                 onClick={() => onStartEdit(data.id, descriptions[data.id] || '')}
-                className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100"
+                className={`p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100 ${isTotal ? 'text-purple-600' : 'text-blue-600'}`}
                 title="편집"
               >
                 <PencilIcon className="w-3 h-3" />
