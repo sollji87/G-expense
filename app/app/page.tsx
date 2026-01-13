@@ -632,9 +632,9 @@ export default function Dashboard() {
     }
   };
   
-  const startEditDescription = (accountId: string) => {
+  const startEditDescription = (accountId: string, currentDesc: string) => {
     setEditingDescription(accountId);
-    setTempDescription(descriptions[accountId] || '');
+    setTempDescription(currentDesc);
   };
   
   const saveDescription = async (accountId: string) => {
@@ -2033,8 +2033,13 @@ export default function Dashboard() {
                         toggleRow={toggleRow}
                         descriptions={descriptions}
                         generateAIDescription={generateAIDescription}
-                        startEditDescription={startEditDescription}
                         isGeneratingAI={isGeneratingAI}
+                        editingDescription={editingDescription}
+                        tempDescription={tempDescription}
+                        setTempDescription={setTempDescription}
+                        onStartEdit={startEditDescription}
+                        onSaveEdit={saveDescription}
+                        onCancelEdit={cancelEditDescription}
                       />
                     ))}
                   </tbody>
@@ -2045,46 +2050,6 @@ export default function Dashboard() {
                     데이터를 불러오는 중...
                   </div>
                 )}
-              </div>
-              
-              {/* 설명 편집 모달 */}
-              {editingDescription && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                  <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 shadow-2xl">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-bold text-gray-800">{editingDescription} - 설명 편집</h3>
-                      <button
-                        onClick={cancelEditDescription}
-                        className="p-1 hover:bg-gray-100 rounded transition-colors"
-                      >
-                        <XIcon className="w-5 h-5 text-gray-600" />
-                      </button>
-                    </div>
-                    <textarea
-                      value={tempDescription}
-                      onChange={(e) => setTempDescription(e.target.value)}
-                      className="w-full p-3 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      rows={6}
-                      placeholder="설명을 입력하세요..."
-                      autoFocus
-                    />
-                    <div className="flex justify-end gap-2 mt-4">
-                      <button
-                        onClick={cancelEditDescription}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                      >
-                        취소
-                      </button>
-                      <button
-                        onClick={() => saveDescription(editingDescription)}
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                      >
-                        저장
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
             </CardContent>
           )}
         </Card>
@@ -2101,8 +2066,13 @@ interface HierarchyRowProps {
   toggleRow: (id: string) => void;
   descriptions: Record<string, string>;
   generateAIDescription: (name: string, data: any) => void;
-  startEditDescription: (name: string) => void;
   isGeneratingAI: string | null;
+  editingDescription: string | null;
+  tempDescription: string;
+  setTempDescription: (value: string) => void;
+  onStartEdit: (id: string, currentDesc: string) => void;
+  onSaveEdit: (id: string) => void;
+  onCancelEdit: () => void;
 }
 
 function HierarchyRow({ 
@@ -2112,13 +2082,19 @@ function HierarchyRow({
   toggleRow,
   descriptions,
   generateAIDescription,
-  startEditDescription,
-  isGeneratingAI
+  isGeneratingAI,
+  editingDescription,
+  tempDescription,
+  setTempDescription,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit
 }: HierarchyRowProps) {
   const isExpanded = expandedRows.has(data.id);
   const hasChildren = data.children && data.children.length > 0;
   const indent = level * 24;
-  const isTotal = data.isTotal === true; // 공통비 합계 행인지 확인
+  const isTotal = data.isTotal === true;
+  const isEditing = editingDescription === data.id;
   
   const formatNumber = (num: number) => {
     return Math.round(num).toLocaleString();
@@ -2174,20 +2150,60 @@ function HierarchyRow({
           {formatNumber(data.yoy)}%
         </td>
         <td className="px-4 py-3">
-          <div className="flex items-center gap-2">
-            <span className={`text-xs flex-1 ${isTotal ? 'text-purple-700 font-semibold' : 'text-gray-600'}`}>
-              {isTotal ? '전년 대비 0.7% 감소, 전년대비 -39백만원 감소. 주요 증감: 인건비 +186백, 직원경비 -162백, IT수수료 -62백, 지급수수료 -30백, 기타비용 +19백' : (descriptions[data.id] || '설명을 불러오는 중...')}
+          {isTotal ? (
+            <span className="text-xs text-purple-700 font-semibold">
+              전년 대비 0.7% 감소, 전년대비 -39백만원 감소. 주요 증감: 인건비 +186백, 직원경비 -162백, IT수수료 -62백, 지급수수료 -30백, 기타비용 +19백
             </span>
-            {!isTotal && (
+          ) : isEditing ? (
+            <div className="flex items-center gap-2">
+              <textarea
+                value={tempDescription}
+                onChange={(e) => setTempDescription(e.target.value)}
+                className="flex-1 text-xs p-2 border border-blue-300 rounded resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                rows={2}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    onSaveEdit(data.id);
+                  } else if (e.key === 'Escape') {
+                    onCancelEdit();
+                  }
+                }}
+              />
+              <div className="flex flex-col gap-1">
+                <button
+                  onClick={() => onSaveEdit(data.id)}
+                  className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  저장
+                </button>
+                <button
+                  onClick={onCancelEdit}
+                  className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 group">
+              <span 
+                className="text-xs flex-1 text-gray-600 cursor-pointer hover:text-blue-600"
+                onClick={() => onStartEdit(data.id, descriptions[data.id] || '')}
+                title="클릭하여 편집"
+              >
+                {descriptions[data.id] || '설명을 불러오는 중...'}
+              </span>
               <button
-                onClick={() => startEditDescription(data.id)}
-                className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                onClick={() => onStartEdit(data.id, descriptions[data.id] || '')}
+                className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100"
                 title="편집"
               >
                 <PencilIcon className="w-3 h-3" />
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </td>
       </tr>
       
@@ -2200,8 +2216,13 @@ function HierarchyRow({
           toggleRow={toggleRow}
           descriptions={descriptions}
           generateAIDescription={generateAIDescription}
-          startEditDescription={startEditDescription}
           isGeneratingAI={isGeneratingAI}
+          editingDescription={editingDescription}
+          tempDescription={tempDescription}
+          setTempDescription={setTempDescription}
+          onStartEdit={onStartEdit}
+          onSaveEdit={onSaveEdit}
+          onCancelEdit={onCancelEdit}
         />
       ))}
     </>
