@@ -1465,9 +1465,11 @@ export default function Dashboard() {
     topItems.forEach(item => {
       const start = runningTotal;
       const end = runningTotal + item.change;
+      // 변동폭을 더 직관적으로 보이도록 높이 조정 (절대값 사용)
+      const changeMagnitude = Math.abs(item.change);
       chartData.push({
         name: item.name,
-        value: Math.abs(item.change), // 절대값으로 높이 표시
+        value: changeMagnitude, // 절대값으로 높이 표시 (변동폭이 직관적으로 보이도록)
         start: start,
         end: end,
         type: item.change > 0 ? 'increase' : 'decrease',
@@ -1486,9 +1488,10 @@ export default function Dashboard() {
     if (otherItems.length > 0) {
       const start = runningTotal;
       const end = runningTotal + otherChange;
+      const changeMagnitude = Math.abs(otherChange);
       chartData.push({
         name: `기타 (${otherItems.length}개)`,
-        value: Math.abs(otherChange),
+        value: changeMagnitude, // 절대값으로 높이 표시
         start: start,
         end: end,
         type: otherChange > 0 ? 'increase' : 'decrease',
@@ -2764,12 +2767,24 @@ export default function Dashboard() {
                         const minValue = Math.min(
                           ...waterfallData.map(d => d.type === 'start' || d.type === 'end' ? 0 : Math.min(d.start, d.end))
                         );
-                        return Math.min(0, minValue * 1.1); // 음수 변동폭이 있으면 여유 공간 추가
+                        // 전년보다 당월이 줄었으면 더 낮게 표시되도록 여유 공간 확대
+                        const totalChange = waterfallData.length > 0 ? 
+                          (waterfallData[waterfallData.length - 1]?.value || 0) - (waterfallData[0]?.value || 0) : 0;
+                        if (totalChange < 0) {
+                          return Math.min(0, minValue * 1.2); // 감소 시 더 많은 여유 공간
+                        }
+                        return Math.min(0, minValue * 1.1);
                       }, (dataMax: number) => {
                         // 최대값 계산
                         const maxValue = Math.max(
                           ...waterfallData.map(d => d.type === 'start' || d.type === 'end' ? d.value : Math.max(d.start, d.end))
                         );
+                        // 전년보다 당월이 줄었으면 높이 차이를 더 명확하게
+                        const totalChange = waterfallData.length > 0 ? 
+                          (waterfallData[waterfallData.length - 1]?.value || 0) - (waterfallData[0]?.value || 0) : 0;
+                        if (totalChange < 0) {
+                          return maxValue * 1.15; // 감소 시 더 많은 여유 공간으로 높이 차이 강조
+                        }
                         return maxValue * 1.1; // 10% 여유 공간
                       }]}
                     />
@@ -2822,11 +2837,11 @@ export default function Dashboard() {
                         let color = '#9ca3af'; // 기본 회색
                         
                         if (entry.type === 'start' || entry.type === 'end') {
-                          color = '#6366f1'; // 시작/끝은 보라색
+                          color = '#a5b4fc'; // 시작/끝은 파스텔 보라색
                         } else if (entry.type === 'increase') {
-                          color = '#ef4444'; // 증가는 빨강
+                          color = '#fca5a5'; // 증가는 파스텔 빨강
                         } else if (entry.type === 'decrease') {
-                          color = '#10b981'; // 감소는 초록
+                          color = '#86efac'; // 감소는 파스텔 초록
                         }
                         
                         return <Cell key={`cell-${index}`} fill={color} />;
@@ -2834,7 +2849,13 @@ export default function Dashboard() {
                       <LabelList 
                         dataKey="labelText"
                         position="top"
-                        style={{ fontSize: '11px', fill: '#374151', fontWeight: 'bold' }}
+                        style={{ 
+                          fontSize: '24px', 
+                          fill: '#111827', 
+                          fontWeight: 'bold',
+                          fontFamily: 'inherit',
+                          letterSpacing: '-0.02em'
+                        }}
                       />
                     </Bar>
                   </ComposedChart>
