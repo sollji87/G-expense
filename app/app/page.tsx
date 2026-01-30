@@ -1442,6 +1442,10 @@ export default function Dashboard() {
     const maxChange = Math.max(...items.map(item => Math.abs(item.change)));
     const maxTotal = Math.max(total.previous || 0, total.current || 0);
     
+    // 변동폭을 더 직관적으로 보이도록 스케일 조정
+    // 가장 큰 변동폭을 기준으로 다른 변동폭들의 상대적 비율을 강조
+    const maxAbsChange = Math.max(...items.map(item => Math.abs(item.change)));
+    
     // Waterfall 차트 데이터 구성
     const chartData: any[] = [];
     let runningTotal = total.previous || 0;
@@ -1465,8 +1469,10 @@ export default function Dashboard() {
     topItems.forEach(item => {
       const start = runningTotal;
       const end = runningTotal + item.change;
-      // 변동폭을 더 직관적으로 보이도록 높이 조정 (절대값 사용)
+      // 변동폭을 더 직관적으로 보이도록 높이 조정
+      // 각 바의 높이가 변동량에 비례하도록 설정
       const changeMagnitude = Math.abs(item.change);
+      // 변동폭이 큰 항목은 더 높게, 작은 항목은 더 낮게 보이도록
       chartData.push({
         name: item.name,
         value: changeMagnitude, // 절대값으로 높이 표시 (변동폭이 직관적으로 보이도록)
@@ -2762,30 +2768,27 @@ export default function Dashboard() {
                     />
                     <YAxis 
                       hide={true}
-                      domain={[(dataMin: number) => {
-                        // 최소값 계산 (음수 변동폭 고려)
-                        const minValue = Math.min(
-                          ...waterfallData.map(d => d.type === 'start' || d.type === 'end' ? 0 : Math.min(d.start, d.end))
+                      domain={[0, (dataMax: number) => {
+                        // 각 바의 높이가 변동량에 비례하도록 Y축 도메인 조정
+                        // 시작/끝 바와 중간 변동 바의 최대값을 모두 고려
+                        const startEndMax = Math.max(
+                          ...waterfallData
+                            .filter(d => d.type === 'start' || d.type === 'end')
+                            .map(d => d.value)
                         );
-                        // 전년보다 당월이 줄었으면 더 낮게 표시되도록 여유 공간 확대
-                        const totalChange = waterfallData.length > 0 ? 
-                          (waterfallData[waterfallData.length - 1]?.value || 0) - (waterfallData[0]?.value || 0) : 0;
-                        if (totalChange < 0) {
-                          return Math.min(0, minValue * 1.2); // 감소 시 더 많은 여유 공간
-                        }
-                        return Math.min(0, minValue * 1.1);
-                      }, (dataMax: number) => {
-                        // 최대값 계산
-                        const maxValue = Math.max(
-                          ...waterfallData.map(d => d.type === 'start' || d.type === 'end' ? d.value : Math.max(d.start, d.end))
+                        
+                        // 중간 변동 바들의 최대 높이 (변동량 절대값)
+                        const changeMax = Math.max(
+                          ...waterfallData
+                            .filter(d => d.type !== 'start' && d.type !== 'end')
+                            .map(d => d.value)
                         );
-                        // 전년보다 당월이 줄었으면 높이 차이를 더 명확하게
-                        const totalChange = waterfallData.length > 0 ? 
-                          (waterfallData[waterfallData.length - 1]?.value || 0) - (waterfallData[0]?.value || 0) : 0;
-                        if (totalChange < 0) {
-                          return maxValue * 1.15; // 감소 시 더 많은 여유 공간으로 높이 차이 강조
-                        }
-                        return maxValue * 1.1; // 10% 여유 공간
+                        
+                        // 전체 최대값 (시작/끝 바와 변동 바 중 큰 값)
+                        const overallMax = Math.max(startEndMax, changeMax);
+                        
+                        // 변동폭이 직관적으로 보이도록 여유 공간 추가
+                        return overallMax * 1.2;
                       }]}
                     />
                     <Tooltip
@@ -2827,7 +2830,7 @@ export default function Dashboard() {
                       stackId="waterfall"
                       fill="transparent"
                     />
-                    {/* 변동값 바 */}
+                    {/* 변동값 바 - 각 바의 높이가 변동량에 비례하도록 */}
                     <Bar
                       dataKey="value"
                       stackId="waterfall"
@@ -2850,7 +2853,7 @@ export default function Dashboard() {
                         dataKey="labelText"
                         position="top"
                         style={{ 
-                          fontSize: '24px', 
+                          fontSize: '14px', 
                           fill: '#111827', 
                           fontWeight: 'bold',
                           fontFamily: 'inherit',
