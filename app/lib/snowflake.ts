@@ -1,3 +1,4 @@
+// 서버 사이드에서만 snowflake-sdk 로드
 import snowflake from 'snowflake-sdk';
 
 // 스노우플레이크 연결 설정
