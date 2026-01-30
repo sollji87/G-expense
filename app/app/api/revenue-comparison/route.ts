@@ -41,7 +41,9 @@ export async function GET(request: Request) {
     });
     
   } catch (error) {
-    console.error('❌ 매출 비교 API 오류:', error);
+    const errorMessage = error instanceof Error ? error.message : '스노우플레이크 연결 실패';
+    console.error('❌ 매출 비교 API 오류:', errorMessage);
+    console.error('상세 오류:', error);
     
     // 스노우플레이크 연결 실패 시 null 반환 (UI에서 "데이터 연동 필요" 표시)
     return NextResponse.json({
@@ -49,7 +51,7 @@ export async function GET(request: Request) {
       data: {
         currentTotal: null,
         previousTotal: null,
-        error: error instanceof Error ? error.message : '스노우플레이크 연결 실패'
+        error: errorMessage
       }
     });
   }

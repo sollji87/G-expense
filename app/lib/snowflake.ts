@@ -12,14 +12,43 @@ const connectionConfig = {
   role: process.env.SNOWFLAKE_ROLE || '',
 };
 
+// 환경 변수 확인 함수
+function validateSnowflakeConfig(): { valid: boolean; missing: string[] } {
+  const required = ['SNOWFLAKE_ACCOUNT', 'SNOWFLAKE_USERNAME', 'SNOWFLAKE_PASSWORD', 'SNOWFLAKE_WAREHOUSE', 'SNOWFLAKE_DATABASE', 'SNOWFLAKE_SCHEMA'];
+  const missing = required.filter(key => !process.env[key]);
+  
+  return {
+    valid: missing.length === 0,
+    missing
+  };
+}
+
 // 쿼리 실행 함수
 export async function executeQuery<T = any>(sql: string): Promise<T[]> {
   return new Promise((resolve, reject) => {
+    // 환경 변수 확인
+    const configCheck = validateSnowflakeConfig();
+    if (!configCheck.valid) {
+      const errorMsg = `스노우플레이크 환경 변수가 설정되지 않았습니다: ${configCheck.missing.join(', ')}`;
+      console.error('❌', errorMsg);
+      reject(new Error(errorMsg));
+      return;
+    }
+
     const connection = snowflake.createConnection(connectionConfig);
 
     connection.connect((err, conn) => {
       if (err) {
         console.error('❌ 스노우플레이크 연결 실패:', err.message);
+        console.error('연결 설정:', {
+          account: connectionConfig.account,
+          username: connectionConfig.username,
+          warehouse: connectionConfig.warehouse,
+          database: connectionConfig.database,
+          schema: connectionConfig.schema,
+          role: connectionConfig.role,
+          passwordSet: !!connectionConfig.password
+        });
         reject(err);
         return;
       }
