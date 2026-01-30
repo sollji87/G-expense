@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUpIcon, ArrowDownIcon, TrendingUpIcon, CalendarIcon, PencilIcon, ChevronUpIcon, ChevronDownIcon, ChevronRightIcon, SaveIcon, XIcon, SparklesIcon } from 'lucide-react';
-import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, BarChart, Cell } from 'recharts';
+import { ComposedChart, Bar, Line, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, BarChart, Cell, ScatterChart, Scatter, ReferenceArea, LabelList } from 'recharts';
 
 // 비용 카테고리 정의
 const COST_CATEGORIES = {
@@ -80,6 +80,10 @@ interface KpiData {
   previous: number;
   change: number;
   changePercent: number;
+  // MoM (전월 대비) 데이터
+  previousMonth?: number;
+  momChange?: number;
+  momPercent?: number;
 }
 
 export default function Dashboard() {
@@ -92,6 +96,7 @@ export default function Dashboard() {
   const [chartData, setChartData] = useState<any[]>([]);
   const [selectedChartMonth, setSelectedChartMonth] = useState<string | null>(null);
   const [isChartExpanded, setIsChartExpanded] = useState(true);
+  const [highlightedCategory, setHighlightedCategory] = useState<string | null>(null); // 하이라이트된 카테고리
   const [drilldownCategory, setDrilldownCategory] = useState<string | null>(null);
   const [drilldownData, setDrilldownData] = useState<any[]>([]);
   const [drilldownLevel, setDrilldownLevel] = useState<'middle' | 'detail'>('middle');
@@ -103,9 +108,11 @@ export default function Dashboard() {
   const [isAccountExpanded, setIsAccountExpanded] = useState(true);
   const [accountLevel, setAccountLevel] = useState<'major' | 'middle' | 'detail'>('major');
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [selectedMajorCategory, setSelectedMajorCategory] = useState<string | null>(null); // KPI에서 바로 소분류 접근 시
   const [accountData, setAccountData] = useState<any[]>([]);
   const [costCenterData, setCostCenterData] = useState<any[]>([]);
   const [hoveredAccount, setHoveredAccount] = useState<string | null>(null);
+  const [selectedCostCenterDetail, setSelectedCostCenterDetail] = useState<any | null>(null);
   
   // 구조화된 테이블 (계층형)
   const [tableViewMode, setTableViewMode] = useState<'monthly' | 'ytd'>('monthly');
@@ -118,6 +125,55 @@ export default function Dashboard() {
   const [aiInsight, setAiInsight] = useState<string>(defaultAiInsight);
   const [editingAiInsight, setEditingAiInsight] = useState<boolean>(false);
   const [tempAiInsight, setTempAiInsight] = useState<string>('');
+  
+  // 구조화된 인사이트
+  interface InsightItem {
+    id: string;
+    name: string;
+    category: string; // 대분류
+    changePercent: number; // YOY 변동률
+    current: number;
+    previous: number;
+    change: number;
+    description: string;
+    level: 'major' | 'middle' | 'detail';
+  }
+  const [structuredInsights, setStructuredInsights] = useState<InsightItem[]>([]);
+  const [expandedInsightCategories, setExpandedInsightCategories] = useState<{
+    critical: boolean;
+    warning: boolean;
+    positive: boolean;
+  }>({ critical: true, warning: true, positive: true });
+  const [selectedInsightItem, setSelectedInsightItem] = useState<InsightItem | null>(null);
+  
+  // 효율성 지표
+  interface EfficiencyMetrics {
+    costPerHead: { current: number; previous: number; change: number; changePercent: number };
+    revenueRatio: { 
+      current: number | null; 
+      previous: number | null; 
+      change: number;
+      revenueCurrent: number | null; // 부가세 포함 매출액
+      revenuePrevious: number | null; // 부가세 포함 매출액
+      revenueCurrentExclVAT: number | null; // 부가세 제외 매출액
+      revenuePreviousExclVAT: number | null; // 부가세 제외 매출액
+    };
+    costConcentration: { top3Items: { name: string; amount: number; ratio: number }[]; totalRatio: number };
+    headcount: { current: number; previous: number };
+  }
+  const [efficiencyMetrics, setEfficiencyMetrics] = useState<EfficiencyMetrics | null>(null);
+  const [isEfficiencyExpanded, setIsEfficiencyExpanded] = useState(true);
+  
+  // Waterfall 차트 상태
+  const [showAllWaterfallItems, setShowAllWaterfallItems] = useState(false);
+  
+  // 필터 상태
+  const [selectedCostCenters, setSelectedCostCenters] = useState<string[]>([]);
+  const [selectedMajorCategories, setSelectedMajorCategories] = useState<string[]>([]);
+  const [costCenterOptions, setCostCenterOptions] = useState<string[]>([]);
+  const [majorCategoryOptions, setMajorCategoryOptions] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
   const [activeTab, setActiveTab] = useState<'data' | 'description'>('data');
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
   const [editingDescription, setEditingDescription] = useState<string | null>(null);
@@ -127,6 +183,27 @@ export default function Dashboard() {
   
   // 서버에서 저장된 설명을 저장하는 ref (state보다 먼저 접근 가능)
   const serverDescriptionsRef = useRef<Record<string, string>>({});
+  
+  // 섹션 스크롤을 위한 ref
+  const chartSectionRef = useRef<HTMLDivElement>(null);
+  const accountSectionRef = useRef<HTMLDivElement>(null);
+  
+  // KPI 카드 클릭 시 해당 섹션으로 스크롤 이동
+  const handleKpiCardClick = (category: string) => {
+    if (category === '총비용') {
+      // 총비용 클릭 → 월별 비용 추이 섹션으로
+      chartSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setIsChartExpanded(true);
+    } else {
+      // 개별 카테고리 클릭 → 비용 대분류별 YOY 비교 섹션으로 (계정소분류까지 바로 이동)
+      accountSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setIsAccountExpanded(true);
+      // 바로 계정소분류(detail) 단계로 이동 (대분류에서 바로 접근)
+      setAccountLevel('detail');
+      setSelectedAccount(category);
+      setSelectedMajorCategory(category); // 대분류 카테고리 저장
+    }
+  };
 
   // 서버에서 저장된 설명 불러오기
   const loadDescriptions = async () => {
@@ -267,14 +344,135 @@ export default function Dashboard() {
     }
   };
 
+  // 필터 옵션 로드
+  const loadFilterOptions = async () => {
+    try {
+      // 계정 대분류 옵션 가져오기 (hierarchy API에서)
+      const hierarchyResponse = await fetch(`/api/hierarchy?mode=monthly&month=${selectedMonth}`);
+      const hierarchyResult = await hierarchyResponse.json();
+      
+      if (hierarchyResult.success) {
+        const majorCategories = hierarchyResult.data
+          .filter((item: any) => !item.isTotal)
+          .map((item: any) => item.name);
+        setMajorCategoryOptions(majorCategories);
+      }
+      
+      // 코스트센터 옵션 가져오기 (headcount 데이터에서)
+      const headcountResponse = await fetch(`/api/headcount-comparison?currentMonth=2025${selectedMonth.padStart(2, '0')}&previousMonth=2024${selectedMonth.padStart(2, '0')}`);
+      const headcountResult = await headcountResponse.json();
+      
+      if (headcountResult.success && headcountResult.data.departments) {
+        const costCenters = headcountResult.data.departments.map((dept: any) => dept.department as string);
+        setCostCenterOptions([...new Set(costCenters)].sort() as string[]);
+      }
+    } catch (error) {
+      console.error('필터 옵션 로드 실패:', error);
+    }
+  };
+  
+  // 필터 초기화
+  const resetFilters = () => {
+    setSelectedCostCenters([]);
+    setSelectedMajorCategories([]);
+  };
+  
+  // Excel 다운로드
+  const exportToExcel = () => {
+    try {
+      const XLSX = require('xlsx');
+      
+      // 계층형 테이블 데이터를 Excel로 변환
+      const wsData: any[] = [];
+      
+      // 헤더
+      wsData.push(['계정명', '당월', '전년', '증감', 'YOY (%)', '설명']);
+      
+      // 데이터 (필터링된 데이터 사용)
+      const dataToExport = selectedMajorCategories.length > 0
+        ? hierarchyData.filter((major: any) => major.isTotal || selectedMajorCategories.includes(major.name))
+        : hierarchyData;
+      
+      dataToExport.forEach((major: any) => {
+        if (major.isTotal) return;
+        
+        wsData.push([
+          major.name,
+          major.current || 0,
+          major.previous || 0,
+          major.change || 0,
+          major.changePercent || 0,
+          descriptions[major.id] || ''
+        ]);
+        
+        if (major.children) {
+          major.children.forEach((middle: any) => {
+            wsData.push([
+              `  ${middle.name}`,
+              middle.current || 0,
+              middle.previous || 0,
+              middle.change || 0,
+              middle.changePercent || 0,
+              descriptions[middle.id] || ''
+            ]);
+            
+            if (middle.children) {
+              middle.children.forEach((detail: any) => {
+                wsData.push([
+                  `    ${detail.name}`,
+                  detail.current || 0,
+                  detail.previous || 0,
+                  detail.change || 0,
+                  detail.changePercent || 0,
+                  descriptions[detail.id] || ''
+                ]);
+              });
+            }
+          });
+        }
+      });
+      
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '비용 분석');
+      
+      // 파일명 생성
+      const fileName = `공통부서_비용분석_${selectedMonth}월_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      
+      alert('Excel 파일이 다운로드되었습니다!');
+    } catch (error) {
+      console.error('Excel 다운로드 실패:', error);
+      alert('Excel 다운로드에 실패했습니다.');
+    }
+  };
+  
   useEffect(() => {
     loadDescriptions();
-  }, []);
+    loadFilterOptions();
+  }, [selectedMonth]);
 
   useEffect(() => {
     loadData();
     loadChartData();
-  }, [viewMode, selectedMonth]);
+  }, [viewMode, selectedMonth, selectedCostCenters, selectedMajorCategories]);
+  
+  // 필터 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.filter-dropdown') && !target.closest('[data-filter-button]')) {
+        setIsFilterOpen(false);
+        const exportMenu = document.getElementById('export-menu');
+        if (exportMenu && !target.closest('[data-export-button]')) {
+          exportMenu.classList.add('hidden');
+        }
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   
   // chartData가 업데이트되면 인사이트 재생성 (현재는 고정 텍스트 사용)
   // useEffect(() => {
@@ -285,7 +483,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadAccountData();
-  }, [accountViewMode, selectedMonth, accountLevel]);
+  }, [accountViewMode, selectedMonth, accountLevel, selectedMajorCategory]);
   
   // selectedAccount가 변경되고 accountLevel이 detail이 아닐 때만 코스트센터 로드
   useEffect(() => {
@@ -297,6 +495,13 @@ export default function Dashboard() {
   useEffect(() => {
     loadHierarchyData();
   }, [tableViewMode, selectedMonth]);
+  
+  // descriptions가 변경되면 구조화된 인사이트 업데이트
+  useEffect(() => {
+    if (hierarchyData.length > 0) {
+      extractStructuredInsights(hierarchyData);
+    }
+  }, [descriptions, hierarchyData]);
 
   const loadAccountData = async () => {
     try {
@@ -304,8 +509,13 @@ export default function Dashboard() {
       
       if (accountLevel === 'middle' && selectedAccount) {
         url += `&category=${encodeURIComponent(selectedAccount)}`;
-      } else if (accountLevel === 'detail' && selectedAccount) {
-        url += `&category=${encodeURIComponent(selectedAccount)}`;
+      } else if (accountLevel === 'detail') {
+        // 대분류에서 바로 소분류로 접근한 경우 majorCategory 사용
+        if (selectedMajorCategory) {
+          url += `&majorCategory=${encodeURIComponent(selectedMajorCategory)}`;
+        } else if (selectedAccount) {
+          url += `&category=${encodeURIComponent(selectedAccount)}`;
+        }
       }
       
       // 계정 차트 데이터 로드
@@ -375,11 +585,13 @@ export default function Dashboard() {
   const handleBackToMajor = () => {
     setAccountLevel('major');
     setSelectedAccount(null);
+    setSelectedMajorCategory(null);
     setCostCenterData([]);
   };
 
   const handleBackToMiddle = () => {
     setAccountLevel('middle');
+    setSelectedMajorCategory(null); // 중분류로 돌아가면 대분류 직접 접근 상태 해제
     // 중분류의 부모(대분류)를 찾기
     const middleItem = accountData.find(item => item.name === selectedAccount);
     if (middleItem && middleItem.parent) {
@@ -397,10 +609,150 @@ export default function Dashboard() {
         
         // OpenAI 분석 데이터 로드
         loadGLAnalysisData(result.data);
+        
+        // 구조화된 인사이트 추출
+        extractStructuredInsights(result.data);
       }
     } catch (error) {
       console.error('계층 데이터 로드 실패:', error);
     }
+  };
+  
+  // 구조화된 인사이트 추출 함수
+  const extractStructuredInsights = (data: any[]) => {
+    const insights: InsightItem[] = [];
+    
+    data.forEach((major: any) => {
+      if (major.isTotal) return; // 합계 제외
+      
+      // 대분류 인사이트
+      if (major.changePercent !== undefined && Math.abs(major.changePercent) >= 10) {
+        insights.push({
+          id: major.id,
+          name: major.name,
+          category: major.name,
+          changePercent: major.changePercent,
+          current: major.current || 0,
+          previous: major.previous || 0,
+          change: major.change || 0,
+          description: descriptions[major.id] || '',
+          level: 'major'
+        });
+      }
+      
+      // 중분류 인사이트
+      if (major.children) {
+        major.children.forEach((middle: any) => {
+          if (middle.changePercent !== undefined && Math.abs(middle.changePercent) >= 15) {
+            insights.push({
+              id: middle.id,
+              name: middle.name,
+              category: major.name,
+              changePercent: middle.changePercent,
+              current: middle.current || 0,
+              previous: middle.previous || 0,
+              change: middle.change || 0,
+              description: descriptions[middle.id] || '',
+              level: 'middle'
+            });
+          }
+          
+          // 소분류 인사이트 (큰 변동만)
+          if (middle.children) {
+            middle.children.forEach((detail: any) => {
+              if (detail.changePercent !== undefined && Math.abs(detail.changePercent) >= 20) {
+                insights.push({
+                  id: detail.id,
+                  name: detail.name,
+                  category: major.name,
+                  changePercent: detail.changePercent,
+                  current: detail.current || 0,
+                  previous: detail.previous || 0,
+                  change: detail.change || 0,
+                  description: descriptions[detail.id] || '',
+                  level: 'detail'
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+    
+    // 변동률 절대값 기준 정렬
+    insights.sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent));
+    setStructuredInsights(insights);
+    console.log('📊 구조화된 인사이트 추출 완료:', insights.length, '개');
+  };
+  
+  // 인사이트 카테고리별 분류
+  const getCategorizedInsights = () => {
+    const critical: InsightItem[] = []; // 즉시 확인 필요 (±50% 이상)
+    const warning: InsightItem[] = [];  // 모니터링 필요 (±20~50%)
+    const positive: InsightItem[] = []; // 긍정적 변화 (비용 절감)
+    
+    structuredInsights.forEach(item => {
+      const absChange = Math.abs(item.changePercent);
+      
+      if (absChange >= 50) {
+        critical.push(item);
+      } else if (absChange >= 20) {
+        if (item.change < 0) {
+          positive.push(item); // 비용 감소는 긍정적
+        } else {
+          warning.push(item);
+        }
+      } else if (item.change < 0 && absChange >= 10) {
+        positive.push(item); // 10% 이상 비용 절감도 긍정적
+      }
+    });
+    
+    return { critical, warning, positive };
+  };
+  
+  // 인사이트 내보내기 (텍스트 복사)
+  const exportInsights = () => {
+    const { critical, warning, positive } = getCategorizedInsights();
+    
+    let text = `📊 ${selectedMonth}월 비용 분석 인사이트\n\n`;
+    
+    if (critical.length > 0) {
+      text += `🚨 즉시 확인 필요 (YOY ±50% 이상)\n`;
+      text += `${'─'.repeat(40)}\n`;
+      critical.forEach(item => {
+        const sign = item.changePercent >= 0 ? '+' : '';
+        text += `• ${item.name}: ${sign}${item.changePercent.toFixed(1)}% (${Math.round(item.previous)} → ${Math.round(item.current)}백만원)\n`;
+        if (item.description) text += `  원인: ${item.description}\n`;
+      });
+      text += `\n`;
+    }
+    
+    if (warning.length > 0) {
+      text += `⚠️ 모니터링 필요 (YOY ±20~50%)\n`;
+      text += `${'─'.repeat(40)}\n`;
+      warning.forEach(item => {
+        const sign = item.changePercent >= 0 ? '+' : '';
+        text += `• ${item.name}: ${sign}${item.changePercent.toFixed(1)}% (${Math.round(item.previous)} → ${Math.round(item.current)}백만원)\n`;
+        if (item.description) text += `  원인: ${item.description}\n`;
+      });
+      text += `\n`;
+    }
+    
+    if (positive.length > 0) {
+      text += `✅ 긍정적 변화 (비용 절감)\n`;
+      text += `${'─'.repeat(40)}\n`;
+      positive.forEach(item => {
+        text += `• ${item.name}: ${item.changePercent.toFixed(1)}% (${Math.round(item.previous)} → ${Math.round(item.current)}백만원)\n`;
+        if (item.description) text += `  원인: ${item.description}\n`;
+      });
+    }
+    
+    navigator.clipboard.writeText(text).then(() => {
+      alert('인사이트가 클립보드에 복사되었습니다!');
+    }).catch(err => {
+      console.error('복사 실패:', err);
+      alert('복사에 실패했습니다.');
+    });
   };
   
   const loadGLAnalysisData = async (hierarchyData: any[]) => {
@@ -715,19 +1067,31 @@ export default function Dashboard() {
 
   const loadChartData = async () => {
     try {
-      // 선택한 월까지의 데이터 로드
-      const monthNum = parseInt(selectedMonth);
-      const months = [];
+      // 6개월 이동평균 계산을 위해 17개월 데이터 로드 (12개월 + 이전 5개월)
+      const selectedMonthNum = parseInt(selectedMonth);
+      const selectedYearNum = 2025; // 현재 기준 연도
+      const allMonths: any[] = [];
       
-      for (let m = 1; m <= monthNum; m++) {
-        const response = await fetch(`/api/kpi?mode=monthly&month=${m}`);
+      // 17개월 계산 (선택한 월 포함하여 과거 17개월)
+      for (let i = 16; i >= 0; i--) {
+        let targetMonth = selectedMonthNum - i;
+        let targetYear = selectedYearNum;
+        
+        // 월이 0 이하면 전년도로
+        while (targetMonth <= 0) {
+          targetMonth += 12;
+          targetYear -= 1;
+        }
+        
+        const response = await fetch(`/api/kpi?mode=monthly&month=${targetMonth}&year=${targetYear}`);
         const result = await response.json();
         
         if (result.success) {
           const data = result.data;
           const monthData: any = {
-            month: `${m}월`,
-            monthNum: m,
+            month: `${targetYear.toString().slice(2)}년${targetMonth}월`,
+            monthNum: targetMonth,
+            year: targetYear,
           };
           
           let totalCurrent = 0;
@@ -744,12 +1108,38 @@ export default function Dashboard() {
           monthData['YOY'] = totalPrevious !== 0 ? (totalCurrent / totalPrevious) * 100 : 0;
           monthData['총비용'] = totalCurrent;
           
-          console.log(`${m}월 데이터:`, monthData);
-          months.push(monthData);
+          console.log(`${targetYear}년 ${targetMonth}월 데이터:`, monthData);
+          allMonths.push(monthData);
         }
       }
       
-      setChartData(months);
+      // 6개월 이동평균 계산 (전체 17개월 데이터 기준)
+      if (allMonths.length > 0) {
+        const allMonthsWithMA = allMonths.map((month, index) => {
+          // 6개월 이동평균 계산 (현재 월 포함 이전 6개월)
+          const start = Math.max(0, index - 5);
+          const period = allMonths.slice(start, index + 1);
+          const ma6 = period.reduce((sum, m) => sum + (m['총비용'] || 0), 0) / period.length;
+          
+          // 이상치 판단 (±15% 이상 벗어난 경우)
+          const deviation = ma6 > 0 ? ((month['총비용'] - ma6) / ma6) * 100 : 0;
+          const isOutlier = Math.abs(deviation) >= 15;
+          
+          return {
+            ...month,
+            '6개월평균': ma6,
+            deviation: deviation,
+            isOutlier: isOutlier,
+          };
+        });
+        
+        // 차트에는 최근 12개월만 표시 (처음 5개월은 이동평균 계산용)
+        const chartMonths = allMonthsWithMA.slice(-12);
+        
+        console.log('📊 차트 데이터 로드 완료:', chartMonths.length, '개월');
+        console.log('📊 마지막 월 데이터:', chartMonths[chartMonths.length - 1]);
+        setChartData(chartMonths);
+      }
     } catch (error) {
       console.error('차트 데이터 로드 실패:', error);
     }
@@ -772,8 +1162,13 @@ export default function Dashboard() {
       // 총비용 계산
       const totalCurrent = categories.reduce((sum: number, cat: any) => sum + cat.current, 0);
       const totalPrevious = categories.reduce((sum: number, cat: any) => sum + cat.previous, 0);
+      const totalPreviousMonth = categories.reduce((sum: number, cat: any) => sum + (cat.previousMonth || 0), 0);
       const totalChange = totalCurrent - totalPrevious;
       const totalChangePercent = totalPrevious !== 0 ? (totalCurrent / totalPrevious) * 100 : 0;  // 당년/전년 * 100%
+      
+      // 총비용 MoM 계산
+      const totalMomChange = totalCurrent - totalPreviousMonth;
+      const totalMomPercent = totalPreviousMonth !== 0 ? ((totalCurrent - totalPreviousMonth) / totalPreviousMonth) * 100 : 0;
 
       // 총비용을 맨 앞에 추가
       const mockData: KpiData[] = [
@@ -782,19 +1177,131 @@ export default function Dashboard() {
           current: totalCurrent,
           previous: totalPrevious,
           change: totalChange,
-          changePercent: totalChangePercent
+          changePercent: totalChangePercent,
+          previousMonth: totalPreviousMonth,
+          momChange: totalMomChange,
+          momPercent: totalMomPercent,
         },
         ...categories
       ];
       
       setKpiData(mockData);
       
-      // AI 인사이트는 고정 텍스트 사용
-      // generateAIInsight(mockData);
+      // 효율성 지표 계산 (비동기로 실행하여 KPI 먼저 표시)
+      setTimeout(() => {
+        loadEfficiencyMetrics(mockData);
+      }, 0);
+      
     } catch (error) {
       console.error('데이터 로드 실패:', error);
     } finally {
       setLoading(false);
+    }
+  };
+  
+  // 효율성 지표 계산 함수
+  const loadEfficiencyMetrics = async (kpiData: KpiData[]) => {
+    try {
+      // 1. 인원수 데이터 가져오기
+      const currentYearMonth = `2025${selectedMonth.padStart(2, '0')}`;
+      const previousYearMonth = `2024${selectedMonth.padStart(2, '0')}`;
+      
+      const [headcountResponse, revenueResponse] = await Promise.all([
+        fetch(`/api/headcount-comparison?currentMonth=${currentYearMonth}&previousMonth=${previousYearMonth}`),
+        fetch(`/api/revenue-comparison?currentMonth=${currentYearMonth}&previousMonth=${previousYearMonth}&mode=${viewMode}`)
+      ]);
+      
+      const headcountResult = await headcountResponse.json();
+      const revenueResult = await revenueResponse.json();
+      
+      let currentHeadcount = 0;
+      let previousHeadcount = 0;
+      
+      if (headcountResult.success) {
+        currentHeadcount = headcountResult.data.currentTotal;
+        previousHeadcount = headcountResult.data.previousTotal;
+      }
+      
+      // 2. 총비용 데이터 (kpiData[0]이 총비용)
+      const totalCurrent = kpiData[0]?.current || 0;
+      const totalPrevious = kpiData[0]?.previous || 0;
+
+      // 3. 매출 대비 공통비 비율 계산
+      // 매출액(ACT_SALE_AMT)은 부가세 포함, 공통비는 부가세 제외이므로 매출액을 부가세 제외로 변환하여 비교
+      let revenueRatioCurrent: number | null = null;
+      let revenueRatioPrevious: number | null = null;
+      let revenueRatioChange = 0;
+      let currentRevenueExclVAT: number | null = null;
+      let previousRevenueExclVAT: number | null = null;
+
+      if (revenueResult.success && revenueResult.data.currentTotal !== null) {
+        const currentRevenue = revenueResult.data.currentTotal; // 부가세 포함
+        const previousRevenue = revenueResult.data.previousTotal; // 부가세 포함
+        
+        // 매출액을 부가세 제외로 변환
+        currentRevenueExclVAT = currentRevenue / 1.1;
+        previousRevenueExclVAT = previousRevenue / 1.1;
+        
+        // 공통비(부가세 제외) / 매출액(부가세 제외) * 100
+        if (currentRevenueExclVAT && currentRevenueExclVAT > 0) {
+          revenueRatioCurrent = (totalCurrent / currentRevenueExclVAT) * 100;
+        }
+        if (previousRevenueExclVAT && previousRevenueExclVAT > 0) {
+          revenueRatioPrevious = (totalPrevious / previousRevenueExclVAT) * 100;
+        }
+        
+        if (revenueRatioCurrent !== null && revenueRatioPrevious !== null) {
+          revenueRatioChange = revenueRatioCurrent - revenueRatioPrevious;
+        }
+      }
+      
+      // 4. 인당 공통비 계산
+      const costPerHeadCurrent = currentHeadcount > 0 ? totalCurrent / currentHeadcount : 0;
+      const costPerHeadPrevious = previousHeadcount > 0 ? totalPrevious / previousHeadcount : 0;
+      const costPerHeadChange = costPerHeadCurrent - costPerHeadPrevious;
+      const costPerHeadChangePercent = costPerHeadPrevious > 0 
+        ? ((costPerHeadCurrent - costPerHeadPrevious) / costPerHeadPrevious) * 100 
+        : 0;
+      
+      // 5. 비용 집중도 계산 (상위 3개 항목)
+      const categories = kpiData.slice(1); // 총비용 제외
+      const sortedByAmount = [...categories].sort((a, b) => b.current - a.current);
+      const top3Items = sortedByAmount.slice(0, 3).map(cat => ({
+        name: cat.category,
+        amount: cat.current,
+        ratio: totalCurrent > 0 ? (cat.current / totalCurrent) * 100 : 0
+      }));
+      const top3TotalRatio = top3Items.reduce((sum, item) => sum + item.ratio, 0);
+      
+      setEfficiencyMetrics({
+        costPerHead: {
+          current: costPerHeadCurrent,
+          previous: costPerHeadPrevious,
+          change: costPerHeadChange,
+          changePercent: costPerHeadChangePercent
+        },
+        revenueRatio: {
+          current: revenueRatioCurrent,
+          previous: revenueRatioPrevious,
+          change: revenueRatioChange,
+          revenueCurrent: revenueResult.success && revenueResult.data.currentTotal !== null ? revenueResult.data.currentTotal : null,
+          revenuePrevious: revenueResult.success && revenueResult.data.previousTotal !== null ? revenueResult.data.previousTotal : null,
+          revenueCurrentExclVAT: currentRevenueExclVAT,
+          revenuePreviousExclVAT: previousRevenueExclVAT
+        },
+        costConcentration: {
+          top3Items,
+          totalRatio: top3TotalRatio
+        },
+        headcount: {
+          current: currentHeadcount,
+          previous: previousHeadcount
+        }
+      });
+      
+      console.log('📊 효율성 지표 계산 완료');
+    } catch (error) {
+      console.error('효율성 지표 계산 실패:', error);
     }
   };
   
@@ -881,6 +1388,194 @@ export default function Dashboard() {
     if (change < 0) return 'bg-blue-50';
     return 'bg-gray-50';
   };
+  
+  // 필터링된 계층형 데이터
+  const filteredHierarchyData = useMemo(() => {
+    if (selectedMajorCategories.length === 0) {
+      return hierarchyData;
+    }
+    
+    return hierarchyData.filter((major: any) => {
+      if (major.isTotal) return true;
+      return selectedMajorCategories.includes(major.name);
+    });
+  }, [hierarchyData, selectedMajorCategories]);
+  
+  // Waterfall 차트 데이터 준비
+  const waterfallData = useMemo(() => {
+    if (kpiData.length === 0) return [];
+    
+    const total = kpiData[0]; // 총비용
+    const categories = kpiData.slice(1); // 개별 항목들
+    
+    // 각 항목의 증감 계산 (절대값 기준)
+    const items = categories
+      .filter(item => item.category !== '총비용')
+      .map(item => ({
+        name: item.category,
+        previous: item.previous || 0,
+        current: item.current || 0,
+        change: item.change || 0,
+        changePercent: item.changePercent || 0,
+        absChange: Math.abs(item.change || 0)
+      }))
+      .filter(item => item.absChange > 0); // 변동이 있는 항목만
+    
+    // 절대값 기준으로 정렬
+    items.sort((a, b) => b.absChange - a.absChange);
+    
+    // 상위 5개와 나머지 분리
+    const topItems = showAllWaterfallItems ? items : items.slice(0, 5);
+    const otherItems = showAllWaterfallItems ? [] : items.slice(5);
+    
+    // "기타" 항목 계산
+    let otherChange = 0;
+    let otherPrevious = 0;
+    let otherCurrent = 0;
+    if (otherItems.length > 0) {
+      otherChange = otherItems.reduce((sum, item) => sum + item.change, 0);
+      otherPrevious = otherItems.reduce((sum, item) => sum + item.previous, 0);
+      otherCurrent = otherItems.reduce((sum, item) => sum + item.current, 0);
+    }
+    
+    // 변동폭의 최대값 계산 (Y축 도메인 조정용)
+    const maxChange = Math.max(...items.map(item => Math.abs(item.change)));
+    const maxTotal = Math.max(total.previous || 0, total.current || 0);
+    
+    // Waterfall 차트 데이터 구성
+    const chartData: any[] = [];
+    let runningTotal = total.previous || 0;
+    
+    // 시작점: 전년 총비용
+    chartData.push({
+      name: '전년 총비용',
+      value: runningTotal,
+      start: 0,
+      end: runningTotal,
+      type: 'start',
+      previous: runningTotal,
+      current: runningTotal,
+      change: 0,
+      changePercent: 0,
+      displayValue: runningTotal, // 표시용 값
+      labelText: `${Math.round(runningTotal).toLocaleString()}` // 라벨 텍스트
+    });
+    
+    // 각 항목 추가
+    topItems.forEach(item => {
+      const start = runningTotal;
+      const end = runningTotal + item.change;
+      chartData.push({
+        name: item.name,
+        value: Math.abs(item.change), // 절대값으로 높이 표시
+        start: start,
+        end: end,
+        type: item.change > 0 ? 'increase' : 'decrease',
+        previous: item.previous,
+        current: item.current,
+        change: item.change,
+        changePercent: item.changePercent,
+        isPositive: item.change > 0,
+        displayValue: item.change, // 막대 위에 표시할 값
+        labelText: `${item.change > 0 ? '+' : ''}${Math.round(item.change).toLocaleString()}` // 라벨 텍스트
+      });
+      runningTotal = end;
+    });
+    
+    // "기타" 항목 추가
+    if (otherItems.length > 0) {
+      const start = runningTotal;
+      const end = runningTotal + otherChange;
+      chartData.push({
+        name: `기타 (${otherItems.length}개)`,
+        value: Math.abs(otherChange),
+        start: start,
+        end: end,
+        type: otherChange > 0 ? 'increase' : 'decrease',
+        previous: otherPrevious,
+        current: otherCurrent,
+        change: otherChange,
+        changePercent: otherPrevious > 0 ? ((otherCurrent / otherPrevious - 1) * 100) : 0,
+        isPositive: otherChange > 0,
+        displayValue: otherChange, // 막대 위에 표시할 값
+        labelText: `${otherChange > 0 ? '+' : ''}${Math.round(otherChange).toLocaleString()}` // 라벨 텍스트
+      });
+      runningTotal = end;
+    }
+    
+    // 끝점: 당월 총비용 (0에서 시작)
+    chartData.push({
+      name: '당월 총비용',
+      value: total.current || 0,
+      start: 0,
+      end: total.current || 0,
+      type: 'end',
+      previous: total.previous || 0,
+      current: total.current || 0,
+      change: total.change || 0,
+      changePercent: total.changePercent || 0,
+      displayValue: total.current || 0, // 표시용 값
+      labelText: `${Math.round(total.current || 0).toLocaleString()}` // 라벨 텍스트
+    });
+    
+    return chartData;
+  }, [kpiData, showAllWaterfallItems]);
+  
+  // Bubble Chart 데이터 준비
+  const bubbleChartData = useMemo(() => {
+    if (costCenterData.length === 0) return { data: [], avgHeadcount: 0, avgCostPerHead: 0 };
+    
+    // 유효한 데이터만 필터링 (인원수와 비용이 모두 있는 경우)
+    const validData = costCenterData.filter(cc => 
+      cc.currentHeadcount !== null && 
+      cc.currentHeadcount > 0 && 
+      cc.current > 0
+    );
+    
+    if (validData.length === 0) return { data: [], avgHeadcount: 0, avgCostPerHead: 0 };
+    
+    // Bubble Chart 데이터 생성
+    const bubbleData: any[] = validData.map(cc => {
+      const costPerHead = cc.current / cc.currentHeadcount;
+      return {
+        name: cc.name,
+        code: cc.code,
+        headcount: cc.currentHeadcount,
+        costPerHead: costPerHead,
+        totalCost: cc.current,
+        yoy: cc.yoy,
+        previous: cc.previous,
+        current: cc.current,
+        change: cc.change,
+        previousHeadcount: cc.previousHeadcount,
+        z: 0 // 초기값, 아래에서 계산됨
+      };
+    });
+    
+    // 버블 크기 정규화 (z 값 계산)
+    const maxCost = Math.max(...bubbleData.map(d => d.totalCost));
+    const minCost = Math.min(...bubbleData.map(d => d.totalCost));
+    const sizeRange = maxCost - minCost;
+    
+    bubbleData.forEach(d => {
+      // z 값: 총 비용에 비례 (최소 10, 최대 50)
+      d.z = sizeRange > 0 
+        ? 10 + ((d.totalCost - minCost) / sizeRange) * 40
+        : 25;
+    });
+    
+    // 전체 평균 계산
+    const totalHeadcount = bubbleData.reduce((sum, d) => sum + d.headcount, 0);
+    const totalCost = bubbleData.reduce((sum, d) => sum + d.totalCost, 0);
+    const avgHeadcount = totalHeadcount / bubbleData.length;
+    const avgCostPerHead = totalCost / totalHeadcount;
+    
+    return {
+      data: bubbleData,
+      avgHeadcount,
+      avgCostPerHead
+    };
+  }, [costCenterData]);
 
   if (loading) {
   return (
@@ -908,8 +1603,8 @@ export default function Dashboard() {
             </div>
           </div>
           
-          {/* 월 선택 & 편집 버튼 */}
-          <div className="flex items-center gap-2">
+          {/* 월 선택 & 필터 & 내보내기 */}
+          <div className="flex items-center gap-2 flex-wrap">
             {/* 월 선택 버튼 */}
             <div className="relative">
               <select 
@@ -934,6 +1629,157 @@ export default function Dashboard() {
               <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
+            </div>
+            
+            {/* 필터 버튼 */}
+            <div className="relative filter-dropdown">
+              <button
+                data-filter-button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={`px-4 py-2.5 border-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                  (selectedCostCenters.length > 0 || selectedMajorCategories.length > 0)
+                    ? 'border-purple-500 bg-purple-50 text-purple-700'
+                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                필터
+                {(selectedCostCenters.length > 0 || selectedMajorCategories.length > 0) && (
+                  <span className="bg-purple-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {selectedCostCenters.length + selectedMajorCategories.length}
+                  </span>
+                )}
+              </button>
+              
+              {/* 필터 드롭다운 */}
+              {isFilterOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 bg-white border-2 border-gray-200 rounded-lg shadow-xl z-50 p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-gray-900">필터</h3>
+                    <button
+                      onClick={() => setIsFilterOpen(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  {/* 코스트센터 필터 */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">코스트센터</label>
+                    <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                      {costCenterOptions.length > 0 ? (
+                        costCenterOptions.map((cc) => (
+                          <label key={cc} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedCostCenters.includes(cc)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedCostCenters([...selectedCostCenters, cc]);
+                                } else {
+                                  setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc));
+                                }
+                              }}
+                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{cc}</span>
+                          </label>
+                        ))
+                      ) : (
+                        <div className="text-xs text-gray-400 p-2">로딩 중...</div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* 계정 대분류 필터 */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">계정 대분류</label>
+                    <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                      {majorCategoryOptions.length > 0 ? (
+                        majorCategoryOptions.map((category) => (
+                          <label key={category} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedMajorCategories.includes(category)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedMajorCategories([...selectedMajorCategories, category]);
+                                } else {
+                                  setSelectedMajorCategories(selectedMajorCategories.filter(c => c !== category));
+                                }
+                              }}
+                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{category}</span>
+                          </label>
+                        ))
+                      ) : (
+                        <div className="text-xs text-gray-400 p-2">로딩 중...</div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* 필터 초기화 버튼 */}
+                  <button
+                    onClick={resetFilters}
+                    className="w-full px-4 py-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  >
+                    필터 초기화
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            {/* 내보내기 버튼 */}
+            <div className="relative">
+              <button
+                data-export-button
+                onClick={() => {
+                  const menu = document.getElementById('export-menu');
+                  if (menu) {
+                    menu.classList.toggle('hidden');
+                  }
+                }}
+                className="px-4 py-2.5 border-2 border-green-500 rounded-lg bg-white text-sm font-medium text-green-700 hover:bg-green-50 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                내보내기
+              </button>
+              
+              {/* 내보내기 메뉴 */}
+              <div id="export-menu" className="hidden absolute right-0 top-full mt-2 w-48 bg-white border-2 border-gray-200 rounded-lg shadow-xl z-50">
+                <button
+                  onClick={() => {
+                    exportToExcel();
+                    document.getElementById('export-menu')?.classList.add('hidden');
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Excel 다운로드
+                </button>
+                <button
+                  onClick={() => {
+                    exportInsights();
+                    document.getElementById('export-menu')?.classList.add('hidden');
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-t"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  인사이트 복사
+                </button>
+              </div>
             </div>
             
             {/* 편집 버튼 */}
@@ -990,14 +1836,25 @@ export default function Dashboard() {
           {kpiData.map((kpi, index) => (
             <Card 
               key={kpi.category}
-              className={`overflow-hidden transition-all hover:shadow-lg ${
-                index === 0 ? 'sm:col-span-2 lg:col-span-3 xl:col-span-1 ring-2 ring-primary' : ''
-              }`}
+              onClick={() => !isEditMode && handleKpiCardClick(kpi.category)}
+              className={`overflow-hidden transition-all duration-200 cursor-pointer
+                hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1
+                ${index === 0 ? 'sm:col-span-2 lg:col-span-3 xl:col-span-1 ring-2 ring-primary' : ''}
+              `}
+              title="클릭하여 상세보기"
             >
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {kpi.category}
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {kpi.category}
+                  </CardTitle>
+                  {/* 상세보기 힌트 아이콘 */}
+                  <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 {/* 금액 */}
@@ -1006,6 +1863,7 @@ export default function Dashboard() {
                     <input
                       type="number"
                       value={editedData[kpi.category]?.amount ?? kpi.current}
+                      onClick={(e) => e.stopPropagation()}
                       onChange={(e) => {
                         setEditedData({
                           ...editedData,
@@ -1027,10 +1885,10 @@ export default function Dashboard() {
                   )}
                 </div>
 
-                {/* YOY 배지 & 비중 배지 */}
-                <div className="flex items-center gap-1.5 -mx-1">
+                {/* YOY 배지 & 전월대비 배지 */}
+                <div className="flex items-center gap-1 flex-wrap -mx-0.5 min-h-[44px] content-start">
                   {/* YOY 배지 */}
-                  <div className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold whitespace-nowrap ${
+                  <div className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${
                     kpi.change > 0 
                       ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
                       : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
@@ -1038,12 +1896,25 @@ export default function Dashboard() {
                     <span>YOY {formatNumber(kpi.changePercent)}%</span>
                   </div>
                   
+                  {/* 전월대비 배지 */}
+                  {kpi.momPercent !== undefined && viewMode === 'monthly' && (
+                    <div className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${
+                      (kpi.momChange ?? 0) > 0 
+                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
+                        : (kpi.momChange ?? 0) < 0
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      <span>전월 {(kpi.momPercent ?? 0) > 0 ? '+' : ''}{(kpi.momPercent ?? 0).toFixed(1)}%</span>
+                    </div>
+                  )}
+                  
                   {/* 비중 배지 (총비용 제외) */}
                   {index !== 0 && (() => {
                     const totalCurrent = kpiData[0].current;
                     const ratio = totalCurrent > 0 ? (kpi.current / totalCurrent) * 100 : 0;
                     return (
-                      <div className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold whitespace-nowrap bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400">
+                      <div className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
                         <span>비중 {formatNumber(ratio)}%</span>
                       </div>
                     );
@@ -1067,7 +1938,7 @@ export default function Dashboard() {
 
                 {/* 코멘트 (편집 모드) */}
                 {isEditMode && (
-                  <div className="pt-2">
+                  <div className="pt-2" onClick={(e) => e.stopPropagation()}>
                     <textarea
                       placeholder="코멘트를 입력하세요..."
                       value={editedData[kpi.category]?.comment ?? ''}
@@ -1097,57 +1968,480 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* AI 인사이트 요약 */}
-        <Card className="mb-8 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
+        {/* 효율성 지표 섹션 */}
+        <Card className="mb-8">
+          <CardHeader 
+            className="cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => setIsEfficiencyExpanded(!isEfficiencyExpanded)}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-bold flex items-center gap-2">
+                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  효율성 지표
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">비용 효율성 핵심 지표</p>
               </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-base font-bold text-purple-900">💡 AI 인사이트</h3>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={generateAiInsight}
-                      disabled={isGeneratingInsight}
-                      className={`p-1.5 rounded-md transition-colors ${
-                        isGeneratingInsight 
-                          ? 'bg-purple-100 text-purple-400 cursor-not-allowed' 
-                          : 'hover:bg-purple-200 text-purple-600'
-                      }`}
-                      title="계층형 분석 코멘트 기반으로 AI 인사이트 자동 생성"
-                    >
-                      {isGeneratingInsight ? (
-                        <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <ChevronUpIcon className={`w-5 h-5 transition-transform ${isEfficiencyExpanded ? '' : 'rotate-180'}`} />
+            </div>
+          </CardHeader>
+          
+          {isEfficiencyExpanded && (
+            <CardContent>
+              {!efficiencyMetrics ? (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <p className="text-sm font-medium">효율성 지표를 계산하고 있습니다...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* 인당 공통비 카드 */}
+                  <div className="relative p-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl border border-indigo-100 group">
+                    <div className="absolute top-2 right-2">
+                      <div className="relative">
+                        <svg className="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                      ) : (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        <div className="absolute right-0 top-6 w-48 p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                          총 공통비용 ÷ 전사 인원수로 계산합니다. 인원당 평균 비용 부담을 나타냅니다.
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                      )}
-                    </button>
-                    <button
-                      onClick={startEditAiInsight}
-                      className="p-1.5 rounded-md hover:bg-purple-200 text-purple-600 transition-colors"
-                      title="AI 인사이트 편집"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                    </button>
+                      </div>
+                      <span className="text-sm font-medium text-gray-600">인당 공통비</span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">
+                      {efficiencyMetrics.costPerHead.current.toFixed(1)}
+                      <span className="text-sm font-normal text-gray-500 ml-1">백만원/인</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-semibold flex items-center gap-1 ${
+                        efficiencyMetrics.costPerHead.changePercent > 0 ? 'text-red-600' : 
+                        efficiencyMetrics.costPerHead.changePercent < 0 ? 'text-blue-600' : 'text-gray-500'
+                      }`}>
+                        {efficiencyMetrics.costPerHead.changePercent > 0 ? (
+                          <ArrowUpIcon className="w-3 h-3" />
+                        ) : efficiencyMetrics.costPerHead.changePercent < 0 ? (
+                          <ArrowDownIcon className="w-3 h-3" />
+                        ) : (
+                          <span>→</span>
+                        )}
+                        {efficiencyMetrics.costPerHead.changePercent >= 0 ? '+' : ''}
+                        {efficiencyMetrics.costPerHead.changePercent.toFixed(1)}%
+                      </span>
+                      <span className="text-xs text-gray-400">vs 전년</span>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500">
+                      전년 {efficiencyMetrics.costPerHead.previous.toFixed(1)}백만원/인
+                      <span className="mx-1">|</span>
+                      인원 {efficiencyMetrics.headcount.current}명 (전년 {efficiencyMetrics.headcount.previous}명)
+                    </div>
+                  </div>
+                  
+                  {/* 매출 대비 공통비 비율 카드 */}
+                  <div className="relative p-4 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl border border-gray-200 group">
+                    <div className="absolute top-2 right-2">
+                      <div className="relative">
+                        <svg className="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="absolute right-0 top-6 w-56 p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                          (공통비 ÷ 매출액_부가세제외) × 100으로 계산합니다. 공통비와 매출액 모두 부가세 제외 기준으로 비교합니다.
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-600">매출 대비 공통비</span>
+                    </div>
+                  {efficiencyMetrics.revenueRatio.current !== null ? (
+                    <>
+                      <div className="text-2xl font-bold text-gray-900 mb-1">
+                        {efficiencyMetrics.revenueRatio.current.toFixed(2)}
+                        <span className="text-sm font-normal text-gray-500 ml-1">%</span>
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-sm font-semibold flex items-center gap-1 ${
+                          (efficiencyMetrics.revenueRatio.change || 0) > 0 ? 'text-red-600' : 
+                          (efficiencyMetrics.revenueRatio.change || 0) < 0 ? 'text-blue-600' : 'text-gray-500'
+                        }`}>
+                          {(efficiencyMetrics.revenueRatio.change || 0) > 0 ? (
+                            <ArrowUpIcon className="w-3 h-3" />
+                          ) : (efficiencyMetrics.revenueRatio.change || 0) < 0 ? (
+                            <ArrowDownIcon className="w-3 h-3" />
+                          ) : (
+                            <span>→</span>
+                          )}
+                          {Math.abs(efficiencyMetrics.revenueRatio.change || 0).toFixed(2)}%p
+                        </span>
+                        <span className="text-xs text-gray-400">vs 전년</span>
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        <div className="text-xs text-gray-500">
+                          매출액: {efficiencyMetrics.revenueRatio.revenueCurrentExclVAT ? Math.round(efficiencyMetrics.revenueRatio.revenueCurrentExclVAT).toLocaleString() : '0'}백만원
+                          {viewMode === 'ytd' && ' (누적)'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          전년: {efficiencyMetrics.revenueRatio.revenuePreviousExclVAT ? Math.round(efficiencyMetrics.revenueRatio.revenuePreviousExclVAT).toLocaleString() : '0'}백만원
+                          {viewMode === 'ytd' && ' (누적)'}
+                        </div>
+                        <div className="text-xs text-gray-400 pt-1">
+                          비율: 전년 {efficiencyMetrics.revenueRatio.previous?.toFixed(2)}%
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                      <div className="flex flex-col items-center justify-center py-2">
+                        <div className="text-lg font-semibold text-gray-400 mb-1">데이터 연동 필요</div>
+                        <div className="text-xs text-gray-400">매출 데이터가 연동되면 자동 계산됩니다</div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* 비용 집중도 카드 */}
+                  <div className="relative p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100 group">
+                    <div className="absolute top-2 right-2">
+                      <div className="relative">
+                        <svg className="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="absolute right-0 top-6 w-48 p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                          상위 3개 비용 항목이 전체 공통비에서 차지하는 비율입니다. 비용 집중도가 높을수록 특정 항목 관리가 중요합니다.
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-600">비용 집중도</span>
+                    </div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">
+                      {efficiencyMetrics.costConcentration.totalRatio.toFixed(1)}
+                      <span className="text-sm font-normal text-gray-500 ml-1">%</span>
+                    </div>
+                    <div className="text-xs text-gray-600 mb-2">
+                      상위 3개 항목이 전체의 {efficiencyMetrics.costConcentration.totalRatio.toFixed(0)}% 차지
+                    </div>
+                    {/* 미니 파이차트 시각화 */}
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-10 h-10">
+                        <svg viewBox="0 0 36 36" className="w-10 h-10 transform -rotate-90">
+                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" strokeWidth="3" />
+                          <circle 
+                            cx="18" cy="18" r="15.9" fill="none" 
+                            stroke="#f59e0b" strokeWidth="3"
+                            strokeDasharray={`${efficiencyMetrics.costConcentration.totalRatio} ${100 - efficiencyMetrics.costConcentration.totalRatio}`}
+                          />
+                        </svg>
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        {efficiencyMetrics.costConcentration.top3Items.map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-xs">
+                            <span className="text-gray-600 truncate max-w-[80px]">{item.name}</span>
+                            <span className="font-medium text-gray-900">{item.ratio.toFixed(1)}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-                  {aiInsight}
-                </p>
+              )}
+            </CardContent>
+          )}
+        </Card>
+
+        {/* AI 인사이트 요약 - 구조화된 형태 */}
+        <Card className="mb-8 border-2 border-purple-200">
+          <CardHeader className="pb-2 bg-gradient-to-r from-purple-50 to-blue-50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-purple-900">AI 인사이트</h3>
+                  <p className="text-xs text-gray-500">우선순위별 액션 가이드</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={exportInsights}
+                  className="px-3 py-1.5 text-xs bg-white border border-purple-300 text-purple-700 hover:bg-purple-50 rounded-lg transition-colors flex items-center gap-1"
+                  title="인사이트 텍스트로 복사"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  내보내기
+                </button>
+                <button
+                  onClick={startEditAiInsight}
+                  className="p-1.5 rounded-md hover:bg-purple-200 text-purple-600 transition-colors"
+                  title="AI 인사이트 편집"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
               </div>
             </div>
+          </CardHeader>
+          <CardContent className="p-4">
+            {(() => {
+              const { critical, warning, positive } = getCategorizedInsights();
+              
+              // 인사이트가 없는 경우 기존 텍스트 표시
+              if (critical.length === 0 && warning.length === 0 && positive.length === 0) {
+                return (
+                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                    {aiInsight}
+                  </p>
+                );
+              }
+              
+              return (
+                <div className="space-y-4">
+                  {/* 즉시 확인 필요 */}
+                  {critical.length > 0 && (
+                    <div className="border border-red-200 rounded-lg overflow-hidden">
+                      <button
+                        onClick={() => setExpandedInsightCategories(prev => ({ ...prev, critical: !prev.critical }))}
+                        className="w-full flex items-center justify-between p-3 bg-red-50 hover:bg-red-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">🚨</span>
+                          <span className="font-bold text-red-800">즉시 확인 필요</span>
+                          <span className="text-xs text-red-600 bg-red-100 px-2 py-0.5 rounded-full">YOY ±50% 이상</span>
+                          <span className="text-sm text-red-600 font-semibold">{critical.length}건</span>
+                        </div>
+                        <ChevronDownIcon className={`w-5 h-5 text-red-600 transition-transform ${expandedInsightCategories.critical ? 'rotate-180' : ''}`} />
+                      </button>
+                      {expandedInsightCategories.critical && (
+                        <div className="p-3 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+                          {critical.map((item) => (
+                            <div
+                              key={item.id}
+                              className="p-3 bg-white border border-red-100 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                              onClick={() => setSelectedInsightItem(item)}
+                            >
+                              <div className="flex items-start justify-between mb-1">
+                                <span className="font-semibold text-sm text-gray-800 truncate">{item.name}</span>
+                                <span className={`text-xs px-1.5 py-0.5 rounded ${item.changePercent >= 0 ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                                  {item.level === 'major' ? '대분류' : item.level === 'middle' ? '중분류' : '소분류'}
+                                </span>
+                              </div>
+                              <div className={`text-lg font-bold ${item.changePercent >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                                {item.changePercent >= 0 ? '+' : ''}{item.changePercent.toFixed(1)}%
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {Math.round(item.previous)} → {Math.round(item.current)}백만원
+                              </div>
+                              {item.description && (
+                                <div className="mt-2 text-xs text-gray-600 line-clamp-2">
+                                  원인: {item.description}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* 모니터링 필요 */}
+                  {warning.length > 0 && (
+                    <div className="border border-amber-200 rounded-lg overflow-hidden">
+                      <button
+                        onClick={() => setExpandedInsightCategories(prev => ({ ...prev, warning: !prev.warning }))}
+                        className="w-full flex items-center justify-between p-3 bg-amber-50 hover:bg-amber-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">⚠️</span>
+                          <span className="font-bold text-amber-800">모니터링 필요</span>
+                          <span className="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">YOY ±20~50%</span>
+                          <span className="text-sm text-amber-600 font-semibold">{warning.length}건</span>
+                        </div>
+                        <ChevronDownIcon className={`w-5 h-5 text-amber-600 transition-transform ${expandedInsightCategories.warning ? 'rotate-180' : ''}`} />
+                      </button>
+                      {expandedInsightCategories.warning && (
+                        <div className="p-3 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+                          {warning.map((item) => (
+                            <div
+                              key={item.id}
+                              className="p-3 bg-white border border-amber-100 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                              onClick={() => setSelectedInsightItem(item)}
+                            >
+                              <div className="flex items-start justify-between mb-1">
+                                <span className="font-semibold text-sm text-gray-800 truncate">{item.name}</span>
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">
+                                  {item.level === 'major' ? '대분류' : item.level === 'middle' ? '중분류' : '소분류'}
+                                </span>
+                              </div>
+                              <div className="text-lg font-bold text-amber-600">
+                                {item.changePercent >= 0 ? '+' : ''}{item.changePercent.toFixed(1)}%
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {Math.round(item.previous)} → {Math.round(item.current)}백만원
+                              </div>
+                              {item.description && (
+                                <div className="mt-2 text-xs text-gray-600 line-clamp-2">
+                                  원인: {item.description}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* 긍정적 변화 */}
+                  {positive.length > 0 && (
+                    <div className="border border-green-200 rounded-lg overflow-hidden">
+                      <button
+                        onClick={() => setExpandedInsightCategories(prev => ({ ...prev, positive: !prev.positive }))}
+                        className="w-full flex items-center justify-between p-3 bg-green-50 hover:bg-green-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">✅</span>
+                          <span className="font-bold text-green-800">긍정적 변화</span>
+                          <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-full">비용 절감</span>
+                          <span className="text-sm text-green-600 font-semibold">{positive.length}건</span>
+                        </div>
+                        <ChevronDownIcon className={`w-5 h-5 text-green-600 transition-transform ${expandedInsightCategories.positive ? 'rotate-180' : ''}`} />
+                      </button>
+                      {expandedInsightCategories.positive && (
+                        <div className="p-3 grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+                          {positive.map((item) => (
+                            <div
+                              key={item.id}
+                              className="p-3 bg-white border border-green-100 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                              onClick={() => setSelectedInsightItem(item)}
+                            >
+                              <div className="flex items-start justify-between mb-1">
+                                <span className="font-semibold text-sm text-gray-800 truncate">{item.name}</span>
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-green-100 text-green-700">
+                                  {item.level === 'major' ? '대분류' : item.level === 'middle' ? '중분류' : '소분류'}
+                                </span>
+                              </div>
+                              <div className="text-lg font-bold text-green-600">
+                                {item.changePercent.toFixed(1)}%
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {Math.round(item.previous)} → {Math.round(item.current)}백만원
+                              </div>
+                              {item.description && (
+                                <div className="mt-2 text-xs text-gray-600 line-clamp-2">
+                                  원인: {item.description}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
+        
+        {/* 인사이트 상세 모달 */}
+        {selectedInsightItem && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedInsightItem(null)}>
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
+              <div className={`p-4 rounded-t-xl ${
+                Math.abs(selectedInsightItem.changePercent) >= 50 ? 'bg-red-50' :
+                selectedInsightItem.change < 0 ? 'bg-green-50' : 'bg-amber-50'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">
+                      {Math.abs(selectedInsightItem.changePercent) >= 50 ? '🚨' :
+                       selectedInsightItem.change < 0 ? '✅' : '⚠️'}
+                    </span>
+                    <h3 className="text-lg font-bold text-gray-800">{selectedInsightItem.name}</h3>
+                  </div>
+                  <button
+                    onClick={() => setSelectedInsightItem(null)}
+                    className="p-2 hover:bg-white/50 rounded-full transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div className="p-4 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">YOY 변동률</div>
+                    <div className={`text-2xl font-bold ${selectedInsightItem.changePercent >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                      {selectedInsightItem.changePercent >= 0 ? '+' : ''}{selectedInsightItem.changePercent.toFixed(1)}%
+                    </div>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="text-xs text-gray-500 mb-1">금액 변화</div>
+                    <div className={`text-2xl font-bold ${selectedInsightItem.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                      {selectedInsightItem.change >= 0 ? '+' : ''}{Math.round(selectedInsightItem.change)}백만원
+                    </div>
+                  </div>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <div className="text-xs text-gray-500 mb-1">금액 비교</div>
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <div className="text-xs text-gray-400">전년</div>
+                      <div className="text-lg font-semibold">{Math.round(selectedInsightItem.previous).toLocaleString()}백만원</div>
+                    </div>
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                    <div>
+                      <div className="text-xs text-gray-400">당월</div>
+                      <div className="text-lg font-semibold">{Math.round(selectedInsightItem.current).toLocaleString()}백만원</div>
+                    </div>
+                  </div>
+                </div>
+                {selectedInsightItem.description && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-xs text-blue-600 mb-1 font-semibold">원인 분석</div>
+                    <div className="text-sm text-gray-700">{selectedInsightItem.description}</div>
+                  </div>
+                )}
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className={`px-2 py-1 rounded ${
+                    selectedInsightItem.level === 'major' ? 'bg-purple-100 text-purple-700' :
+                    selectedInsightItem.level === 'middle' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+                  }`}>
+                    {selectedInsightItem.level === 'major' ? '대분류' : selectedInsightItem.level === 'middle' ? '중분류' : '소분류'}
+                  </span>
+                  <span className="px-2 py-1 bg-gray-100 rounded">{selectedInsightItem.category}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* AI 인사이트 편집 다이얼로그 */}
         {editingAiInsight && (
@@ -1191,7 +2485,7 @@ export default function Dashboard() {
         )}
 
         {/* 월별 비용 추이 및 YOY 비교 차트 */}
-        <Card className="mb-8">
+        <Card className="mb-8" ref={chartSectionRef}>
           <CardHeader 
             className="cursor-pointer hover:bg-gray-50 transition-colors"
             onClick={() => setIsChartExpanded(!isChartExpanded)}
@@ -1207,6 +2501,33 @@ export default function Dashboard() {
           
           {isChartExpanded && (
             <CardContent>
+              {/* 차트 요약 텍스트 */}
+              {chartData.length > 0 && chartData[chartData.length - 1]?.['6개월평균'] > 0 && (() => {
+                const latestMonth = chartData[chartData.length - 1];
+                const ma6 = latestMonth['6개월평균'];
+                const total = latestMonth['총비용'] || 0;
+                const deviation = latestMonth.deviation || 0;
+                const monthLabel = latestMonth.month || '';
+                const deviationText = deviation >= 0 ? '높은' : '낮은';
+                const deviationColor = deviation >= 0 ? 'text-red-600' : 'text-green-600';
+                
+                return (
+                  <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm text-gray-700">
+                      <span className="font-semibold">{monthLabel}</span> 비용은 
+                      <span className="font-bold text-blue-600"> {Math.round(total).toLocaleString()}백만원</span>으로, 
+                      6개월 평균(<span className="font-semibold">{Math.round(ma6).toLocaleString()}백만원</span>) 대비 
+                      <span className={`font-bold ${deviationColor}`}> {Math.abs(deviation).toFixed(1)}% {deviationText}</span> 수준입니다.
+                      {latestMonth.isOutlier && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                          ⚠️ 이상치
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                );
+              })()}
+              
               <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart
@@ -1245,24 +2566,38 @@ export default function Dashboard() {
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           const data = chartData.find(d => d.month === label);
+                          const deviation = data?.deviation || 0;
+                          const isOutlier = data?.isOutlier || false;
+                          
                           return (
-                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]" style={{ backgroundColor: '#ffffff', opacity: 1 }}>
-                              <p className="font-bold text-gray-900 mb-3 pb-2 border-b">{viewMode === 'monthly' ? '25년' : '25년 누적'} {label}</p>
+                            <div className={`bg-white p-3 border-2 rounded-lg shadow-lg min-w-[220px] ${isOutlier ? 'border-red-400' : 'border-gray-200'}`} style={{ backgroundColor: '#ffffff', opacity: 1 }}>
+                              <div className="flex items-center justify-between mb-3 pb-2 border-b">
+                                <p className="font-bold text-gray-900">{label}</p>
+                                {isOutlier && (
+                                  <span className="text-red-500 text-lg">⚠️</span>
+                                )}
+                              </div>
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">총비용:</span>
                                   <span className="text-sm font-bold text-blue-600">{Math.round(data?.총비용 || 0).toLocaleString()}백만원</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                  <span className="text-sm text-gray-600">전년:</span>
-                                  <span className="text-sm font-semibold text-gray-700">{Math.round((data?.총비용 || 0) / (data?.YOY || 100) * 100).toLocaleString()}백만원</span>
+                                  <span className="text-sm text-gray-600">6개월 평균:</span>
+                                  <span className="text-sm font-semibold text-gray-700">{Math.round(data?.['6개월평균'] || 0).toLocaleString()}백만원</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">평균 대비:</span>
+                                  <span className={`text-sm font-bold ${deviation >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                    {deviation >= 0 ? '+' : ''}{deviation.toFixed(1)}% {deviation >= 0 ? '상회' : '하회'}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">YOY:</span>
                                   <span className="text-sm font-bold text-red-600">{Math.round(data?.YOY || 0).toLocaleString()}%</span>
                                 </div>
                                 <div className="pt-2 border-t">
-                                  <p className="text-xs font-semibold text-gray-700 mb-2">중분류별 비중</p>
+                                  <p className="text-xs font-semibold text-gray-700 mb-2">대분류별 비중</p>
                                   {[
                                     { name: '인건비', color: '#a7c7e7' },
                                     { name: 'IT수수료', color: '#f4a6c3' },
@@ -1289,22 +2624,38 @@ export default function Dashboard() {
                         return null;
                       }}
                     />
-                    {/* 100% 기준선 */}
-                    <ReferenceLine 
-                      yAxisId="right" 
-                      y={100} 
-                      stroke="#9ca3af" 
-                      strokeDasharray="5 5" 
-                      strokeWidth={2}
-                      label={{ value: '100%', position: 'right', fill: '#6b7280', fontSize: 11 }}
-                    />
+                    {/* 스택 막대 그래프 - 하이라이트 기능 적용 */}
+                    {[
+                      { key: '인건비', color: '#a7c7e7' },
+                      { key: 'IT수수료', color: '#f4a6c3' },
+                      { key: '지급수수료', color: '#b4e7ce' },
+                      { key: '직원경비', color: '#ffd4a3' },
+                      { key: '기타비용', color: '#e0b0ff' }
+                    ].map((cat) => (
+                      <Bar 
+                        key={cat.key}
+                        yAxisId="left" 
+                        dataKey={cat.key} 
+                        stackId="a" 
+                        fill={cat.color} 
+                        name={cat.key}
+                        fillOpacity={highlightedCategory === null || highlightedCategory === cat.key ? 1 : 0.3}
+                        stroke={highlightedCategory === cat.key ? '#000' : 'none'}
+                        strokeWidth={highlightedCategory === cat.key ? 2 : 0}
+                      />
+                    ))}
                     
-                    {/* 스택 막대 그래프 - 범례 순서대로 */}
-                    <Bar yAxisId="left" dataKey="인건비" stackId="a" fill="#a7c7e7" name="인건비" />
-                    <Bar yAxisId="left" dataKey="IT수수료" stackId="a" fill="#f4a6c3" name="IT수수료" />
-                    <Bar yAxisId="left" dataKey="지급수수료" stackId="a" fill="#b4e7ce" name="지급수수료" />
-                    <Bar yAxisId="left" dataKey="직원경비" stackId="a" fill="#ffd4a3" name="직원경비" />
-                    <Bar yAxisId="left" dataKey="기타비용" stackId="a" fill="#e0b0ff" name="기타비용" />
+                    {/* 6개월 이동평균선 */}
+                    <Line 
+                      yAxisId="left" 
+                      type="monotone" 
+                      dataKey="6개월평균" 
+                      stroke="#888888" 
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={false}
+                      name="6개월 평균"
+                    />
                     
                     {/* YOY 꺾은선 그래프 */}
                     <Line 
@@ -1323,39 +2674,175 @@ export default function Dashboard() {
                         cursor: 'pointer'
                       }}
                       iconType="circle"
-                      formatter={(value) => (
-                        <span 
-                          style={{ 
-                            color: '#6b7280',
-                            cursor: value !== 'YOY' ? 'pointer' : 'default',
-                            transition: 'all 0.2s'
-                          }}
-                          onClick={() => {
-                            if (value !== 'YOY') {
-                              handleDrilldown(value);
-                            }
-                          }}
-                          onMouseEnter={(e) => {
-                            if (value !== 'YOY') {
-                              e.currentTarget.style.color = '#000000';
-                              e.currentTarget.style.fontWeight = 'bold';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.color = '#6b7280';
-                            e.currentTarget.style.fontWeight = 'normal';
-                          }}
-                        >
-                          {value}
-                        </span>
-                      )}
+                      formatter={(value) => {
+                        const isHighlighted = highlightedCategory === value;
+                        const isDimmed = highlightedCategory !== null && highlightedCategory !== value && value !== 'YOY' && value !== '6개월 평균';
+                        
+                        return (
+                          <span 
+                            style={{ 
+                              color: isDimmed ? '#ccc' : (isHighlighted ? '#000' : '#6b7280'),
+                              fontWeight: isHighlighted ? 'bold' : 'normal',
+                              cursor: value !== 'YOY' && value !== '6개월 평균' ? 'pointer' : 'default',
+                              transition: 'all 0.2s'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (value !== 'YOY' && value !== '6개월 평균') {
+                                // 하이라이트 토글
+                                if (highlightedCategory === value) {
+                                  setHighlightedCategory(null);
+                                } else {
+                                  setHighlightedCategory(value);
+                                }
+                              }
+                            }}
+                            onDoubleClick={(e) => {
+                              e.stopPropagation();
+                              if (value !== 'YOY' && value !== '6개월 평균') {
+                                handleDrilldown(value);
+                              }
+                            }}
+                            title={value !== 'YOY' && value !== '6개월 평균' ? '클릭: 하이라이트 / 더블클릭: 드릴다운' : ''}
+                          >
+                            {value}
+                          </span>
+                        );
+                      }}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
+              {/* 6개월 평균 점선 설명 */}
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                ※ 회색 점선은 해당 월 기준 과거 6개월간 총비용의 이동평균을 나타냅니다.
+              </p>
             </CardContent>
           )}
         </Card>
+
+        {/* 비용 변동 요인 Waterfall 차트 */}
+        {kpiData.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-bold">비용 변동 요인 분석</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    전년 대비 비용 변동을 항목별로 시각화한 Waterfall 차트
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowAllWaterfallItems(!showAllWaterfallItems)}
+                  className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200 transition-colors"
+                >
+                  {showAllWaterfallItems ? '주요 항목만 보기' : '전체 보기'}
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[500px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart
+                    data={waterfallData}
+                    margin={{ top: 20, right: 30, bottom: 60, left: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis 
+                      dataKey="name"
+                      angle={0}
+                      textAnchor="middle"
+                      height={40}
+                      interval={0}
+                      tick={{ fontSize: 11 }}
+                      width={100}
+                    />
+                    <YAxis 
+                      hide={true}
+                      domain={[(dataMin: number) => {
+                        // 최소값 계산 (음수 변동폭 고려)
+                        const minValue = Math.min(
+                          ...waterfallData.map(d => d.type === 'start' || d.type === 'end' ? 0 : Math.min(d.start, d.end))
+                        );
+                        return Math.min(0, minValue * 1.1); // 음수 변동폭이 있으면 여유 공간 추가
+                      }, (dataMax: number) => {
+                        // 최대값 계산
+                        const maxValue = Math.max(
+                          ...waterfallData.map(d => d.type === 'start' || d.type === 'end' ? d.value : Math.max(d.start, d.end))
+                        );
+                        return maxValue * 1.1; // 10% 여유 공간
+                      }]}
+                    />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length > 0) {
+                          const data = payload[0].payload;
+                          if (data.type === 'start' || data.type === 'end') {
+                            return (
+                              <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                                <p className="font-semibold text-gray-900">{data.name}</p>
+                                <p className="text-sm text-gray-600">
+                                  금액: {Math.round(data.value).toLocaleString()}백만원
+                                </p>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                              <p className="font-semibold text-gray-900">{data.name}</p>
+                              <p className="text-sm text-gray-600">
+                                전년: {Math.round(data.previous).toLocaleString()}백만원
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                당년: {Math.round(data.current).toLocaleString()}백만원
+                              </p>
+                              <p className={`text-sm font-semibold ${data.change > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                변동: {data.change > 0 ? '+' : ''}{Math.round(data.change).toLocaleString()}백만원
+                                ({data.changePercent > 0 ? '+' : ''}{data.changePercent.toFixed(1)}%)
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    {/* 시작점 바 (투명) */}
+                    <Bar
+                      dataKey="start"
+                      stackId="waterfall"
+                      fill="transparent"
+                    />
+                    {/* 변동값 바 */}
+                    <Bar
+                      dataKey="value"
+                      stackId="waterfall"
+                      radius={[0, 0, 0, 0]}
+                    >
+                      {waterfallData.map((entry, index) => {
+                        let color = '#9ca3af'; // 기본 회색
+                        
+                        if (entry.type === 'start' || entry.type === 'end') {
+                          color = '#6366f1'; // 시작/끝은 보라색
+                        } else if (entry.type === 'increase') {
+                          color = '#ef4444'; // 증가는 빨강
+                        } else if (entry.type === 'decrease') {
+                          color = '#10b981'; // 감소는 초록
+                        }
+                        
+                        return <Cell key={`cell-${index}`} fill={color} />;
+                      })}
+                      <LabelList 
+                        dataKey="labelText"
+                        position="top"
+                        style={{ fontSize: '11px', fill: '#374151', fontWeight: 'bold' }}
+                      />
+                    </Bar>
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* 드릴다운 차트 */}
         {drilldownCategory && drilldownData.length > 0 && (
@@ -1425,7 +2912,7 @@ export default function Dashboard() {
                           
                           return (
                             <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg min-w-[200px]" style={{ backgroundColor: '#ffffff', opacity: 1 }}>
-                              <p className="font-bold text-gray-900 mb-3 pb-2 border-b">25년 {label}</p>
+                              <p className="font-bold text-gray-900 mb-3 pb-2 border-b">{label}</p>
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">총비용:</span>
@@ -1699,7 +3186,7 @@ export default function Dashboard() {
         )}
         
         {/* 계정별 / 코스트센터별 YOY 비교 분석 */}
-        <Card className="mt-6">
+        <Card className="mt-6" ref={accountSectionRef}>
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-4 flex-1">
               <CardTitle className="text-lg font-bold">비용 대분류별 YOY 비교</CardTitle>
@@ -1775,9 +3262,9 @@ export default function Dashboard() {
           
           {isAccountExpanded && (
             <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {/* 왼쪽: 계정별 분석 (약 55%) */}
-                <div className="lg:col-span-2 lg:pr-2">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* 왼쪽: 계정별 분석 (50%) */}
+                <div className="lg:pr-2">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
                     {accountLevel === 'major' && '계정 대분류'}
                     {accountLevel === 'middle' && '계정 중분류'}
@@ -1867,8 +3354,8 @@ export default function Dashboard() {
                   </div>
                 </div>
                 
-                {/* 오른쪽: 코스트센터별 TOP 10 (약 45%) */}
-                <div className="lg:col-span-1 border-l pl-4">
+                {/* 오른쪽: 코스트센터별 TOP 10 (50%) */}
+                <div className="border-l pl-4">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
                     코스트센터별 (공통 선택 필요)
                   </h3>
@@ -1882,40 +3369,232 @@ export default function Dashboard() {
                       
                       {costCenterData.length > 0 ? (
                         <div>
-                          {/* 헤더 */}
-                          <div className="flex items-center justify-between text-xs font-semibold text-gray-600 mb-2 pb-2 border-b">
-                            <span className="flex-1 min-w-0 pr-2 truncate">코스트센터 (TOP {costCenterData.length})</span>
-                            <div className="flex items-center gap-3 flex-shrink-0">
-                              <span className="w-14 text-center">당년</span>
-                              <span className="w-14 text-center">전년</span>
-                              <span className="w-14 text-center">YOY</span>
-                            </div>
-                          </div>
-                          
-                          {/* 데이터 */}
-                          <div className="space-y-1.5">
-                            {costCenterData.map((cc, index) => (
-                              <div 
-                                key={cc.code}
-                                className="p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                              >
-                                <div className="flex items-center justify-between text-xs gap-2">
-                                  <span className="font-semibold text-gray-800 flex-1 min-w-0 truncate">
-                                    {cc.name}
-                                    {cc.currentHeadcount !== null && (
-                                      <span className="text-gray-500 ml-1">({cc.currentHeadcount}명)</span>
-                                    )}
-                                  </span>
-                                  <div className="flex items-center gap-3 flex-shrink-0">
-                                    <span className="w-14 text-right font-bold text-gray-900">{formatNumber(cc.current)}</span>
-                                    <span className="w-14 text-right font-medium text-blue-600">{formatNumber(cc.previous)}</span>
-                                    <span className={`w-14 text-right font-bold ${cc.yoy >= 100 ? 'text-red-600' : 'text-green-600'}`}>
-                                      {formatNumber(cc.yoy)}%
-                                    </span>
+                          {/* Bubble Chart */}
+                          {bubbleChartData.data.length > 0 && (
+                            <div className="mb-6">
+                              <h4 className="text-xs font-semibold text-gray-700 mb-2">
+                                코스트센터 효율성 분석 (Bubble Chart)
+                                <span className="text-gray-500 font-normal ml-2">X축: 인원수(명), Y축: 인당비용(백만원)</span>
+                              </h4>
+                              <div className="h-[400px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <ScatterChart
+                                    data={bubbleChartData.data}
+                                    margin={{ top: 20, right: 20, bottom: 60, left: 30 }}
+                                  >
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                                    <XAxis 
+                                      type="number"
+                                      dataKey="headcount"
+                                      name="인원수"
+                                      unit="명"
+                                      domain={['dataMin - 5', 'dataMax + 5']}
+                                      tick={{ fontSize: 11 }}
+                                      tickFormatter={(value) => Math.round(value).toString()}
+                                    />
+                                    <YAxis 
+                                      type="number"
+                                      dataKey="costPerHead"
+                                      name="인당 비용"
+                                      unit="백만원"
+                                      domain={['dataMin - 0.5', 'dataMax + 0.5']}
+                                      tick={{ fontSize: 11 }}
+                                      tickFormatter={(value) => `${Math.round(value)}`}
+                                    />
+                                    <ZAxis 
+                                      type="number"
+                                      dataKey="z"
+                                      range={[10, 50]}
+                                      name="총 비용"
+                                    />
+                                    <Tooltip
+                                      cursor={{ strokeDasharray: '3 3' }}
+                                      content={({ active, payload }) => {
+                                        if (active && payload && payload.length > 0) {
+                                          const data = payload[0].payload;
+                                          return (
+                                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                                              <p className="font-semibold text-gray-900 mb-2">{data.name}</p>
+                                              <div className="space-y-1 text-sm">
+                                                <p className="text-gray-600">
+                                                  인원수: <span className="font-semibold">{data.headcount}명</span>
+                                                </p>
+                                                <p className="text-gray-600">
+                                                  인당 비용: <span className="font-semibold">{data.costPerHead.toFixed(2)}백만원</span>
+                                                </p>
+                                                <p className="text-gray-600">
+                                                  총 비용: <span className="font-semibold">{data.totalCost.toFixed(1)}백만원</span>
+                                                </p>
+                                                <p className={`font-semibold ${data.yoy >= 100 ? 'text-red-600' : 'text-green-600'}`}>
+                                                  YOY: {data.yoy.toFixed(1)}%
+                                                </p>
+                                              </div>
+                                            </div>
+                                          );
+                                        }
+                                        return null;
+                                      }}
+                                    />
+                                    {/* 평균 인원수 세로선 */}
+                                    <ReferenceLine 
+                                      x={bubbleChartData.avgHeadcount} 
+                                      stroke="#9ca3af" 
+                                      strokeDasharray="5 5"
+                                      label={{ value: `평균 인원수: ${Math.round(bubbleChartData.avgHeadcount)}명`, position: 'top', style: { fontSize: '10px' } }}
+                                    />
+                                    {/* 평균 인당 비용 가로선 */}
+                                    <ReferenceLine 
+                                      y={bubbleChartData.avgCostPerHead} 
+                                      stroke="#9ca3af" 
+                                      strokeDasharray="5 5"
+                                      label={{ value: `평균: ${Math.round(bubbleChartData.avgCostPerHead)}백만원`, position: 'right', offset: 10, style: { fontSize: '10px' } }}
+                                    />
+                                    {/* 사분면 라벨 */}
+                                    <ReferenceArea
+                                      x1={bubbleChartData.avgHeadcount}
+                                      x2="dataMax + 10"
+                                      y1={bubbleChartData.avgCostPerHead}
+                                      y2="dataMax + 1"
+                                      fill="#fee2e2"
+                                      fillOpacity={0.2}
+                                    />
+                                    <ReferenceArea
+                                      x1="dataMin - 5"
+                                      x2={bubbleChartData.avgHeadcount}
+                                      y1="dataMin - 0.5"
+                                      y2={bubbleChartData.avgCostPerHead}
+                                      fill="#dcfce7"
+                                      fillOpacity={0.2}
+                                    />
+                                    <Scatter
+                                      name="코스트센터"
+                                      data={bubbleChartData.data}
+                                      fill="#8884d8"
+                                      onClick={(data) => {
+                                        if (data && data.payload) {
+                                          setSelectedCostCenterDetail(data.payload);
+                                        }
+                                      }}
+                                    >
+                                      {bubbleChartData.data.map((entry, index) => {
+                                        // YOY 증감률에 따라 색상 결정 (초록~빨강 그라데이션)
+                                        const yoyValue = entry.yoy;
+                                        let color = '#10b981'; // 기본 초록
+                                        
+                                        if (yoyValue >= 120) {
+                                          color = '#dc2626'; // 빨강 (120% 이상)
+                                        } else if (yoyValue >= 110) {
+                                          color = '#f87171'; // 연한 빨강 (110-120%)
+                                        } else if (yoyValue >= 105) {
+                                          color = '#fb923c'; // 주황 (105-110%)
+                                        } else if (yoyValue >= 100) {
+                                          color = '#fbbf24'; // 노랑 (100-105%)
+                                        } else if (yoyValue >= 95) {
+                                          color = '#84cc16'; // 연한 초록 (95-100%)
+                                        } else {
+                                          color = '#10b981'; // 초록 (95% 미만)
+                                        }
+                                        
+                                        return (
+                                          <Cell 
+                                            key={`cell-${index}`} 
+                                            fill={color}
+                                            style={{ cursor: 'pointer' }}
+                                          />
+                                        );
+                                      })}
+                                    </Scatter>
+                                  </ScatterChart>
+                                </ResponsiveContainer>
+                              </div>
+                              
+                              {/* 범례 및 설명 */}
+                              <div className="mt-4 space-y-2">
+                                <div className="flex flex-wrap items-center gap-4 text-xs">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-gray-700">버블 크기:</span>
+                                    <span className="text-gray-600">총 비용</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-gray-700">버블 색상:</span>
+                                    <span className="text-gray-600">YOY 증감률</span>
                                   </div>
                                 </div>
+                                <div className="flex flex-wrap items-center gap-3 text-xs">
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-3 h-3 rounded-full bg-red-600"></div>
+                                    <span className="text-gray-600">120% 이상 (증가)</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                                    <span className="text-gray-600">105-120%</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <span className="text-gray-600">100-105%</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <span className="text-gray-600">100% 미만 (감소)</span>
+                                  </div>
+                                </div>
+                                <div className="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-600">
+                                  <p className="font-semibold mb-1">사분면 가이드:</p>
+                                  <p>• <span className="text-red-600 font-semibold">우상단 (빨강 영역)</span>: 인원 多, 비용 高 - 효율화 검토 필요</p>
+                                  <p>• <span className="text-green-600 font-semibold">좌하단 (초록 영역)</span>: 인원 少, 비용 低 - 효율적 운영</p>
+                                </div>
                               </div>
-                            ))}
+                            </div>
+                          )}
+                          
+                          {/* 기존 테이블 */}
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-700 mb-2">
+                              코스트센터 상세 (TOP {costCenterData.length})
+                            </h4>
+                            {/* 헤더 */}
+                            <div className="flex items-center justify-between text-xs font-semibold text-gray-600 mb-2 pb-2 border-b">
+                              <span className="flex-1 min-w-0 pr-2 truncate">코스트센터</span>
+                              <div className="flex items-center gap-3 flex-shrink-0">
+                                <span className="w-14 text-center">당년</span>
+                                <span className="w-14 text-center">전년</span>
+                                <span className="w-14 text-center">YOY</span>
+                              </div>
+                            </div>
+                            
+                            {/* 데이터 */}
+                            <div className="space-y-1.5">
+                              {costCenterData.map((cc, index) => (
+                                <div 
+                                  key={cc.code}
+                                  className={`p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${
+                                    selectedCostCenterDetail && selectedCostCenterDetail.code === cc.code ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                                  }`}
+                                  onClick={() => {
+                                    const bubbleData = bubbleChartData.data.find(d => d.code === cc.code);
+                                    if (bubbleData) {
+                                      setSelectedCostCenterDetail(bubbleData);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between text-xs gap-2">
+                                    <span className="font-semibold text-gray-800 flex-1 min-w-0 truncate">
+                                      {cc.name}
+                                      {cc.currentHeadcount !== null && (
+                                        <span className="text-gray-500 ml-1">({cc.currentHeadcount}명)</span>
+                                      )}
+                                    </span>
+                                    <div className="flex items-center gap-3 flex-shrink-0">
+                                      <span className="w-14 text-right font-bold text-gray-900">{formatNumber(cc.current)}</span>
+                                      <span className="w-14 text-right font-medium text-blue-600">{formatNumber(cc.previous)}</span>
+                                      <span className={`w-14 text-right font-bold ${cc.yoy >= 100 ? 'text-red-600' : 'text-green-600'}`}>
+                                        {formatNumber(cc.yoy)}%
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       ) : (
@@ -1934,6 +3613,95 @@ export default function Dashboard() {
             </CardContent>
           )}
         </Card>
+        
+        {/* 코스트센터 상세 정보 모달 */}
+        {selectedCostCenterDetail && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setSelectedCostCenterDetail(null)}>
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">{selectedCostCenterDetail.name}</h3>
+                <button
+                  onClick={() => setSelectedCostCenterDetail(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">인원수</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {selectedCostCenterDetail.headcount}명
+                      {selectedCostCenterDetail.previousHeadcount && (
+                        <span className="text-gray-500 ml-1">
+                          (전년: {selectedCostCenterDetail.previousHeadcount}명)
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">인당 비용</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {selectedCostCenterDetail.costPerHead.toFixed(2)}백만원
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">당년 총 비용</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {selectedCostCenterDetail.current.toFixed(1)}백만원
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">전년 총 비용</p>
+                    <p className="text-sm font-semibold text-blue-600">
+                      {selectedCostCenterDetail.previous.toFixed(1)}백만원
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">증감</p>
+                    <p className={`text-sm font-semibold ${selectedCostCenterDetail.change >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                      {selectedCostCenterDetail.change >= 0 ? '+' : ''}{selectedCostCenterDetail.change.toFixed(1)}백만원
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">YOY 증감률</p>
+                    <p className={`text-sm font-semibold ${selectedCostCenterDetail.yoy >= 100 ? 'text-red-600' : 'text-green-600'}`}>
+                      {selectedCostCenterDetail.yoy.toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+                
+                {/* 사분면 분석 */}
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs font-semibold text-gray-700 mb-2">효율성 분석</p>
+                  {selectedCostCenterDetail.headcount > bubbleChartData.avgHeadcount && 
+                   selectedCostCenterDetail.costPerHead > bubbleChartData.avgCostPerHead ? (
+                    <p className="text-xs text-red-600">
+                      ⚠️ 우상단 사분면: 인원 多, 비용 高 - 효율화 검토 필요
+                    </p>
+                  ) : selectedCostCenterDetail.headcount < bubbleChartData.avgHeadcount && 
+                        selectedCostCenterDetail.costPerHead < bubbleChartData.avgCostPerHead ? (
+                    <p className="text-xs text-green-600">
+                      ✅ 좌하단 사분면: 인원 少, 비용 低 - 효율적 운영
+                    </p>
+                  ) : selectedCostCenterDetail.headcount > bubbleChartData.avgHeadcount ? (
+                    <p className="text-xs text-orange-600">
+                      📊 인원수는 평균보다 많지만, 인당 비용은 평균 수준
+                    </p>
+                  ) : (
+                    <p className="text-xs text-blue-600">
+                      📊 인원수는 평균보다 적지만, 인당 비용은 평균보다 높음
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* 구조화된 테이블 (계층형) */}
         <Card className="shadow-lg mt-8">
@@ -2024,7 +3792,7 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {hierarchyData.map((major) => (
+                    {filteredHierarchyData.map((major) => (
                       <HierarchyRow
                         key={major.id}
                         data={major}
@@ -2045,7 +3813,7 @@ export default function Dashboard() {
                   </tbody>
                 </table>
                 
-                {hierarchyData.length === 0 && (
+                {filteredHierarchyData.length === 0 && (
                   <div className="text-center py-12 text-gray-400">
                     데이터를 불러오는 중...
                   </div>

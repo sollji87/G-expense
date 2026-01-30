@@ -8,6 +8,10 @@ interface KpiData {
   previous: number;
   change: number;
   changePercent: number;
+  // MoM (전월 대비) 데이터
+  previousMonth: number;  // 전월 금액
+  momChange: number;      // 전월 대비 증감액
+  momPercent: number;     // 전월 대비 증감률 (%)
 }
 
 // 계정대분류 → KPI 카테고리 매핑
@@ -48,6 +52,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('mode') || 'monthly'; // 'monthly' or 'ytd'
     const month = searchParams.get('month') || '12'; // 선택된 월 (1-12)
+    const year = searchParams.get('year') || '2025'; // 선택된 연도 (기본값 2025)
     
     // CSV 파일 읽기 - 여러 경로 시도
     let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
@@ -71,17 +76,17 @@ export async function GET(request: Request) {
     const records = parseCSV(fileContent);
 
     // 현재 월과 전년 동월 설정
-    const currentYear = '2025';
-    const previousYear = '2024';
+    const currentYear = year;
+    const previousYear = (parseInt(year) - 1).toString();
     const targetMonth = month;
     
-    // 카테고리별 집계 객체
-    const categoryData: Record<string, { current: number; previous: number }> = {
-      '인건비': { current: 0, previous: 0 },
-      'IT수수료': { current: 0, previous: 0 },
-      '지급수수료': { current: 0, previous: 0 },
-      '직원경비': { current: 0, previous: 0 },
-      '기타비용': { current: 0, previous: 0 },
+    // 카테고리별 집계 객체 (전월 데이터 포함)
+    const categoryData: Record<string, { current: number; previous: number; previousMonth: number }> = {
+      '인건비': { current: 0, previous: 0, previousMonth: 0 },
+      'IT수수료': { current: 0, previous: 0, previousMonth: 0 },
+      '지급수수료': { current: 0, previous: 0, previousMonth: 0 },
+      '직원경비': { current: 0, previous: 0, previousMonth: 0 },
+      '기타비용': { current: 0, previous: 0, previousMonth: 0 },
     };
 
     // 데이터 집계
@@ -92,13 +97,21 @@ export async function GET(request: Request) {
       if (mode === 'monthly') {
         // 당월 모드: 202510 vs 202410
         const currentMonth = `${currentYear}${targetMonth.padStart(2, '0')}`;
-        const previousMonth = `${previousYear}${targetMonth.padStart(2, '0')}`;
+        const previousYearMonth = `${previousYear}${targetMonth.padStart(2, '0')}`;
+        
+        // 전월 계산 (1월인 경우 전년 12월)
+        const prevMonthNum = parseInt(targetMonth) - 1;
+        const prevMonthStr = prevMonthNum > 0 
+          ? `${currentYear}${prevMonthNum.toString().padStart(2, '0')}`
+          : `${previousYear}12`;
         
         const currentAmount = parseFloat(record[currentMonth] || '0');
-        const previousAmount = parseFloat(record[previousMonth] || '0');
+        const previousYearAmount = parseFloat(record[previousYearMonth] || '0');
+        const previousMonthAmount = parseFloat(record[prevMonthStr] || '0');
         
         categoryData[categoryName].current += currentAmount;
-        categoryData[categoryName].previous += previousAmount;
+        categoryData[categoryName].previous += previousYearAmount;
+        categoryData[categoryName].previousMonth += previousMonthAmount;
       } else {
         // 누적 모드: 202501~202510 vs 202401~202410
         for (let month = 1; month <= parseInt(targetMonth); month++) {
@@ -106,10 +119,19 @@ export async function GET(request: Request) {
           const previousYearMonth = `${previousYear}${month.toString().padStart(2, '0')}`;
           
           const currentAmount = parseFloat(record[currentYearMonth] || '0');
-          const previousAmount = parseFloat(record[previousYearMonth] || '0');
+          const previousYearAmount = parseFloat(record[previousYearMonth] || '0');
           
           categoryData[categoryName].current += currentAmount;
-          categoryData[categoryName].previous += previousAmount;
+          categoryData[categoryName].previous += previousYearAmount;
+        }
+        
+        // 누적 모드에서 MoM은 전월 누적 대비 (n-1월까지의 누적)
+        if (parseInt(targetMonth) > 1) {
+          for (let month = 1; month < parseInt(targetMonth); month++) {
+            const currentYearMonth = `${currentYear}${month.toString().padStart(2, '0')}`;
+            const prevMonthAmount = parseFloat(record[currentYearMonth] || '0');
+            categoryData[categoryName].previousMonth += prevMonthAmount;
+          }
         }
       }
     });
@@ -118,8 +140,13 @@ export async function GET(request: Request) {
     const kpiData: KpiData[] = Object.entries(categoryData).map(([category, data]) => {
       const current = data.current / 1_000_000; // 백만원 단위
       const previous = data.previous / 1_000_000;
+      const previousMonth = data.previousMonth / 1_000_000;
       const change = current - previous;
       const changePercent = previous !== 0 ? (current / previous) * 100 : 0;
+      
+      // MoM 계산
+      const momChange = current - previousMonth;
+      const momPercent = previousMonth !== 0 ? ((current - previousMonth) / previousMonth) * 100 : 0;
 
       return {
         category,
@@ -127,6 +154,9 @@ export async function GET(request: Request) {
         previous,
         change,
         changePercent,
+        previousMonth,
+        momChange,
+        momPercent,
       };
     });
 
@@ -137,6 +167,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       mode,
+      year: currentYear,
       month: targetMonth,
       data: kpiData,
     });

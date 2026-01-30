@@ -29,6 +29,7 @@ export async function GET(request: Request) {
     const month = searchParams.get('month') || '12';
     const level = searchParams.get('level') || 'major'; // major, middle, detail
     const category = searchParams.get('category'); // 선택한 상위 카테고리
+    const majorCategory = searchParams.get('majorCategory'); // 대분류 카테고리 (detail에서 대분류로 바로 접근 시)
     
     // CSV 파일 읽기
     let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
@@ -71,7 +72,10 @@ export async function GET(request: Request) {
         key = record['계정중분류'];
         parentKey = record['계정대분류'];
       } else if (level === 'detail') {
-        if (category && record['계정중분류'] !== category) return;
+        // majorCategory가 있으면 대분류로 필터링 (KPI 카드에서 바로 접근 시)
+        if (majorCategory && record['계정대분류'] !== majorCategory) return;
+        // category가 있으면 중분류로 필터링 (일반 드릴다운 시)
+        if (category && !majorCategory && record['계정중분류'] !== category) return;
         key = glDescription;
         parentKey = record['계정중분류'];
       }
