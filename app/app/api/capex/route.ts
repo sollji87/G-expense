@@ -1,15 +1,52 @@
 import { NextResponse } from 'next/server';
-import * as XLSX from 'xlsx';
 import fs from 'fs';
 import path from 'path';
+
+function parseCSV(content: string): any[] {
+  const lines = content.split('\n');
+  if (lines.length < 2) return [];
+  
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const records: any[] = [];
+  
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    
+    const values: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        values.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    values.push(current.trim());
+    
+    const record: any = {};
+    headers.forEach((header, idx) => {
+      record[header] = values[idx] || '';
+    });
+    records.push(record);
+  }
+  
+  return records;
+}
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const year = searchParams.get('year') || '2025';
 
-    // 엑셀 파일 경로
-    const fileName = year === '2024' ? '유무형자산_24년12월.XLSX' : '유무형자산_25년12월.XLSX';
+    // CSV 파일 경로 (git에 포함된 파일)
+    const fileName = year === '2024' ? 'assets_2024.csv' : 'assets_2025.csv';
     let filePath = path.join(process.cwd(), '..', 'CAPEX', fileName);
     
     if (!fs.existsSync(filePath)) {
@@ -20,11 +57,9 @@ export async function GET(request: Request) {
       throw new Error(`파일을 찾을 수 없습니다: ${fileName}`);
     }
 
-    // 엑셀 파일 읽기
-    const workbook = XLSX.read(fs.readFileSync(filePath), { type: 'buffer' });
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(worksheet) as any[];
+    // CSV 파일 읽기
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const data = parseCSV(fileContent);
 
     const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
     
