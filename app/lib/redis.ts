@@ -5,6 +5,7 @@ export const REDIS_KEYS = {
   DESCRIPTIONS: 'account_descriptions_v2', // 새 키로 변경 (인코딩 문제 해결)
   INSIGHTS: 'insights',
   ALLOCATION_CRITERIA: 'allocation_criteria', // 공통비 배부기준
+  LABOR_INSIGHT: 'labor_insight', // 인원 현황 주요 시사점
 } as const;
 
 // 타입 정의
@@ -159,6 +160,45 @@ export async function getAllInsightKeys(): Promise<string[]> {
     return keys;
   } catch (error) {
     console.error('Redis getAllInsightKeys 오류:', error);
+    throw error;
+  }
+}
+
+// === Labor Insight (인원 현황 주요 시사점) 관련 함수 ===
+
+/**
+ * 인원 현황 시사점 조회
+ */
+export async function getLaborInsight(): Promise<string> {
+  try {
+    const jsonString = await kv.get<string>(REDIS_KEYS.LABOR_INSIGHT);
+    if (!jsonString) return '';
+    
+    if (typeof jsonString === 'string') {
+      // JSON 문자열인 경우 파싱
+      try {
+        return JSON.parse(jsonString);
+      } catch {
+        return jsonString;
+      }
+    }
+    
+    return jsonString as string;
+  } catch (error) {
+    console.error('Redis getLaborInsight 오류:', error);
+    return '';
+  }
+}
+
+/**
+ * 인원 현황 시사점 저장
+ */
+export async function saveLaborInsight(insight: string): Promise<string> {
+  try {
+    await kv.set(REDIS_KEYS.LABOR_INSIGHT, JSON.stringify(insight));
+    return insight;
+  } catch (error) {
+    console.error('Redis saveLaborInsight 오류:', error);
     throw error;
   }
 }

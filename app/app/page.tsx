@@ -534,7 +534,7 @@ export default function Dashboard() {
     }
   };
   
-  // Redis에서 배부기준 불러오기
+  // Redis에서 배부기준 및 인원 시사점 불러오기
   useEffect(() => {
     const loadAllocationCriteria = async () => {
       try {
@@ -548,13 +548,21 @@ export default function Dashboard() {
         console.error('배부기준 불러오기 실패:', error);
       }
     };
-    loadAllocationCriteria();
     
-    // 인원 현황 주요 시사점 불러오기
-    const savedLaborInsight = localStorage.getItem('laborInsight');
-    if (savedLaborInsight) {
-      setLaborInsight(savedLaborInsight);
-    }
+    const loadLaborInsight = async () => {
+      try {
+        const response = await fetch('/api/labor-insight');
+        const result = await response.json();
+        if (result.success && result.data) {
+          setLaborInsight(result.data);
+        }
+      } catch (error) {
+        console.error('인원 시사점 불러오기 실패:', error);
+      }
+    };
+    
+    loadAllocationCriteria();
+    loadLaborInsight();
   }, []);
 
   useEffect(() => {
@@ -4360,22 +4368,27 @@ export default function Dashboard() {
                   <div className="mt-4 pt-4 border-t border-blue-200">
                     <div className="flex items-center justify-between mb-2">
                       <h5 
-                        className={`text-sm font-bold flex items-center gap-2 cursor-pointer transition-colors ${laborInsightEditMode ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}
-                        onClick={() => {
+                        className={`text-sm font-bold cursor-pointer transition-colors ${laborInsightEditMode ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}
+                        onClick={async () => {
                           if (laborInsightEditMode) {
-                            // 저장 모드
-                            localStorage.setItem('laborInsight', laborInsight);
-                            setLaborInsightEditMode(false);
+                            // 저장 모드 - Redis에 저장
+                            try {
+                              await fetch('/api/labor-insight', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ insight: laborInsight })
+                              });
+                              setLaborInsightEditMode(false);
+                            } catch (error) {
+                              console.error('시사점 저장 실패:', error);
+                            }
                           } else {
                             // 편집 모드
                             setLaborInsightEditMode(true);
                           }
                         }}
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                        </svg>
-                        💡 주요 시사점 (클릭하여 {laborInsightEditMode ? '저장' : '편집'})
+                        주요 시사점
                       </h5>
                       
                       {!laborInsightEditMode && (
@@ -4407,7 +4420,12 @@ export default function Dashboard() {
                               if (response.ok) {
                                 const result = await response.json();
                                 setLaborInsight(result.insight);
-                                localStorage.setItem('laborInsight', result.insight);
+                                // Redis에 저장
+                                await fetch('/api/labor-insight', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ insight: result.insight })
+                                });
                               } else {
                                 alert('AI 분석 요청에 실패했습니다.');
                               }
@@ -4451,19 +4469,35 @@ export default function Dashboard() {
                         />
                         <div className="flex justify-end gap-2">
                           <button
-                            onClick={() => {
+                            onClick={async () => {
                               setLaborInsightEditMode(false);
-                              const saved = localStorage.getItem('laborInsight');
-                              if (saved) setLaborInsight(saved);
+                              // Redis에서 다시 불러오기
+                              try {
+                                const response = await fetch('/api/labor-insight');
+                                const result = await response.json();
+                                if (result.success && result.data) {
+                                  setLaborInsight(result.data);
+                                }
+                              } catch (error) {
+                                console.error('시사점 불러오기 실패:', error);
+                              }
                             }}
                             className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                           >
                             취소
                           </button>
                           <button
-                            onClick={() => {
-                              localStorage.setItem('laborInsight', laborInsight);
-                              setLaborInsightEditMode(false);
+                            onClick={async () => {
+                              try {
+                                await fetch('/api/labor-insight', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ insight: laborInsight })
+                                });
+                                setLaborInsightEditMode(false);
+                              } catch (error) {
+                                console.error('시사점 저장 실패:', error);
+                              }
                             }}
                             className="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                           >
