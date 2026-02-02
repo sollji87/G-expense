@@ -4,6 +4,7 @@ import { kv } from '@vercel/kv';
 export const REDIS_KEYS = {
   DESCRIPTIONS: 'account_descriptions_v2', // 새 키로 변경 (인코딩 문제 해결)
   INSIGHTS: 'insights',
+  ALLOCATION_CRITERIA: 'allocation_criteria', // 공통비 배부기준
 } as const;
 
 // 타입 정의
@@ -158,6 +159,40 @@ export async function getAllInsightKeys(): Promise<string[]> {
     return keys;
   } catch (error) {
     console.error('Redis getAllInsightKeys 오류:', error);
+    throw error;
+  }
+}
+
+// === Allocation Criteria (공통비 배부기준) 관련 함수 ===
+
+/**
+ * 배부기준 조회
+ */
+export async function getAllocationCriteria(): Promise<string[]> {
+  try {
+    const jsonString = await kv.get<string>(REDIS_KEYS.ALLOCATION_CRITERIA);
+    if (!jsonString) return [''];
+    
+    if (typeof jsonString === 'object' && Array.isArray(jsonString)) {
+      return jsonString;
+    }
+    
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error('Redis getAllocationCriteria 오류:', error);
+    return [''];
+  }
+}
+
+/**
+ * 배부기준 저장
+ */
+export async function saveAllocationCriteria(criteria: string[]): Promise<string[]> {
+  try {
+    await kv.set(REDIS_KEYS.ALLOCATION_CRITERIA, JSON.stringify(criteria));
+    return criteria;
+  } catch (error) {
+    console.error('Redis saveAllocationCriteria 오류:', error);
     throw error;
   }
 }

@@ -534,20 +534,21 @@ export default function Dashboard() {
     }
   };
   
-  // localStorage에서 배부기준 불러오기
+  // Redis에서 배부기준 불러오기
   useEffect(() => {
-    const saved = localStorage.getItem('allocationCriteria');
-    if (saved) {
+    const loadAllocationCriteria = async () => {
       try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setAllocationCriteria(parsed);
+        const response = await fetch('/api/allocation-criteria');
+        const result = await response.json();
+        if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+          setAllocationCriteria(result.data);
           setCriteriaEditMode(false); // 저장된 데이터가 있으면 읽기 모드로 시작
         }
-      } catch {
-        // 파싱 실패 시 기본값 유지
+      } catch (error) {
+        console.error('배부기준 불러오기 실패:', error);
       }
-    }
+    };
+    loadAllocationCriteria();
     
     // 인원 현황 주요 시사점 불러오기
     const savedLaborInsight = localStorage.getItem('laborInsight');
@@ -4021,9 +4022,25 @@ export default function Dashboard() {
                           항목 추가
                         </button>
                         <button
-                          onClick={() => {
-                            localStorage.setItem('allocationCriteria', JSON.stringify(allocationCriteria.filter(c => c.trim() !== '')));
-                            setCriteriaEditMode(false);
+                          onClick={async () => {
+                            const filteredCriteria = allocationCriteria.filter(c => c.trim() !== '');
+                            try {
+                              const response = await fetch('/api/allocation-criteria', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ criteria: filteredCriteria })
+                              });
+                              const result = await response.json();
+                              if (result.success) {
+                                setAllocationCriteria(filteredCriteria.length > 0 ? filteredCriteria : ['']);
+                                setCriteriaEditMode(false);
+                              } else {
+                                alert('저장에 실패했습니다.');
+                              }
+                            } catch (error) {
+                              console.error('배부기준 저장 실패:', error);
+                              alert('저장 중 오류가 발생했습니다.');
+                            }
                           }}
                           className="ml-auto px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                         >
