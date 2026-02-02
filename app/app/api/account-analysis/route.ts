@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { matchesCostCenterFilter } from '../utils/costcenter-mapping';
 
 // 간단한 CSV 파서
 function parseCSV(content: string): any[] {
@@ -31,6 +32,12 @@ export async function GET(request: Request) {
     const category = searchParams.get('category'); // 선택한 상위 카테고리
     const majorCategory = searchParams.get('majorCategory'); // 대분류 카테고리 (detail에서 대분류로 바로 접근 시)
     
+    // 필터 파라미터
+    const costCentersParam = searchParams.get('costCenters') || '';
+    const majorCategoriesParam = searchParams.get('majorCategories') || '';
+    const costCenters = costCentersParam ? costCentersParam.split(',').filter(c => c.trim()) : [];
+    const majorCategories = majorCategoriesParam ? majorCategoriesParam.split(',').filter(c => c.trim()) : [];
+    
     // CSV 파일 읽기
     let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
     
@@ -57,6 +64,21 @@ export async function GET(request: Request) {
     const accountMap = new Map<string, { current: number; previous: number; detail?: any }>();
     
     records.forEach((record: any) => {
+      // 코스트센터 필터 적용 (매핑 사용)
+      if (costCenters.length > 0) {
+        const recordCostCenter = record['코스트센터명'] || '';
+        if (!matchesCostCenterFilter(recordCostCenter, costCenters)) {
+          return;
+        }
+      }
+      
+      // 계정 대분류 필터 적용
+      if (majorCategories.length > 0) {
+        if (!majorCategories.includes(record['계정대분류'])) {
+          return;
+        }
+      }
+      
       let key = '';
       let parentKey = '';
       

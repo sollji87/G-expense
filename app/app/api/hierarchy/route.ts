@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { matchesCostCenterFilter } from '../utils/costcenter-mapping';
 
 function parseCSV(content: string): any[] {
   const lines = content.split('\n').filter(line => line.trim());
@@ -27,14 +28,33 @@ export async function GET(request: Request) {
     const mode = searchParams.get('mode') || 'monthly';
     const month = searchParams.get('month') || '12';
     
-    let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
+    // 필터 파라미터
+    const costCentersParam = searchParams.get('costCenters') || '';
+    const majorCategoriesParam = searchParams.get('majorCategories') || '';
+    const costCenters = costCentersParam ? costCentersParam.split(',').filter(c => c.trim()) : [];
+    const majorCategories = majorCategoriesParam ? majorCategoriesParam.split(',').filter(c => c.trim()) : [];
     
-    if (!fs.existsSync(csvPath)) {
-      csvPath = path.join(process.cwd(), '..', '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
-    }
+    // 코스트센터 필터가 있으면 상세 CSV 사용
+    const useDetailedCSV = costCenters.length > 0;
     
-    if (!fs.existsSync(csvPath)) {
-      csvPath = path.join(process.cwd(), '..', 'myvenv', 'out', 'pivot_by_gl_yyyymm_combined.csv');
+    let csvPath: string;
+    
+    if (useDetailedCSV) {
+      csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
+      if (!fs.existsSync(csvPath)) {
+        csvPath = path.join(process.cwd(), '..', '..', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
+      }
+      if (!fs.existsSync(csvPath)) {
+        csvPath = path.join(process.cwd(), '..', 'myvenv', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
+      }
+    } else {
+      csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
+      if (!fs.existsSync(csvPath)) {
+        csvPath = path.join(process.cwd(), '..', '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
+      }
+      if (!fs.existsSync(csvPath)) {
+        csvPath = path.join(process.cwd(), '..', 'myvenv', 'out', 'pivot_by_gl_yyyymm_combined.csv');
+      }
     }
     
     if (!fs.existsSync(csvPath)) {
@@ -62,6 +82,21 @@ export async function GET(request: Request) {
       }
       
       if (!major || major === '미배정') return;
+      
+      // 코스트센터 필터 적용 (매핑 사용)
+      if (costCenters.length > 0 && useDetailedCSV) {
+        const recordCostCenter = record['코스트센터명'] || '';
+        if (!matchesCostCenterFilter(recordCostCenter, costCenters)) {
+          return;
+        }
+      }
+      
+      // 계정 대분류 필터 적용
+      if (majorCategories.length > 0) {
+        if (!majorCategories.includes(major)) {
+          return;
+        }
+      }
       
       // 금액 계산
       let currentAmount = 0;

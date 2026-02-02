@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { matchesCostCenterFilter, getDisplayName, loadCostCenterMapping } from '../utils/costcenter-mapping';
 
 // 간단한 CSV 파서
 function parseCSV(content: string): any[] {
@@ -22,19 +23,9 @@ function parseCSV(content: string): any[] {
   return records;
 }
 
-// 코스트센터명 정규화 (여러 코스트센터를 하나로 통합)
+// 코스트센터명 정규화 (매핑 파일 사용)
 function normalizeCostCenterName(name: string): string {
-  // 프로세스 관련 코스트센터들을 통합
-  if (name.includes('Process') || name.includes('AX팀') || name.includes('프로세스팀') || name.includes('PI팀')) {
-    return '공통_프로세스팀';
-  }
-  
-  // 마케팅 관련 통합 (통합마케팅팀, 통합인플루언서마케팅팀 → 마케팅본부)
-  if (name.includes('통합마케팅팀') || name.includes('통합인플루언서마케팅팀') || name.includes('통합인플루언서')) {
-    return '공통_마케팅본부';
-  }
-  
-  return name;
+  return getDisplayName(name);
 }
 
 // 인원수 데이터 로드 (피벗 형식 지원)
@@ -110,6 +101,10 @@ export async function GET(request: Request) {
     const month = searchParams.get('month') || '12';
     const account = searchParams.get('account'); // 선택한 계정
     
+    // 필터 파라미터
+    const costCentersParam = searchParams.get('costCenters') || '';
+    const costCenters = costCentersParam ? costCentersParam.split(',').filter(c => c.trim()) : [];
+    
     if (!account) {
       return NextResponse.json({ success: false, error: '계정이 필요합니다.' }, { status: 400 });
     }
@@ -159,6 +154,13 @@ export async function GET(request: Request) {
       let costCenterName = record['코스트센터명'];
       
       if (!costCenter || costCenter === '미배정') return;
+      
+      // 코스트센터 필터 적용 (매핑 사용)
+      if (costCenters.length > 0) {
+        if (!matchesCostCenterFilter(costCenterName, costCenters)) {
+          return;
+        }
+      }
       
       // 코스트센터명 정규화 (통합)
       costCenterName = normalizeCostCenterName(costCenterName);

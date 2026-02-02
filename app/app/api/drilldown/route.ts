@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { matchesCostCenterFilter } from '../utils/costcenter-mapping';
 
 // 간단한 CSV 파서
 function parseCSV(content: string): any[] {
@@ -28,6 +29,10 @@ export async function GET(request: Request) {
     const category = searchParams.get('category');
     const month = searchParams.get('month') || '12';
     const level = searchParams.get('level') || 'auto'; // major, middle, detail, auto
+    
+    // 필터 파라미터
+    const costCentersParam = searchParams.get('costCenters') || '';
+    const costCenters = costCentersParam ? costCentersParam.split(',').filter(c => c.trim()) : [];
     
     if (!category) {
       return NextResponse.json({ success: false, error: '카테고리가 필요합니다.' }, { status: 400 });
@@ -75,6 +80,14 @@ export async function GET(request: Request) {
     }
     
     records.forEach((record: any) => {
+      // 코스트센터 필터 적용 (매핑 사용)
+      if (costCenters.length > 0) {
+        const recordCostCenter = record['코스트센터명'] || '';
+        if (!matchesCostCenterFilter(recordCostCenter, costCenters)) {
+          return;
+        }
+      }
+      
       let shouldInclude = false;
       let subcategory = '';
       
@@ -116,6 +129,14 @@ export async function GET(request: Request) {
       const subcategoryMonthMap = new Map<string, number>();
       
       records.forEach((record: any) => {
+        // 코스트센터 필터 적용
+        if (costCenters.length > 0) {
+          const recordCostCenter = record['코스트센터명'] || '';
+          if (!costCenters.some(cc => recordCostCenter.includes(cc) || cc.includes(recordCostCenter))) {
+            return;
+          }
+        }
+        
         let shouldInclude = false;
         let subcategory = '';
         
@@ -153,6 +174,14 @@ export async function GET(request: Request) {
       let totalPrevious = 0;
       
       records.forEach((record: any) => {
+        // 코스트센터 필터 적용
+        if (costCenters.length > 0) {
+          const recordCostCenter = record['코스트센터명'] || '';
+          if (!costCenters.some(cc => recordCostCenter.includes(cc) || cc.includes(recordCostCenter))) {
+            return;
+          }
+        }
+        
         let shouldInclude = false;
         
         if (isDrilldownToDetail && record['계정중분류'] === category) {

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUpIcon, ArrowDownIcon, TrendingUpIcon, CalendarIcon, PencilIcon, ChevronUpIcon, ChevronDownIcon, ChevronRightIcon, SaveIcon, XIcon, SparklesIcon } from 'lucide-react';
-import { ComposedChart, Bar, Line, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, BarChart, Cell, ScatterChart, Scatter, ReferenceArea, LabelList } from 'recharts';
+import { ComposedChart, Bar, Line, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, BarChart, Cell, ScatterChart, Scatter, ReferenceArea, LabelList, Rectangle } from 'recharts';
 
 // 비용 카테고리 정의
 const COST_CATEGORIES = {
@@ -92,6 +92,12 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = useState<'monthly' | 'ytd'>('monthly');
   const [selectedMonth, setSelectedMonth] = useState('12');
   const [isEditMode, setIsEditMode] = useState(false);
+  const [mainTab, setMainTab] = useState<'summary' | 'allocation' | 'labor' | 'it' | 'commission'>('summary'); // 메인 탭
+  const [allocationData, setAllocationData] = useState<{
+    total: { current: number; previous: number; change: number; changePercent: number };
+    brands: { name: string; current: number; previous: number; change: number; currentRatio: number; previousRatio: number; changePercent: number }[];
+  } | null>(null);
+  const [allocationLoading, setAllocationLoading] = useState(false);
   const [editedData, setEditedData] = useState<Record<string, { amount?: number; comment?: string }>>({});
   const [chartData, setChartData] = useState<any[]>([]);
   const [selectedChartMonth, setSelectedChartMonth] = useState<string | null>(null);
@@ -168,11 +174,12 @@ export default function Dashboard() {
   const [showAllWaterfallItems, setShowAllWaterfallItems] = useState(false);
   
   // 필터 상태
-  const [selectedCostCenters, setSelectedCostCenters] = useState<string[]>([]);
+  const [selectedCostCenters, setSelectedCostCenters] = useState<string[]>([]); // 표시명 기준
   const [selectedMajorCategories, setSelectedMajorCategories] = useState<string[]>([]);
-  const [costCenterOptions, setCostCenterOptions] = useState<string[]>([]);
+  const [costCenterOptions, setCostCenterOptions] = useState<{ name: string; hasHeadcount: boolean; headcount: number; originalNames: string[] }[]>([]);
   const [majorCategoryOptions, setMajorCategoryOptions] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isNoHeadcountExpanded, setIsNoHeadcountExpanded] = useState(false); // 인원 없음 섹션 접기/펼치기
   
   const [activeTab, setActiveTab] = useState<'data' | 'description'>('data');
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
@@ -344,27 +351,38 @@ export default function Dashboard() {
     }
   };
 
+  // 사업부 배부 데이터 로드
+  const loadAllocationData = async () => {
+    setAllocationLoading(true);
+    try {
+      const response = await fetch(`/api/allocation?month=${selectedMonth}&mode=${viewMode}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        setAllocationData({
+          total: result.total,
+          brands: result.brands,
+        });
+      }
+    } catch (error) {
+      console.error('사업부 배부 데이터 로드 실패:', error);
+    } finally {
+      setAllocationLoading(false);
+    }
+  };
+
   // 필터 옵션 로드
   const loadFilterOptions = async () => {
     try {
-      // 계정 대분류 옵션 가져오기 (hierarchy API에서)
-      const hierarchyResponse = await fetch(`/api/hierarchy?mode=monthly&month=${selectedMonth}`);
-      const hierarchyResult = await hierarchyResponse.json();
+      // 비용 데이터 기준으로 필터 옵션 가져오기
+      const response = await fetch(`/api/filter-options?month=${selectedMonth}`);
+      const result = await response.json();
       
-      if (hierarchyResult.success) {
-        const majorCategories = hierarchyResult.data
-          .filter((item: any) => !item.isTotal)
-          .map((item: any) => item.name);
-        setMajorCategoryOptions(majorCategories);
-      }
-      
-      // 코스트센터 옵션 가져오기 (headcount 데이터에서)
-      const headcountResponse = await fetch(`/api/headcount-comparison?currentMonth=2025${selectedMonth.padStart(2, '0')}&previousMonth=2024${selectedMonth.padStart(2, '0')}`);
-      const headcountResult = await headcountResponse.json();
-      
-      if (headcountResult.success && headcountResult.data.departments) {
-        const costCenters = headcountResult.data.departments.map((dept: any) => dept.department as string);
-        setCostCenterOptions([...new Set(costCenters)].sort() as string[]);
+      if (result.success) {
+        // 코스트센터 목록 (인원이 있는 것 먼저 정렬됨)
+        setCostCenterOptions(result.costCenters);
+        // 계정 대분류 목록
+        setMajorCategoryOptions(result.majorCategories);
       }
     } catch (error) {
       console.error('필터 옵션 로드 실패:', error);
@@ -503,23 +521,48 @@ export default function Dashboard() {
     }
   }, [descriptions, hierarchyData]);
 
+  // 사업부 배부 탭 선택 시 데이터 로드
+  useEffect(() => {
+    if (mainTab === 'allocation' && !allocationData && !allocationLoading) {
+      loadAllocationData();
+    }
+  }, [mainTab]);
+
+  // 월 변경 또는 viewMode 변경 시 사업부 배부 데이터 새로 로드
+  useEffect(() => {
+    if (mainTab === 'allocation') {
+      loadAllocationData();
+    }
+  }, [selectedMonth, viewMode]);
+
   const loadAccountData = async () => {
     try {
-      let url = `/api/account-analysis?mode=${accountViewMode}&month=${selectedMonth}&level=${accountLevel}`;
+      const params = new URLSearchParams({
+        mode: accountViewMode,
+        month: selectedMonth,
+        level: accountLevel,
+      });
       
       if (accountLevel === 'middle' && selectedAccount) {
-        url += `&category=${encodeURIComponent(selectedAccount)}`;
+        params.append('category', selectedAccount);
       } else if (accountLevel === 'detail') {
-        // 대분류에서 바로 소분류로 접근한 경우 majorCategory 사용
         if (selectedMajorCategory) {
-          url += `&majorCategory=${encodeURIComponent(selectedMajorCategory)}`;
+          params.append('majorCategory', selectedMajorCategory);
         } else if (selectedAccount) {
-          url += `&category=${encodeURIComponent(selectedAccount)}`;
+          params.append('category', selectedAccount);
         }
       }
       
+      // 필터 파라미터 추가
+      if (selectedCostCenters.length > 0) {
+        params.append('costCenters', selectedCostCenters.join(','));
+      }
+      if (selectedMajorCategories.length > 0) {
+        params.append('majorCategories', selectedMajorCategories.join(','));
+      }
+      
       // 계정 차트 데이터 로드
-      const response = await fetch(url);
+      const response = await fetch(`/api/account-analysis?${params.toString()}`);
       const result = await response.json();
       
       if (result.success) {
@@ -540,7 +583,15 @@ export default function Dashboard() {
     }
     
     try {
-      const ccResponse = await fetch(`/api/costcenter-analysis?mode=${accountViewMode}&month=${selectedMonth}&account=${encodeURIComponent(selectedAccount)}`);
+      const params = new URLSearchParams({
+        mode: accountViewMode,
+        month: selectedMonth,
+        account: selectedAccount,
+      });
+      if (selectedCostCenters.length > 0) {
+        params.append('costCenters', selectedCostCenters.join(','));
+      }
+      const ccResponse = await fetch(`/api/costcenter-analysis?${params.toString()}`);
       const ccResult = await ccResponse.json();
       
       if (ccResult.success) {
@@ -554,7 +605,15 @@ export default function Dashboard() {
   // 코스트센터 데이터만 로드 (특정 계정명으로)
   const loadCostCenterDataOnly = async (accountName: string) => {
     try {
-      const ccResponse = await fetch(`/api/costcenter-analysis?mode=${accountViewMode}&month=${selectedMonth}&account=${encodeURIComponent(accountName)}`);
+      const params = new URLSearchParams({
+        mode: accountViewMode,
+        month: selectedMonth,
+        account: accountName,
+      });
+      if (selectedCostCenters.length > 0) {
+        params.append('costCenters', selectedCostCenters.join(','));
+      }
+      const ccResponse = await fetch(`/api/costcenter-analysis?${params.toString()}`);
       const ccResult = await ccResponse.json();
       
       if (ccResult.success) {
@@ -601,7 +660,17 @@ export default function Dashboard() {
   
   const loadHierarchyData = async () => {
     try {
-      const response = await fetch(`/api/hierarchy?mode=${tableViewMode}&month=${selectedMonth}`);
+      const params = new URLSearchParams({
+        mode: tableViewMode,
+        month: selectedMonth,
+      });
+      if (selectedCostCenters.length > 0) {
+        params.append('costCenters', selectedCostCenters.join(','));
+      }
+      if (selectedMajorCategories.length > 0) {
+        params.append('majorCategories', selectedMajorCategories.join(','));
+      }
+      const response = await fetch(`/api/hierarchy?${params.toString()}`);
       const result = await response.json();
       
       if (result.success) {
@@ -1035,7 +1104,15 @@ export default function Dashboard() {
 
   const handleDrilldown = async (category: string, fromLevel: 'major' | 'middle' = 'major') => {
     try {
-      const response = await fetch(`/api/drilldown?category=${category}&month=${selectedMonth}&level=${fromLevel}`);
+      const params = new URLSearchParams({
+        category,
+        month: selectedMonth,
+        level: fromLevel,
+      });
+      if (selectedCostCenters.length > 0) {
+        params.append('costCenters', selectedCostCenters.join(','));
+      }
+      const response = await fetch(`/api/drilldown?${params.toString()}`);
       const result = await response.json();
       
       if (result.success) {
@@ -1053,7 +1130,15 @@ export default function Dashboard() {
   const handleDetailDrilldown = async (category: string) => {
     try {
       // 중분류 차트에서 범례를 클릭하면 소분류 차트 생성
-      const response = await fetch(`/api/drilldown?category=${category}&month=${selectedMonth}&level=middle`);
+      const params = new URLSearchParams({
+        category,
+        month: selectedMonth,
+        level: 'middle',
+      });
+      if (selectedCostCenters.length > 0) {
+        params.append('costCenters', selectedCostCenters.join(','));
+      }
+      const response = await fetch(`/api/drilldown?${params.toString()}`);
       const result = await response.json();
       
       if (result.success) {
@@ -1083,7 +1168,21 @@ export default function Dashboard() {
           targetYear -= 1;
         }
         
-        const response = await fetch(`/api/kpi?mode=monthly&month=${targetMonth}&year=${targetYear}`);
+        // 필터 파라미터 구성
+        const chartParams = new URLSearchParams({
+          mode: 'monthly',
+          month: targetMonth.toString(),
+          year: targetYear.toString(),
+        });
+        
+        if (selectedCostCenters.length > 0) {
+          chartParams.append('costCenters', selectedCostCenters.join(','));
+        }
+        if (selectedMajorCategories.length > 0) {
+          chartParams.append('majorCategories', selectedMajorCategories.join(','));
+        }
+        
+        const response = await fetch(`/api/kpi?${chartParams.toString()}`);
         const result = await response.json();
         
         if (result.success) {
@@ -1148,8 +1247,21 @@ export default function Dashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
-      // API에서 실제 데이터 로드
-      const response = await fetch(`/api/kpi?mode=${viewMode}&month=${selectedMonth}`);
+      // 필터 파라미터 구성
+      const params = new URLSearchParams({
+        mode: viewMode,
+        month: selectedMonth,
+      });
+      
+      if (selectedCostCenters.length > 0) {
+        params.append('costCenters', selectedCostCenters.join(','));
+      }
+      if (selectedMajorCategories.length > 0) {
+        params.append('majorCategories', selectedMajorCategories.join(','));
+      }
+      
+      // API에서 실제 데이터 로드 (필터 적용)
+      const response = await fetch(`/api/kpi?${params.toString()}`);
       const result = await response.json();
       
       if (!result.success) {
@@ -1680,25 +1792,71 @@ export default function Dashboard() {
                   {/* 코스트센터 필터 */}
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">코스트센터</label>
-                    <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                    <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
                       {costCenterOptions.length > 0 ? (
-                        costCenterOptions.map((cc) => (
-                          <label key={cc} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={selectedCostCenters.includes(cc)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedCostCenters([...selectedCostCenters, cc]);
-                                } else {
-                                  setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc));
-                                }
-                              }}
-                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">{cc}</span>
-                          </label>
-                        ))
+                        <>
+                          {/* 인원이 있는 코스트센터 */}
+                          {costCenterOptions.filter(cc => cc.hasHeadcount).length > 0 && (
+                            <div className="mb-2">
+                              <div className="text-xs text-gray-500 font-medium mb-1 px-1">인원 있음</div>
+                              {costCenterOptions.filter(cc => cc.hasHeadcount).map((cc) => (
+                                <label key={cc.name} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedCostCenters.includes(cc.name)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedCostCenters([...selectedCostCenters, cc.name]);
+                                      } else {
+                                        setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc.name));
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                  />
+                                  <span className="text-sm text-gray-700">{cc.name}</span>
+                                  <span className="text-xs text-gray-400">({cc.headcount}명)</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                          {/* 인원이 없는 코스트센터 (접기/펼치기) */}
+                          {costCenterOptions.filter(cc => !cc.hasHeadcount).length > 0 && (
+                            <div className="border-t pt-2">
+                              <button
+                                type="button"
+                                onClick={() => setIsNoHeadcountExpanded(!isNoHeadcountExpanded)}
+                                className="flex items-center gap-1 text-xs text-gray-400 font-medium mb-1 px-1 hover:text-gray-600 w-full"
+                              >
+                                <svg 
+                                  className={`w-3 h-3 transition-transform ${isNoHeadcountExpanded ? 'rotate-90' : ''}`} 
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                                인원 없음 (비용만) ({costCenterOptions.filter(cc => !cc.hasHeadcount).length}개)
+                              </button>
+                              {isNoHeadcountExpanded && costCenterOptions.filter(cc => !cc.hasHeadcount).map((cc) => (
+                                <label key={cc.name} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedCostCenters.includes(cc.name)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedCostCenters([...selectedCostCenters, cc.name]);
+                                      } else {
+                                        setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc.name));
+                                      }
+                                    }}
+                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                  />
+                                  <span className="text-sm text-gray-500">{cc.name}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </>
                       ) : (
                         <div className="text-xs text-gray-400 p-2">로딩 중...</div>
                       )}
@@ -1813,10 +1971,69 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* KPI 카드 */}
+      {/* 메인 탭 네비게이션 */}
+      <div className="max-w-7xl mx-auto mb-6">
+        <div className="border-b border-gray-200">
+          <nav className="flex gap-1 overflow-x-auto">
+            <button
+              onClick={() => setMainTab('summary')}
+              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                mainTab === 'summary'
+                  ? 'border-blue-600 text-blue-600 bg-blue-50'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              Summary
+            </button>
+            <button
+              onClick={() => setMainTab('allocation')}
+              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                mainTab === 'allocation'
+                  ? 'border-blue-600 text-blue-600 bg-blue-50'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              사업부배부
+            </button>
+            <button
+              onClick={() => setMainTab('labor')}
+              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                mainTab === 'labor'
+                  ? 'border-blue-600 text-blue-600 bg-blue-50'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              인건비
+            </button>
+            <button
+              onClick={() => setMainTab('it')}
+              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                mainTab === 'it'
+                  ? 'border-blue-600 text-blue-600 bg-blue-50'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              IT수수료
+            </button>
+            <button
+              onClick={() => setMainTab('commission')}
+              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                mainTab === 'commission'
+                  ? 'border-blue-600 text-blue-600 bg-blue-50'
+                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+            >
+              지급수수료
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Summary 탭 콘텐츠 */}
+      {mainTab === 'summary' && (
       <div className="max-w-7xl mx-auto">
         <div className="mb-4 md:mb-6">
-          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">주요 지표 (KPI)</h2>
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">Summary</h2>
           <div className="flex gap-2 mb-4">
             <button 
               onClick={() => setViewMode('monthly')}
@@ -1887,7 +2104,7 @@ export default function Dashboard() {
                   ) : (
                     <>
                       {formatNumber(editedData[kpi.category]?.amount ?? kpi.current)}
-                      <span className="text-xs md:text-sm font-normal text-muted-foreground ml-1">
+                      <span className="text-[10px] md:text-xs font-normal text-muted-foreground ml-0.5">
                         백만원
                       </span>
                     </>
@@ -1976,205 +2193,6 @@ export default function Dashboard() {
             </Card>
           ))}
         </div>
-
-        {/* 효율성 지표 섹션 */}
-        <Card className="mb-8">
-          <CardHeader 
-            className="cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={() => setIsEfficiencyExpanded(!isEfficiencyExpanded)}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg font-bold flex items-center gap-2">
-                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  효율성 지표
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">비용 효율성 핵심 지표</p>
-              </div>
-              <ChevronUpIcon className={`w-5 h-5 transition-transform ${isEfficiencyExpanded ? '' : 'rotate-180'}`} />
-            </div>
-          </CardHeader>
-          
-          {isEfficiencyExpanded && (
-            <CardContent>
-              {!efficiencyMetrics ? (
-                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  <p className="text-sm font-medium">효율성 지표를 계산하고 있습니다...</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* 인당 공통비 카드 */}
-                  <div className="relative p-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl border border-indigo-100 group">
-                    <div className="absolute top-2 right-2">
-                      <div className="relative">
-                        <svg className="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div className="absolute right-0 top-6 w-48 p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
-                          총 공통비용 ÷ 전사 인원수로 계산합니다. 인원당 평균 비용 부담을 나타냅니다.
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-600">인당 공통비</span>
-                    </div>
-                    <div className="text-2xl font-bold text-gray-900 mb-1">
-                      {efficiencyMetrics.costPerHead.current.toFixed(1)}
-                      <span className="text-sm font-normal text-gray-500 ml-1">백만원/인</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm font-semibold flex items-center gap-1 ${
-                        efficiencyMetrics.costPerHead.changePercent > 0 ? 'text-red-600' : 
-                        efficiencyMetrics.costPerHead.changePercent < 0 ? 'text-blue-600' : 'text-gray-500'
-                      }`}>
-                        {efficiencyMetrics.costPerHead.changePercent > 0 ? (
-                          <ArrowUpIcon className="w-3 h-3" />
-                        ) : efficiencyMetrics.costPerHead.changePercent < 0 ? (
-                          <ArrowDownIcon className="w-3 h-3" />
-                        ) : (
-                          <span>→</span>
-                        )}
-                        {efficiencyMetrics.costPerHead.changePercent >= 0 ? '+' : ''}
-                        {efficiencyMetrics.costPerHead.changePercent.toFixed(1)}%
-                      </span>
-                      <span className="text-xs text-gray-400">vs 전년</span>
-                    </div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      전년 {efficiencyMetrics.costPerHead.previous.toFixed(1)}백만원/인
-                      <span className="mx-1">|</span>
-                      인원 {efficiencyMetrics.headcount.current}명 (전년 {efficiencyMetrics.headcount.previous}명)
-                    </div>
-                  </div>
-                  
-                  {/* 매출 대비 공통비 비율 카드 */}
-                  <div className="relative p-4 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl border border-gray-200 group">
-                    <div className="absolute top-2 right-2">
-                      <div className="relative">
-                        <svg className="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div className="absolute right-0 top-6 w-56 p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
-                          (공통비 ÷ 매출액_부가세제외) × 100으로 계산합니다. 공통비와 매출액 모두 부가세 제외 기준으로 비교합니다.
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-600">매출 대비 공통비</span>
-                    </div>
-                  {efficiencyMetrics.revenueRatio.current !== null ? (
-                    <>
-                      <div className="text-2xl font-bold text-gray-900 mb-1">
-                        {efficiencyMetrics.revenueRatio.current.toFixed(2)}
-                        <span className="text-sm font-normal text-gray-500 ml-1">%</span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`text-sm font-semibold flex items-center gap-1 ${
-                          (efficiencyMetrics.revenueRatio.change || 0) > 0 ? 'text-red-600' : 
-                          (efficiencyMetrics.revenueRatio.change || 0) < 0 ? 'text-blue-600' : 'text-gray-500'
-                        }`}>
-                          {(efficiencyMetrics.revenueRatio.change || 0) > 0 ? (
-                            <ArrowUpIcon className="w-3 h-3" />
-                          ) : (efficiencyMetrics.revenueRatio.change || 0) < 0 ? (
-                            <ArrowDownIcon className="w-3 h-3" />
-                          ) : (
-                            <span>→</span>
-                          )}
-                          {Math.abs(efficiencyMetrics.revenueRatio.change || 0).toFixed(2)}%p
-                        </span>
-                        <span className="text-xs text-gray-400">vs 전년</span>
-                      </div>
-                      <div className="mt-2 space-y-1">
-                        <div className="text-xs text-gray-500">
-                          매출액: {efficiencyMetrics.revenueRatio.revenueCurrentExclVAT ? Math.round(efficiencyMetrics.revenueRatio.revenueCurrentExclVAT).toLocaleString() : '0'}백만원
-                          {viewMode === 'ytd' && ' (누적)'}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          전년: {efficiencyMetrics.revenueRatio.revenuePreviousExclVAT ? Math.round(efficiencyMetrics.revenueRatio.revenuePreviousExclVAT).toLocaleString() : '0'}백만원
-                          {viewMode === 'ytd' && ' (누적)'}
-                        </div>
-                        <div className="text-xs text-gray-400 pt-1">
-                          비율: 전년 {efficiencyMetrics.revenueRatio.previous?.toFixed(2)}%
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                      <div className="flex flex-col items-center justify-center py-2">
-                        <div className="text-lg font-semibold text-gray-400 mb-1">데이터 연동 필요</div>
-                        <div className="text-xs text-gray-400">매출 데이터가 연동되면 자동 계산됩니다</div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* 비용 집중도 카드 */}
-                  <div className="relative p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100 group">
-                    <div className="absolute top-2 right-2">
-                      <div className="relative">
-                        <svg className="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div className="absolute right-0 top-6 w-48 p-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
-                          상위 3개 비용 항목이 전체 공통비에서 차지하는 비율입니다. 비용 집중도가 높을수록 특정 항목 관리가 중요합니다.
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-600">비용 집중도</span>
-                    </div>
-                    <div className="text-2xl font-bold text-gray-900 mb-1">
-                      {efficiencyMetrics.costConcentration.totalRatio.toFixed(1)}
-                      <span className="text-sm font-normal text-gray-500 ml-1">%</span>
-                    </div>
-                    <div className="text-xs text-gray-600 mb-2">
-                      상위 3개 항목이 전체의 {efficiencyMetrics.costConcentration.totalRatio.toFixed(0)}% 차지
-                    </div>
-                    {/* 미니 파이차트 시각화 */}
-                    <div className="flex items-center gap-2">
-                      <div className="relative w-10 h-10">
-                        <svg viewBox="0 0 36 36" className="w-10 h-10 transform -rotate-90">
-                          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" strokeWidth="3" />
-                          <circle 
-                            cx="18" cy="18" r="15.9" fill="none" 
-                            stroke="#f59e0b" strokeWidth="3"
-                            strokeDasharray={`${efficiencyMetrics.costConcentration.totalRatio} ${100 - efficiencyMetrics.costConcentration.totalRatio}`}
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        {efficiencyMetrics.costConcentration.top3Items.map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between text-xs">
-                            <span className="text-gray-600 truncate max-w-[80px]">{item.name}</span>
-                            <span className="font-medium text-gray-900">{item.ratio.toFixed(1)}%</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          )}
-        </Card>
 
         {/* AI 인사이트 요약 - 구조화된 형태 */}
         <Card className="mb-8 border-2 border-purple-200">
@@ -2698,21 +2716,12 @@ export default function Dashboard() {
                             onClick={(e) => {
                               e.stopPropagation();
                               if (value !== 'YOY' && value !== '6개월 평균') {
-                                // 하이라이트 토글
-                                if (highlightedCategory === value) {
-                                  setHighlightedCategory(null);
-                                } else {
-                                  setHighlightedCategory(value);
-                                }
-                              }
-                            }}
-                            onDoubleClick={(e) => {
-                              e.stopPropagation();
-                              if (value !== 'YOY' && value !== '6개월 평균') {
+                                // 클릭 시 바로 드릴다운 + 하이라이트
+                                setHighlightedCategory(value);
                                 handleDrilldown(value);
                               }
                             }}
-                            title={value !== 'YOY' && value !== '6개월 평균' ? '클릭: 하이라이트 / 더블클릭: 드릴다운' : ''}
+                            title={value !== 'YOY' && value !== '6개월 평균' ? '클릭: 세부 계정별 차트 보기' : ''}
                           >
                             {value}
                           </span>
@@ -2729,144 +2738,6 @@ export default function Dashboard() {
             </CardContent>
           )}
         </Card>
-
-        {/* 비용 변동 요인 Waterfall 차트 */}
-        {kpiData.length > 0 && (
-          <Card className="mb-8">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg font-bold">비용 변동 요인 분석</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    전년 대비 비용 변동을 항목별로 시각화한 Waterfall 차트
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowAllWaterfallItems(!showAllWaterfallItems)}
-                  className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200 transition-colors"
-                >
-                  {showAllWaterfallItems ? '주요 항목만 보기' : '전체 보기'}
-                </button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[500px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart
-                    data={waterfallData}
-                    margin={{ top: 20, right: 30, bottom: 60, left: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis 
-                      dataKey="name"
-                      angle={0}
-                      textAnchor="middle"
-                      height={40}
-                      interval={0}
-                      tick={{ fontSize: 11 }}
-                      width={100}
-                    />
-                    <YAxis 
-                      hide={true}
-                      domain={[0, (dataMax: number) => {
-                        // 각 바의 높이가 변동량에 비례하도록 Y축 도메인 조정
-                        // 시작/끝 바와 중간 변동 바의 최대값을 모두 고려
-                        const startEndMax = Math.max(
-                          ...waterfallData
-                            .filter(d => d.type === 'start' || d.type === 'end')
-                            .map(d => d.value)
-                        );
-                        
-                        // 중간 변동 바들의 최대 높이 (변동량 절대값)
-                        const changeMax = Math.max(
-                          ...waterfallData
-                            .filter(d => d.type !== 'start' && d.type !== 'end')
-                            .map(d => d.value)
-                        );
-                        
-                        // 전체 최대값 (시작/끝 바와 변동 바 중 큰 값)
-                        const overallMax = Math.max(startEndMax, changeMax);
-                        
-                        // 변동폭이 직관적으로 보이도록 여유 공간 추가
-                        return overallMax * 1.2;
-                      }]}
-                    />
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length > 0) {
-                          const data = payload[0].payload;
-                          if (data.type === 'start' || data.type === 'end') {
-                            return (
-                              <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-                                <p className="font-semibold text-gray-900">{data.name}</p>
-                                <p className="text-sm text-gray-600">
-                                  금액: {Math.round(data.value).toLocaleString()}백만원
-                                </p>
-                              </div>
-                            );
-                          }
-                          return (
-                            <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-                              <p className="font-semibold text-gray-900">{data.name}</p>
-                              <p className="text-sm text-gray-600">
-                                전년: {Math.round(data.previous).toLocaleString()}백만원
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                당년: {Math.round(data.current).toLocaleString()}백만원
-                              </p>
-                              <p className={`text-sm font-semibold ${data.change > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                                변동: {data.change > 0 ? '+' : ''}{Math.round(data.change).toLocaleString()}백만원
-                                ({data.changePercent > 0 ? '+' : ''}{data.changePercent.toFixed(1)}%)
-                              </p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    {/* 시작점 바 (투명) */}
-                    <Bar
-                      dataKey="start"
-                      stackId="waterfall"
-                      fill="transparent"
-                    />
-                    {/* 변동값 바 - 각 바의 높이가 변동량에 비례하도록 */}
-                    <Bar
-                      dataKey="value"
-                      stackId="waterfall"
-                      radius={[0, 0, 0, 0]}
-                    >
-                      {waterfallData.map((entry, index) => {
-                        let color = '#9ca3af'; // 기본 회색
-                        
-                        if (entry.type === 'start' || entry.type === 'end') {
-                          color = '#a5b4fc'; // 시작/끝은 파스텔 보라색
-                        } else if (entry.type === 'increase') {
-                          color = '#fca5a5'; // 증가는 파스텔 빨강
-                        } else if (entry.type === 'decrease') {
-                          color = '#86efac'; // 감소는 파스텔 초록
-                        }
-                        
-                        return <Cell key={`cell-${index}`} fill={color} />;
-                      })}
-                      <LabelList 
-                        dataKey="labelText"
-                        position="top"
-                        style={{ 
-                          fontSize: '14px', 
-                          fill: '#111827', 
-                          fontWeight: 'bold',
-                          fontFamily: 'inherit',
-                          letterSpacing: '-0.02em'
-                        }}
-                      />
-                    </Bar>
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* 드릴다운 차트 */}
         {drilldownCategory && drilldownData.length > 0 && (
@@ -3847,6 +3718,213 @@ export default function Dashboard() {
           )}
         </Card>
         </div>
+      )}
+
+      {/* 사업부배부 탭 콘텐츠 */}
+      {mainTab === 'allocation' && (
+        <div className="max-w-7xl mx-auto">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-bold">사업부별 공통비 배부 현황</CardTitle>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setViewMode('monthly')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      viewMode === 'monthly' 
+                        ? 'text-blue-600 bg-blue-50' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    당월
+                  </button>
+                  <button 
+                    onClick={() => setViewMode('ytd')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      viewMode === 'ytd' 
+                        ? 'text-blue-600 bg-blue-50' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    누적 (YTD)
+                  </button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {allocationLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <p className="text-sm font-medium">데이터를 불러오는 중...</p>
+                </div>
+              ) : allocationData ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b-2 border-gray-200">
+                        <th className="px-2 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap">구분</th>
+                        <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap" colSpan={2}>공통비</th>
+                        {allocationData.brands.map((brand) => (
+                          <th key={brand.name} className="px-2 py-2 text-center text-[11px] font-bold text-gray-900 bg-gray-50 whitespace-nowrap" colSpan={2}>
+                            {brand.name}
+                          </th>
+                        ))}
+                      </tr>
+                      <tr className="border-b border-gray-200 bg-gray-50">
+                        <th className="px-2 py-1 text-left text-[10px] text-gray-500"></th>
+                        <th className="px-2 py-1 text-right text-[10px] text-gray-500">금액</th>
+                        <th className="px-2 py-1 text-right text-[10px] text-gray-500">비중</th>
+                        {allocationData.brands.map((brand) => (
+                          <React.Fragment key={`header-${brand.name}`}>
+                            <th className="px-2 py-1 text-right text-[10px] text-gray-500">금액</th>
+                            <th className="px-2 py-1 text-right text-[10px] text-gray-500">비중</th>
+                          </React.Fragment>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* 24년 행 */}
+                      <tr className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="px-2 py-2 text-[10px] font-medium text-gray-700">24년</td>
+                        <td className="px-2 py-2 text-right text-xs text-gray-900 font-semibold">
+                          {allocationData.total.previous.toLocaleString()}
+                        </td>
+                        <td className="px-2 py-2 text-right text-[10px] text-gray-500">100%</td>
+                        {allocationData.brands.map((brand) => (
+                          <React.Fragment key={`prev-${brand.name}`}>
+                            <td className="px-2 py-2 text-right text-xs text-gray-900">
+                              {brand.previous.toLocaleString()}
+                            </td>
+                            <td className="px-2 py-2 text-right text-[10px] text-gray-500">
+                              {brand.previousRatio.toFixed(1)}%
+                            </td>
+                          </React.Fragment>
+                        ))}
+                      </tr>
+                      {/* 25년 행 */}
+                      <tr className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="px-2 py-2 text-[10px] font-medium text-gray-700">25년</td>
+                        <td className="px-2 py-2 text-right text-xs text-blue-600 font-bold">
+                          {allocationData.total.current.toLocaleString()}
+                        </td>
+                        <td className="px-2 py-2 text-right text-[10px] text-gray-500">100%</td>
+                        {allocationData.brands.map((brand) => (
+                          <React.Fragment key={`cur-${brand.name}`}>
+                            <td className="px-2 py-2 text-right text-xs text-blue-600 font-semibold">
+                              {brand.current.toLocaleString()}
+                            </td>
+                            <td className="px-2 py-2 text-right text-[10px] text-gray-500">
+                              {brand.currentRatio.toFixed(1)}%
+                            </td>
+                          </React.Fragment>
+                        ))}
+                      </tr>
+                      {/* 차이 행 */}
+                      <tr className="bg-gray-50 border-t-2 border-gray-200">
+                        <td className="px-2 py-2 text-[10px] font-bold text-gray-900">차이</td>
+                        <td className={`px-2 py-2 text-right text-xs font-bold ${allocationData.total.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                          {allocationData.total.change >= 0 ? '+' : ''}{allocationData.total.change.toLocaleString()}
+                        </td>
+                        <td className={`px-2 py-2 text-right text-[10px] font-semibold ${allocationData.total.changePercent >= 100 ? 'text-red-600' : 'text-blue-600'}`}>
+                          {allocationData.total.changePercent.toFixed(1)}%
+                        </td>
+                        {allocationData.brands.map((brand) => (
+                          <React.Fragment key={`diff-${brand.name}`}>
+                            <td className={`px-2 py-2 text-right text-xs font-semibold ${brand.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                              {brand.change >= 0 ? '+' : ''}{brand.change.toLocaleString()}
+                            </td>
+                            <td className={`px-2 py-2 text-right text-[10px] font-semibold ${brand.changePercent >= 100 ? 'text-red-600' : 'text-blue-600'}`}>
+                              {brand.changePercent.toFixed(1)}%
+                            </td>
+                          </React.Fragment>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  <p className="text-lg font-medium mb-2">데이터를 불러올 수 없습니다</p>
+                  <button
+                    onClick={loadAllocationData}
+                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    다시 시도
+                  </button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* 인건비 탭 콘텐츠 */}
+      {mainTab === 'labor' && (
+        <div className="max-w-7xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-bold">인건비</CardTitle>
+              <p className="text-sm text-muted-foreground">인건비 상세 분석</p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <p className="text-lg font-medium mb-2">인건비 분석 기능 준비 중</p>
+                <p className="text-sm">급여, 제수당, 복리후생비 등 인건비 상세 분석을 확인할 수 있습니다.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* IT수수료 탭 콘텐츠 */}
+      {mainTab === 'it' && (
+        <div className="max-w-7xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-bold">IT수수료</CardTitle>
+              <p className="text-sm text-muted-foreground">IT수수료 상세 분석</p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <p className="text-lg font-medium mb-2">IT수수료 분석 기능 준비 중</p>
+                <p className="text-sm">IT유지보수비, IT사용료, SW상각비 등 IT수수료 상세 분석을 확인할 수 있습니다.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* 지급수수료 탭 콘텐츠 */}
+      {mainTab === 'commission' && (
+        <div className="max-w-7xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-bold">지급수수료</CardTitle>
+              <p className="text-sm text-muted-foreground">지급수수료 상세 분석</p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <p className="text-lg font-medium mb-2">지급수수료 분석 기능 준비 중</p>
+                <p className="text-sm">지급용역비, 법률자문료, 인사채용 등 지급수수료 상세 분석을 확인할 수 있습니다.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
