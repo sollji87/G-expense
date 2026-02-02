@@ -93,11 +93,30 @@ export default function Dashboard() {
   const [selectedMonth, setSelectedMonth] = useState('12');
   const [isEditMode, setIsEditMode] = useState(false);
   const [mainTab, setMainTab] = useState<'summary' | 'allocation' | 'labor' | 'it' | 'commission'>('summary'); // 메인 탭
+  const [allocationCriteria, setAllocationCriteria] = useState<string[]>(['']); // 배부기준 입력 (불릿 배열)
+  const [criteriaEditMode, setCriteriaEditMode] = useState(true); // 편집 모드 여부
   const [allocationData, setAllocationData] = useState<{
     total: { current: number; previous: number; change: number; changePercent: number };
     brands: { name: string; current: number; previous: number; change: number; currentRatio: number; previousRatio: number; changePercent: number }[];
   } | null>(null);
   const [allocationLoading, setAllocationLoading] = useState(false);
+  const [laborData, setLaborData] = useState<{
+    months: string[];
+    yearlyTotals: { [year: string]: { [month: string]: number } };
+    divisions: { 
+      divisionName: string; 
+      teams: { deptNm: string; monthly: { [key: string]: number } }[];
+      subDivisions: { name: string; teams: { deptNm: string; monthly: { [key: string]: number } }[]; monthly: { [key: string]: number } }[];
+      monthly: { [key: string]: number };
+    }[];
+  } | null>(null);
+  const [laborLoading, setLaborLoading] = useState(false);
+  const [laborYear, setLaborYear] = useState<'2024' | '2025'>('2025');
+  const [expandedDivisions, setExpandedDivisions] = useState<Set<string>>(new Set());
+  const [expandedSubDivisions, setExpandedSubDivisions] = useState<Set<string>>(new Set());
+  const [laborInsight, setLaborInsight] = useState<string>('');
+  const [laborInsightEditMode, setLaborInsightEditMode] = useState(false);
+  const [laborInsightLoading, setLaborInsightLoading] = useState(false);
   const [editedData, setEditedData] = useState<Record<string, { amount?: number; comment?: string }>>({});
   const [chartData, setChartData] = useState<any[]>([]);
   const [selectedChartMonth, setSelectedChartMonth] = useState<string | null>(null);
@@ -371,6 +390,56 @@ export default function Dashboard() {
     }
   };
 
+  // 인건비(인원수) 데이터 로드
+  const loadLaborData = async () => {
+    setLaborLoading(true);
+    try {
+      const response = await fetch(`/api/labor?year=${laborYear}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        setLaborData({
+          months: result.months,
+          yearlyTotals: result.yearlyTotals,
+          divisions: result.divisions.map((d: { divisionName: string; teams: { deptNm: string; monthly: { [key: string]: number } }[]; subDivisions?: { name: string; teams: { deptNm: string; monthly: { [key: string]: number } }[]; monthly: { [key: string]: number } }[]; monthly: { [key: string]: number } }) => ({
+            ...d,
+            subDivisions: d.subDivisions || [],
+          })),
+        });
+      }
+    } catch (error) {
+      console.error('인원수 데이터 로드 실패:', error);
+    } finally {
+      setLaborLoading(false);
+    }
+  };
+
+  // 부문 접기/펼치기 토글
+  const toggleDivision = (divisionName: string) => {
+    setExpandedDivisions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(divisionName)) {
+        newSet.delete(divisionName);
+      } else {
+        newSet.add(divisionName);
+      }
+      return newSet;
+    });
+  };
+
+  // 하위 부문 접기/펼치기 토글
+  const toggleSubDivision = (subDivisionName: string) => {
+    setExpandedSubDivisions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(subDivisionName)) {
+        newSet.delete(subDivisionName);
+      } else {
+        newSet.add(subDivisionName);
+      }
+      return newSet;
+    });
+  };
+
   // 필터 옵션 로드
   const loadFilterOptions = async () => {
     try {
@@ -465,6 +534,28 @@ export default function Dashboard() {
     }
   };
   
+  // localStorage에서 배부기준 불러오기
+  useEffect(() => {
+    const saved = localStorage.getItem('allocationCriteria');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setAllocationCriteria(parsed);
+          setCriteriaEditMode(false); // 저장된 데이터가 있으면 읽기 모드로 시작
+        }
+      } catch {
+        // 파싱 실패 시 기본값 유지
+      }
+    }
+    
+    // 인원 현황 주요 시사점 불러오기
+    const savedLaborInsight = localStorage.getItem('laborInsight');
+    if (savedLaborInsight) {
+      setLaborInsight(savedLaborInsight);
+    }
+  }, []);
+
   useEffect(() => {
     loadDescriptions();
     loadFilterOptions();
@@ -534,6 +625,13 @@ export default function Dashboard() {
       loadAllocationData();
     }
   }, [selectedMonth, viewMode]);
+
+  // 인건비 탭 진입 시 데이터 로드
+  useEffect(() => {
+    if (mainTab === 'labor' && !laborData) {
+      loadLaborData();
+    }
+  }, [mainTab]);
 
   const loadAccountData = async () => {
     try {
@@ -1489,6 +1587,11 @@ export default function Dashboard() {
     }).format(Math.round(num));
   };
 
+  // 마크다운 **볼드**를 HTML <strong>으로 변환
+  const formatMarkdownBold = (text: string) => {
+    return text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  };
+
   const getChangeColor = (change: number) => {
     if (change > 0) return 'text-red-600';
     if (change < 0) return 'text-blue-600';
@@ -2239,9 +2342,10 @@ export default function Dashboard() {
               // 인사이트가 없는 경우 기존 텍스트 표시
               if (critical.length === 0 && warning.length === 0 && positive.length === 0) {
                 return (
-                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-                    {aiInsight}
-                  </p>
+                  <p 
+                    className="text-sm text-gray-700 leading-relaxed whitespace-pre-line"
+                    dangerouslySetInnerHTML={{ __html: formatMarkdownBold(aiInsight) }}
+                  />
                 );
               }
               
@@ -3760,26 +3864,31 @@ export default function Dashboard() {
                   <p className="text-sm font-medium">데이터를 불러오는 중...</p>
                 </div>
               ) : allocationData ? (
+                <>
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b-2 border-gray-200">
-                        <th className="px-2 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap">구분</th>
-                        <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap" colSpan={2}>공통비</th>
+                        <th className="px-2 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[40px]">구분</th>
+                        <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[90px]" colSpan={2}>공통비</th>
                         {allocationData.brands.map((brand) => (
-                          <th key={brand.name} className="px-2 py-2 text-center text-[11px] font-bold text-gray-900 bg-gray-50 whitespace-nowrap" colSpan={2}>
-                            {brand.name}
+                          <th key={brand.name} className="px-2 py-2 text-center text-[11px] font-bold text-gray-900 bg-gray-50 w-[90px]" colSpan={2}>
+                            {brand.name.includes(' ') && brand.name !== 'MLB KIDS' ? (
+                              <span className="whitespace-pre-line leading-tight">{brand.name.replace(' ', '\n')}</span>
+                            ) : (
+                              brand.name
+                            )}
                           </th>
                         ))}
                       </tr>
                       <tr className="border-b border-gray-200 bg-gray-50">
                         <th className="px-2 py-1 text-left text-[10px] text-gray-500"></th>
-                        <th className="px-2 py-1 text-right text-[10px] text-gray-500">금액</th>
-                        <th className="px-2 py-1 text-right text-[10px] text-gray-500">비중</th>
+                        <th className="px-2 py-1 text-center text-[10px] text-gray-500">금액</th>
+                        <th className="px-2 py-1 text-center text-[10px] text-gray-500">비중</th>
                         {allocationData.brands.map((brand) => (
                           <React.Fragment key={`header-${brand.name}`}>
-                            <th className="px-2 py-1 text-right text-[10px] text-gray-500">금액</th>
-                            <th className="px-2 py-1 text-right text-[10px] text-gray-500">비중</th>
+                            <th className="px-2 py-1 text-center text-[10px] text-gray-500">금액</th>
+                            <th className="px-2 py-1 text-center text-[10px] text-gray-500">비중</th>
                           </React.Fragment>
                         ))}
                       </tr>
@@ -3788,13 +3897,13 @@ export default function Dashboard() {
                       {/* 24년 행 */}
                       <tr className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="px-2 py-2 text-[10px] font-medium text-gray-700">24년</td>
-                        <td className="px-2 py-2 text-right text-xs text-gray-900 font-semibold">
+                        <td className="px-2 py-2 text-right text-sm text-gray-900 font-semibold">
                           {allocationData.total.previous.toLocaleString()}
                         </td>
                         <td className="px-2 py-2 text-right text-[10px] text-gray-500">100%</td>
                         {allocationData.brands.map((brand) => (
                           <React.Fragment key={`prev-${brand.name}`}>
-                            <td className="px-2 py-2 text-right text-xs text-gray-900">
+                            <td className="px-2 py-2 text-right text-sm text-gray-900">
                               {brand.previous.toLocaleString()}
                             </td>
                             <td className="px-2 py-2 text-right text-[10px] text-gray-500">
@@ -3806,13 +3915,13 @@ export default function Dashboard() {
                       {/* 25년 행 */}
                       <tr className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="px-2 py-2 text-[10px] font-medium text-gray-700">25년</td>
-                        <td className="px-2 py-2 text-right text-xs text-blue-600 font-bold">
+                        <td className="px-2 py-2 text-right text-sm text-blue-600 font-bold">
                           {allocationData.total.current.toLocaleString()}
                         </td>
                         <td className="px-2 py-2 text-right text-[10px] text-gray-500">100%</td>
                         {allocationData.brands.map((brand) => (
                           <React.Fragment key={`cur-${brand.name}`}>
-                            <td className="px-2 py-2 text-right text-xs text-blue-600 font-semibold">
+                            <td className="px-2 py-2 text-right text-sm text-blue-600 font-semibold">
                               {brand.current.toLocaleString()}
                             </td>
                             <td className="px-2 py-2 text-right text-[10px] text-gray-500">
@@ -3824,7 +3933,7 @@ export default function Dashboard() {
                       {/* 차이 행 */}
                       <tr className="bg-gray-50 border-t-2 border-gray-200">
                         <td className="px-2 py-2 text-[10px] font-bold text-gray-900">차이</td>
-                        <td className={`px-2 py-2 text-right text-xs font-bold ${allocationData.total.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                        <td className={`px-2 py-2 text-right text-sm font-bold ${allocationData.total.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
                           {allocationData.total.change >= 0 ? '+' : ''}{allocationData.total.change.toLocaleString()}
                         </td>
                         <td className={`px-2 py-2 text-right text-[10px] font-semibold ${allocationData.total.changePercent >= 100 ? 'text-red-600' : 'text-blue-600'}`}>
@@ -3832,7 +3941,7 @@ export default function Dashboard() {
                         </td>
                         {allocationData.brands.map((brand) => (
                           <React.Fragment key={`diff-${brand.name}`}>
-                            <td className={`px-2 py-2 text-right text-xs font-semibold ${brand.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                            <td className={`px-2 py-2 text-right text-sm font-semibold ${brand.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
                               {brand.change >= 0 ? '+' : ''}{brand.change.toLocaleString()}
                             </td>
                             <td className={`px-2 py-2 text-right text-[10px] font-semibold ${brand.changePercent >= 100 ? 'text-red-600' : 'text-blue-600'}`}>
@@ -3844,6 +3953,103 @@ export default function Dashboard() {
                     </tbody>
                   </table>
                 </div>
+                
+                {/* 배부기준 입력 영역 */}
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h4 
+                    onClick={() => setCriteriaEditMode(!criteriaEditMode)}
+                    className="text-base font-bold text-gray-700 flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    공통비 배부기준
+                  </h4>
+                  
+                  {criteriaEditMode ? (
+                    /* 편집 모드 */
+                    <div className="space-y-2 mt-3">
+                      {allocationCriteria.map((item, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <span className="text-blue-600 font-bold">•</span>
+                          <input
+                            type="text"
+                            className="flex-1 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="배부기준 입력 (**굵게**)"
+                            value={item}
+                            onChange={(e) => {
+                              const newCriteria = [...allocationCriteria];
+                              newCriteria[index] = e.target.value;
+                              setAllocationCriteria(newCriteria);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const newCriteria = [...allocationCriteria];
+                                newCriteria.splice(index + 1, 0, '');
+                                setAllocationCriteria(newCriteria);
+                              } else if (e.key === 'Backspace' && item === '' && allocationCriteria.length > 1) {
+                                e.preventDefault();
+                                const newCriteria = allocationCriteria.filter((_, i) => i !== index);
+                                setAllocationCriteria(newCriteria);
+                              }
+                            }}
+                          />
+                          {allocationCriteria.length > 1 && (
+                            <button
+                              onClick={() => {
+                                const newCriteria = allocationCriteria.filter((_, i) => i !== index);
+                                setAllocationCriteria(newCriteria);
+                              }}
+                              className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      <div className="flex items-center gap-2 mt-3">
+                        <button
+                          onClick={() => setAllocationCriteria([...allocationCriteria, ''])}
+                          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          항목 추가
+                        </button>
+                        <button
+                          onClick={() => {
+                            localStorage.setItem('allocationCriteria', JSON.stringify(allocationCriteria.filter(c => c.trim() !== '')));
+                            setCriteriaEditMode(false);
+                          }}
+                          className="ml-auto px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          저장
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* 읽기 모드 */
+                    <div className="mt-3 space-y-1">
+                      {allocationCriteria.filter(c => c.trim() !== '').length > 0 ? (
+                        allocationCriteria.filter(c => c.trim() !== '').map((item, index) => (
+                          <div key={index} className="flex items-start gap-2 text-sm text-gray-700">
+                            <span className="text-blue-600 font-bold">•</span>
+                            <span dangerouslySetInnerHTML={{ 
+                              __html: item.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') 
+                            }} />
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-400 italic">배부기준을 입력하려면 제목을 클릭하세요</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+                </>
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                   <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3868,17 +4074,421 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-bold">인건비</CardTitle>
-              <p className="text-sm text-muted-foreground">인건비 상세 분석</p>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-bold">월별 인원 현황</CardTitle>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setLaborYear('2024')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      laborYear === '2024' 
+                        ? 'text-blue-600 bg-blue-50' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    2024년
+                  </button>
+                  <button 
+                    onClick={() => setLaborYear('2025')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      laborYear === '2025' 
+                        ? 'text-blue-600 bg-blue-50' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    2025년
+                  </button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <p className="text-lg font-medium mb-2">인건비 분석 기능 준비 중</p>
-                <p className="text-sm">급여, 제수당, 복리후생비 등 인건비 상세 분석을 확인할 수 있습니다.</p>
-              </div>
+              {laborLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <p className="text-sm font-medium">데이터를 불러오는 중...</p>
+                </div>
+              ) : laborData ? (
+                <>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b-2 border-gray-200">
+                        <th className="px-3 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap sticky left-0 min-w-[180px]">부문/팀</th>
+                        {laborData.months.map((month) => (
+                          <th key={month} className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap min-w-[45px]">
+                            {parseInt(month)}월
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* 25년 전체 합계 행 */}
+                      <tr className="border-b border-gray-200 bg-blue-50 font-bold">
+                        <td className="px-3 py-2 text-sm text-blue-700 sticky left-0 bg-blue-50">2025년</td>
+                        {laborData.months.map((month) => (
+                          <td key={month} className="px-2 py-2 text-center text-sm text-blue-700">
+                            {laborData.yearlyTotals['2025']?.[month] || 0}
+                          </td>
+                        ))}
+                      </tr>
+                      {/* 24년 전체 합계 행 */}
+                      <tr className="border-b border-gray-200 bg-gray-50">
+                        <td className="px-3 py-2 text-sm text-gray-600 sticky left-0 bg-gray-50">2024년</td>
+                        {laborData.months.map((month) => (
+                          <td key={month} className="px-2 py-2 text-center text-sm text-gray-600">
+                            {laborData.yearlyTotals['2024']?.[month] || 0}
+                          </td>
+                        ))}
+                      </tr>
+                      {/* YOY 증감 행 */}
+                      <tr className="border-b-2 border-gray-300 bg-green-50">
+                        <td className="px-3 py-2 text-sm font-semibold text-gray-700 sticky left-0 bg-green-50">YOY 증감</td>
+                        {laborData.months.map((month) => {
+                          const current = laborData.yearlyTotals['2025']?.[month] || 0;
+                          const previous = laborData.yearlyTotals['2024']?.[month] || 0;
+                          const diff = current - previous;
+                          return (
+                            <td key={month} className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                              {diff > 0 ? `+${diff}` : diff}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                      {/* 부문별 행 */}
+                      {laborData.divisions.map((division) => (
+                        <React.Fragment key={division.divisionName}>
+                          {/* 부문 헤더 행 */}
+                          <tr 
+                            className="border-b border-gray-200 bg-gray-100 cursor-pointer hover:bg-gray-200 transition-colors"
+                            onClick={() => toggleDivision(division.divisionName)}
+                          >
+                            <td className="px-3 py-2 text-sm font-bold text-gray-800 sticky left-0 bg-gray-100 hover:bg-gray-200 transition-colors">
+                              <div className="flex items-center gap-2">
+                                <svg 
+                                  className={`w-4 h-4 transition-transform ${expandedDivisions.has(division.divisionName) ? 'rotate-90' : ''}`} 
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                                {division.divisionName}
+                              </div>
+                            </td>
+                            {laborData.months.map((month) => {
+                              const key = `${laborYear}${month}`;
+                              const value = division.monthly[key] || 0;
+                              return (
+                                <td key={month} className="px-2 py-2 text-center text-sm font-bold text-gray-800">
+                                  {value > 0 ? value : '-'}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                          {/* 팀별 행 (펼쳤을 때만 표시) */}
+                          {expandedDivisions.has(division.divisionName) && (
+                            <>
+                              {/* 직속 팀 */}
+                              {division.teams.map((team, teamIndex) => (
+                                <tr key={`${division.divisionName}-${team.deptNm}-${teamIndex}`} className="border-b border-gray-100 hover:bg-gray-50">
+                                  <td className="px-3 py-1.5 text-xs text-gray-600 sticky left-0 bg-white pl-8">
+                                    {team.deptNm}
+                                  </td>
+                                  {laborData.months.map((month) => {
+                                    const key = `${laborYear}${month}`;
+                                    const value = team.monthly[key] || 0;
+                                    return (
+                                      <td key={month} className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                        {value > 0 ? value : '-'}
+                                      </td>
+                                    );
+                                  })}
+                                </tr>
+                              ))}
+                              {/* 하위 부문 */}
+                              {division.subDivisions?.map((subDiv) => (
+                                <React.Fragment key={`${division.divisionName}-sub-${subDiv.name}`}>
+                                  {/* 하위 부문 헤더 */}
+                                  <tr 
+                                    className="border-b border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                                    onClick={(e) => { e.stopPropagation(); toggleSubDivision(subDiv.name); }}
+                                  >
+                                    <td className="px-3 py-1.5 text-xs font-semibold text-gray-700 sticky left-0 bg-gray-50 hover:bg-gray-100 transition-colors pl-6">
+                                      <div className="flex items-center gap-2">
+                                        <svg 
+                                          className={`w-3 h-3 transition-transform ${expandedSubDivisions.has(subDiv.name) ? 'rotate-90' : ''}`} 
+                                          fill="none" 
+                                          stroke="currentColor" 
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                        {subDiv.name}
+                                      </div>
+                                    </td>
+                                    {laborData.months.map((month) => {
+                                      const key = `${laborYear}${month}`;
+                                      const value = subDiv.monthly[key] || 0;
+                                      return (
+                                        <td key={month} className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
+                                          {value > 0 ? value : '-'}
+                                        </td>
+                                      );
+                                    })}
+                                  </tr>
+                                  {/* 하위 부문의 팀들 */}
+                                  {expandedSubDivisions.has(subDiv.name) && subDiv.teams.map((team, teamIndex) => (
+                                    <tr key={`${subDiv.name}-${team.deptNm}-${teamIndex}`} className="border-b border-gray-100 hover:bg-gray-50">
+                                      <td className="px-3 py-1.5 text-xs text-gray-500 sticky left-0 bg-white pl-12">
+                                        {team.deptNm}
+                                      </td>
+                                      {laborData.months.map((month) => {
+                                        const key = `${laborYear}${month}`;
+                                        const value = team.monthly[key] || 0;
+                                        return (
+                                          <td key={month} className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                            {value > 0 ? value : '-'}
+                                          </td>
+                                        );
+                                      })}
+                                    </tr>
+                                  ))}
+                                </React.Fragment>
+                              ))}
+                            </>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* 인원 현황 코멘트 */}
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <h4 className="text-sm font-bold text-blue-700 mb-2 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    인원 현황 분석
+                  </h4>
+                  <div className="text-sm text-gray-700 space-y-2">
+                    {(() => {
+                      const dec2024 = laborData.yearlyTotals['2024']?.['12'] || 0;
+                      const dec2025 = laborData.yearlyTotals['2025']?.['12'] || 0;
+                      const diff = dec2025 - dec2024;
+                      const diffPercent = dec2024 > 0 ? ((diff / dec2024) * 100).toFixed(1) : 0;
+                      
+                      // 부문별 증감 계산 (모든 부문)
+                      const allDivisionChanges = laborData.divisions.map(div => {
+                        const prev = div.monthly['202412'] || 0;
+                        const curr = div.monthly['202512'] || 0;
+                        return { name: div.divisionName, prev, curr, diff: curr - prev };
+                      }).sort((a, b) => b.diff - a.diff);
+                      
+                      const increased = allDivisionChanges.filter(d => d.diff > 0);
+                      const decreased = allDivisionChanges.filter(d => d.diff < 0);
+                      const unchanged = allDivisionChanges.filter(d => d.diff === 0);
+                      
+                      return (
+                        <>
+                          <div className="mb-3">
+                            <strong>📊 연간 비교:</strong> 2024년 12월({dec2024}명) 대비 2025년 12월({dec2025}명) 기준, 
+                            전체 인원이 <span className={diff >= 0 ? 'text-red-600 font-semibold' : 'text-blue-600 font-semibold'}>
+                              {diff >= 0 ? `+${diff}명 (${diffPercent}% 증가)` : `${diff}명 (${Math.abs(Number(diffPercent))}% 감소)`}
+                            </span> 했습니다.
+                          </div>
+                          
+                          {increased.length > 0 && (
+                            <div className="mb-2">
+                              <strong className="text-red-600">📈 증가 부문 ({increased.length}개):</strong>
+                              <div className="ml-4 mt-1 grid grid-cols-2 md:grid-cols-3 gap-1">
+                                {increased.map(d => (
+                                  <span key={d.name} className="text-red-600">
+                                    • {d.name}: {d.prev}명 → {d.curr}명 <strong>(+{d.diff})</strong>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {decreased.length > 0 && (
+                            <div className="mb-2">
+                              <strong className="text-blue-600">📉 감소 부문 ({decreased.length}개):</strong>
+                              <div className="ml-4 mt-1 grid grid-cols-2 md:grid-cols-3 gap-1">
+                                {decreased.map(d => (
+                                  <span key={d.name} className="text-blue-600">
+                                    • {d.name}: {d.prev}명 → {d.curr}명 <strong>({d.diff})</strong>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {unchanged.length > 0 && (
+                            <div className="mb-2">
+                              <strong className="text-gray-500">➖ 변동 없음 ({unchanged.length}개):</strong>
+                              <span className="ml-2 text-gray-500">
+                                {unchanged.map(d => `${d.name}(${d.curr}명)`).join(', ')}
+                              </span>
+                            </div>
+                          )}
+                          
+                        </>
+                      );
+                    })()}
+                  </div>
+                  
+                  {/* 주요 시사점 (AI 분석 + 편집 가능) */}
+                  <div className="mt-4 pt-4 border-t border-blue-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 
+                        className={`text-sm font-bold flex items-center gap-2 cursor-pointer transition-colors ${laborInsightEditMode ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}
+                        onClick={() => {
+                          if (laborInsightEditMode) {
+                            // 저장 모드
+                            localStorage.setItem('laborInsight', laborInsight);
+                            setLaborInsightEditMode(false);
+                          } else {
+                            // 편집 모드
+                            setLaborInsightEditMode(true);
+                          }
+                        }}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        💡 주요 시사점 (클릭하여 {laborInsightEditMode ? '저장' : '편집'})
+                      </h5>
+                      
+                      {!laborInsightEditMode && (
+                        <button
+                          onClick={async () => {
+                            setLaborInsightLoading(true);
+                            try {
+                              // AI 분석을 위한 데이터 준비
+                              const analysisData = {
+                                year2024: laborData.yearlyTotals['2024'],
+                                year2025: laborData.yearlyTotals['2025'],
+                                divisions: laborData.divisions.map(div => ({
+                                  name: div.divisionName,
+                                  prev: div.monthly['202412'] || 0,
+                                  curr: div.monthly['202512'] || 0,
+                                  diff: (div.monthly['202512'] || 0) - (div.monthly['202412'] || 0)
+                                }))
+                              };
+                              
+                              const response = await fetch('/api/ai-insight', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  type: 'labor',
+                                  data: analysisData
+                                })
+                              });
+                              
+                              if (response.ok) {
+                                const result = await response.json();
+                                setLaborInsight(result.insight);
+                                localStorage.setItem('laborInsight', result.insight);
+                              } else {
+                                alert('AI 분석 요청에 실패했습니다.');
+                              }
+                            } catch (error) {
+                              console.error('AI insight error:', error);
+                              alert('AI 분석 중 오류가 발생했습니다.');
+                            } finally {
+                              setLaborInsightLoading(false);
+                            }
+                          }}
+                          disabled={laborInsightLoading}
+                          className="px-3 py-1.5 text-xs font-medium bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1 disabled:opacity-50"
+                        >
+                          {laborInsightLoading ? (
+                            <>
+                              <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                              분석 중...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                              🤖 AI 분석 요청
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    
+                    {laborInsightEditMode ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={laborInsight}
+                          onChange={(e) => setLaborInsight(e.target.value)}
+                          placeholder="주요 시사점을 작성하세요...&#10;&#10;예시:&#10;• 마케팅본부 인원 증가는 신규 브랜드 런칭 대응&#10;• 해외사업 확대에 따른 인력 충원&#10;• 경영지원 부문은 업무 효율화로 인력 최적화 진행 중"
+                          className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          rows={6}
+                        />
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => {
+                              setLaborInsightEditMode(false);
+                              const saved = localStorage.getItem('laborInsight');
+                              if (saved) setLaborInsight(saved);
+                            }}
+                            className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                          >
+                            취소
+                          </button>
+                          <button
+                            onClick={() => {
+                              localStorage.setItem('laborInsight', laborInsight);
+                              setLaborInsightEditMode(false);
+                            }}
+                            className="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            저장
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div 
+                        className="p-3 bg-white rounded-lg border border-gray-200 min-h-[80px] cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={() => setLaborInsightEditMode(true)}
+                      >
+                        {laborInsight ? (
+                          <div 
+                            className="text-sm text-gray-700 whitespace-pre-wrap"
+                            dangerouslySetInnerHTML={{ __html: formatMarkdownBold(laborInsight) }}
+                          />
+                        ) : (
+                          <div className="text-sm text-gray-400 italic">
+                            <p>🤖 AI 분석 요청 버튼을 클릭하여 자동 분석을 받거나,</p>
+                            <p>이 영역을 클릭하여 직접 시사점을 작성하세요.</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <p className="text-lg font-medium mb-2">데이터를 불러올 수 없습니다</p>
+                  <button
+                    onClick={loadLaborData}
+                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    다시 시도
+                  </button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
