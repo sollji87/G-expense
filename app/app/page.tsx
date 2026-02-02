@@ -111,6 +111,46 @@ export default function Dashboard() {
     }[];
   } | null>(null);
   const [laborLoading, setLaborLoading] = useState(false);
+  const [itExpenseData, setItExpenseData] = useState<{
+    months: string[];
+    categories: {
+      id: string;
+      name: string;
+      accounts: {
+        id: string;
+        glCode: string;
+        accountName: string;
+        middleCategory: string;
+        monthly2024: { [month: string]: number };
+        monthly2025: { [month: string]: number };
+      }[];
+      monthly2024: { [month: string]: number };
+      monthly2025: { [month: string]: number };
+    }[];
+    totals: {
+      monthly2024: { [month: string]: number };
+      monthly2025: { [month: string]: number };
+    };
+  } | null>(null);
+  const [itExpenseLoading, setItExpenseLoading] = useState(false);
+  const [itExpenseYear, setItExpenseYear] = useState<'2024' | '2025'>('2025');
+  const [expandedItCategories, setExpandedItCategories] = useState<Set<string>>(new Set());
+  
+  // CAPEX (유무형자산) 상태
+  const [capexData, setCapexData] = useState<{
+    year: string;
+    months: string[];
+    acquisitions: { assetNo: string; assetName: string; acquisitionDate: string; month: string; amount: number }[];
+    transfers: { assetNo: string; assetName: string; acquisitionDate: string; month: string; amount: number }[];
+    disposals: { assetNo: string; assetName: string; acquisitionDate: string; month: string; amount: number }[];
+    monthlyAcquisitions: { [month: string]: number };
+    monthlyTransfers: { [month: string]: number };
+    monthlyDisposals: { [month: string]: number };
+    totals: { acquisitions: number; transfers: number; disposals: number };
+  } | null>(null);
+  const [capexLoading, setCapexLoading] = useState(false);
+  const [capexYear, setCapexYear] = useState<'2024' | '2025'>('2025');
+  
   const [laborYear, setLaborYear] = useState<'2024' | '2025'>('2025');
   const [expandedDivisions, setExpandedDivisions] = useState<Set<string>>(new Set());
   const [expandedSubDivisions, setExpandedSubDivisions] = useState<Set<string>>(new Set());
@@ -414,6 +454,44 @@ export default function Dashboard() {
     }
   };
 
+  // IT수수료 데이터 로드
+  const loadItExpenseData = async () => {
+    setItExpenseLoading(true);
+    try {
+      const response = await fetch('/api/it-expense');
+      const result = await response.json();
+      
+      if (result.success) {
+        setItExpenseData({
+          months: result.months,
+          categories: result.categories,
+          totals: result.totals,
+        });
+      }
+    } catch (error) {
+      console.error('IT수수료 데이터 로드 실패:', error);
+    } finally {
+      setItExpenseLoading(false);
+    }
+  };
+
+  // CAPEX (유무형자산) 데이터 로드
+  const loadCapexData = async (year: string) => {
+    setCapexLoading(true);
+    try {
+      const response = await fetch(`/api/capex?year=${year}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        setCapexData(result);
+      }
+    } catch (error) {
+      console.error('CAPEX 데이터 로드 실패:', error);
+    } finally {
+      setCapexLoading(false);
+    }
+  };
+
   // 부문 접기/펼치기 토글
   const toggleDivision = (divisionName: string) => {
     setExpandedDivisions(prev => {
@@ -641,6 +719,20 @@ export default function Dashboard() {
       loadLaborData();
     }
   }, [mainTab]);
+
+  // IT수수료 탭 진입 시 데이터 로드
+  useEffect(() => {
+    if (mainTab === 'it' && !itExpenseData) {
+      loadItExpenseData();
+    }
+  }, [mainTab]);
+
+  // CAPEX 데이터 로드 (IT 탭 진입 또는 연도 변경 시)
+  useEffect(() => {
+    if (mainTab === 'it') {
+      loadCapexData(capexYear);
+    }
+  }, [mainTab, capexYear]);
 
   const loadAccountData = async () => {
     try {
@@ -4550,17 +4642,411 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-bold">IT수수료</CardTitle>
-              <p className="text-sm text-muted-foreground">IT수수료 상세 분석</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-bold">월별 IT수수료 현황</CardTitle>
+                  <p className="text-sm text-muted-foreground">계정별 월별 IT수수료 (단위: 백만원)</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setItExpenseYear('2024')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      itExpenseYear === '2024'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    2024년
+                  </button>
+                  <button
+                    onClick={() => setItExpenseYear('2025')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      itExpenseYear === '2025'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    2025년
+                  </button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <p className="text-lg font-medium mb-2">IT수수료 분석 기능 준비 중</p>
-                <p className="text-sm">IT유지보수비, IT사용료, SW상각비 등 IT수수료 상세 분석을 확인할 수 있습니다.</p>
+              {itExpenseLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <p className="text-sm font-medium">데이터를 불러오는 중...</p>
+                </div>
+              ) : itExpenseData ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b-2 border-gray-300">
+                        <th className="px-2 py-2 text-left text-xs font-bold text-gray-900 bg-gray-100 sticky left-0 min-w-[200px]">계정</th>
+                        {itExpenseData.months.map(month => (
+                          <th key={month} className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-100 min-w-[60px]">
+                            {parseInt(month)}월
+                          </th>
+                        ))}
+                        <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-100 min-w-[70px]">합계</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* 전체 합계 - 25년 */}
+                      <tr className="border-b border-gray-200 bg-blue-50 font-bold">
+                        <td className="px-2 py-2 text-sm font-bold text-gray-900 sticky left-0 bg-blue-50">IT수수료 합계 (25년)</td>
+                        {itExpenseData.months.map(month => {
+                          const val = itExpenseData.totals.monthly2025[month] || 0;
+                          return (
+                            <td key={month} className="px-2 py-2 text-right text-sm font-bold text-blue-600">
+                              {val.toLocaleString()}
+                            </td>
+                          );
+                        })}
+                        <td className="px-2 py-2 text-right text-sm font-bold text-blue-600">
+                          {Object.values(itExpenseData.totals.monthly2025).reduce((a, b) => a + b, 0).toLocaleString()}
+                        </td>
+                      </tr>
+                      
+                      {/* 전체 합계 - 24년 */}
+                      <tr className="border-b border-gray-200 bg-gray-50">
+                        <td className="px-2 py-2 text-sm font-medium text-gray-600 sticky left-0 bg-gray-50">IT수수료 합계 (24년)</td>
+                        {itExpenseData.months.map(month => {
+                          const val = itExpenseData.totals.monthly2024[month] || 0;
+                          return (
+                            <td key={month} className="px-2 py-2 text-right text-sm text-gray-600">
+                              {val.toLocaleString()}
+                            </td>
+                          );
+                        })}
+                        <td className="px-2 py-2 text-right text-sm font-medium text-gray-600">
+                          {Object.values(itExpenseData.totals.monthly2024).reduce((a, b) => a + b, 0).toLocaleString()}
+                        </td>
+                      </tr>
+                      
+                      {/* 전체 합계 - YOY */}
+                      <tr className="border-b-2 border-gray-300 bg-blue-100">
+                        <td className="px-2 py-2 text-sm font-bold text-gray-900 sticky left-0 bg-blue-100">YOY</td>
+                        {itExpenseData.months.map(month => {
+                          const val2024 = itExpenseData.totals.monthly2024[month] || 0;
+                          const val2025 = itExpenseData.totals.monthly2025[month] || 0;
+                          const yoy = val2024 > 0 ? (val2025 / val2024 * 100) : 0;
+                          return (
+                            <td key={month} className="px-2 py-2 text-right text-sm font-bold">
+                              <span className={yoy >= 100 ? 'text-red-600' : 'text-blue-600'}>
+                                {yoy.toFixed(1)}%
+                              </span>
+                            </td>
+                          );
+                        })}
+                        <td className="px-2 py-2 text-right text-sm font-bold">
+                          {(() => {
+                            const total2024 = Object.values(itExpenseData.totals.monthly2024).reduce((a, b) => a + b, 0);
+                            const total2025 = Object.values(itExpenseData.totals.monthly2025).reduce((a, b) => a + b, 0);
+                            const yoy = total2024 > 0 ? (total2025 / total2024 * 100) : 0;
+                            return (
+                              <span className={yoy >= 100 ? 'text-red-600' : 'text-blue-600'}>
+                                {yoy.toFixed(1)}%
+                              </span>
+                            );
+                          })()}
+                        </td>
+                      </tr>
+                      
+                      {/* 중분류별 */}
+                      {itExpenseData.categories.map(category => (
+                        <React.Fragment key={category.id}>
+                          {/* 중분류 헤더 */}
+                          <tr 
+                            className="border-b border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100"
+                            onClick={() => {
+                              setExpandedItCategories(prev => {
+                                const next = new Set(prev);
+                                if (next.has(category.id)) {
+                                  next.delete(category.id);
+                                } else {
+                                  next.add(category.id);
+                                }
+                                return next;
+                              });
+                            }}
+                          >
+                            <td className="px-2 py-2 text-sm font-semibold text-gray-800 sticky left-0 bg-gray-50">
+                              <span className="mr-2">{expandedItCategories.has(category.id) ? '▼' : '▶'}</span>
+                              {category.name}
+                            </td>
+                            {itExpenseData.months.map(month => {
+                              const val = itExpenseYear === '2024' 
+                                ? category.monthly2024[month] || 0
+                                : category.monthly2025[month] || 0;
+                              return (
+                                <td key={month} className="px-2 py-2 text-right text-sm font-semibold text-gray-700">
+                                  {val.toLocaleString()}
+                                </td>
+                              );
+                            })}
+                            <td className="px-2 py-2 text-right text-sm font-semibold text-blue-600">
+                              {Object.values(itExpenseYear === '2024' ? category.monthly2024 : category.monthly2025)
+                                .reduce((a, b) => a + b, 0).toLocaleString()}
+                            </td>
+                          </tr>
+                          
+                          {/* 계정 상세 */}
+                          {expandedItCategories.has(category.id) && category.accounts.map(account => (
+                            <tr key={account.id} className="border-b border-gray-100 hover:bg-gray-50">
+                              <td className="px-2 py-1.5 text-xs text-gray-600 sticky left-0 bg-white pl-8">
+                                {account.accountName}
+                              </td>
+                              {itExpenseData.months.map(month => {
+                                const val = itExpenseYear === '2024' 
+                                  ? account.monthly2024[month] || 0
+                                  : account.monthly2025[month] || 0;
+                                return (
+                                  <td key={month} className="px-2 py-1.5 text-right text-xs text-gray-600">
+                                    {val.toLocaleString()}
+                                  </td>
+                                );
+                              })}
+                              <td className="px-2 py-1.5 text-right text-xs font-medium text-blue-600">
+                                {Object.values(itExpenseYear === '2024' ? account.monthly2024 : account.monthly2025)
+                                  .reduce((a, b) => a + b, 0).toLocaleString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <p className="text-sm">데이터를 불러올 수 없습니다.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* CAPEX (유무형자산 취득/이관) */}
+          <Card className="mt-6">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-bold">유무형자산 신규취득 및 이관</CardTitle>
+                  <p className="text-sm text-muted-foreground">소프트웨어 자산 월별 취득 현황 (단위: 백만원)</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCapexYear('2024')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      capexYear === '2024'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    2024년
+                  </button>
+                  <button
+                    onClick={() => setCapexYear('2025')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      capexYear === '2025'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    2025년
+                  </button>
+                </div>
               </div>
+            </CardHeader>
+            <CardContent>
+              {capexLoading ? (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <p className="text-sm font-medium">데이터를 불러오는 중...</p>
+                </div>
+              ) : capexData ? (
+                <div className="space-y-6">
+                  {/* 월별 합계 테이블 */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b-2 border-gray-300">
+                          <th className="px-2 py-2 text-left text-xs font-bold text-gray-900 bg-gray-100 min-w-[120px]">구분</th>
+                          {capexData.months.map(month => (
+                            <th key={month} className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-100 min-w-[60px]">
+                              {parseInt(month)}월
+                            </th>
+                          ))}
+                          <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-100 min-w-[70px]">합계</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* 신규취득 */}
+                        <tr className="border-b border-gray-200 bg-green-50">
+                          <td className="px-2 py-2 text-sm font-bold text-gray-900 bg-green-50">신규취득</td>
+                          {capexData.months.map(month => (
+                            <td key={month} className="px-2 py-2 text-right text-sm font-medium text-green-700">
+                              {(capexData.monthlyAcquisitions[month] || 0).toLocaleString() || '-'}
+                            </td>
+                          ))}
+                          <td className="px-2 py-2 text-right text-sm font-bold text-green-700">
+                            {capexData.totals.acquisitions.toLocaleString()}
+                          </td>
+                        </tr>
+                        {/* 이관 */}
+                        <tr className="border-b border-gray-200 bg-blue-50">
+                          <td className="px-2 py-2 text-sm font-bold text-gray-900 bg-blue-50">이관</td>
+                          {capexData.months.map(month => (
+                            <td key={month} className="px-2 py-2 text-right text-sm font-medium text-blue-700">
+                              {(capexData.monthlyTransfers[month] || 0).toLocaleString() || '-'}
+                            </td>
+                          ))}
+                          <td className="px-2 py-2 text-right text-sm font-bold text-blue-700">
+                            {capexData.totals.transfers.toLocaleString()}
+                          </td>
+                        </tr>
+                        {/* 처분 */}
+                        <tr className="border-b border-gray-200 bg-red-50">
+                          <td className="px-2 py-2 text-sm font-bold text-gray-900 bg-red-50">처분</td>
+                          {capexData.months.map(month => {
+                            const val = capexData.monthlyDisposals?.[month] || 0;
+                            return (
+                              <td key={month} className="px-2 py-2 text-right text-sm font-medium text-red-600">
+                                {val > 0 ? `-${val.toLocaleString()}` : '-'}
+                              </td>
+                            );
+                          })}
+                          <td className="px-2 py-2 text-right text-sm font-bold text-red-600">
+                            {capexData.totals.disposals > 0 ? `-${capexData.totals.disposals.toLocaleString()}` : '-'}
+                          </td>
+                        </tr>
+                        {/* 합계 */}
+                        <tr className="border-b-2 border-gray-300 bg-gray-100">
+                          <td className="px-2 py-2 text-sm font-bold text-gray-900 bg-gray-100">순증감</td>
+                          {capexData.months.map(month => {
+                            const acq = capexData.monthlyAcquisitions[month] || 0;
+                            const trans = capexData.monthlyTransfers[month] || 0;
+                            const disp = capexData.monthlyDisposals?.[month] || 0;
+                            const net = acq + trans - disp;
+                            return (
+                              <td key={month} className={`px-2 py-2 text-right text-sm font-bold ${net >= 0 ? 'text-gray-900' : 'text-red-600'}`}>
+                                {net !== 0 ? net.toLocaleString() : '-'}
+                              </td>
+                            );
+                          })}
+                          <td className={`px-2 py-2 text-right text-sm font-bold ${(capexData.totals.acquisitions + capexData.totals.transfers - capexData.totals.disposals) >= 0 ? 'text-gray-900' : 'text-red-600'}`}>
+                            {(capexData.totals.acquisitions + capexData.totals.transfers - capexData.totals.disposals).toLocaleString()}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* 신규취득 상세 리스트 */}
+                  {capexData.acquisitions.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                        신규취득 자산 ({capexData.acquisitions.length}건)
+                      </h4>
+                      <div className="bg-green-50 rounded-lg p-3">
+                        <table className="w-full text-xs table-fixed">
+                          <thead>
+                            <tr className="border-b border-green-200">
+                              <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-700 w-[100px]">취득일</th>
+                              <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-700">자산명</th>
+                              <th className="px-2 py-1.5 text-right text-xs font-semibold text-gray-700 w-[100px]">취득가액</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {capexData.acquisitions.map((item, idx) => (
+                              <tr key={idx} className="border-b border-green-100 last:border-b-0">
+                                <td className="px-2 py-1.5 text-xs text-gray-600 whitespace-nowrap w-[100px]">{item.acquisitionDate}</td>
+                                <td className="px-2 py-1.5 text-xs text-gray-900 truncate">{item.assetName}</td>
+                                <td className="px-2 py-1.5 text-right text-xs font-medium text-green-700 w-[100px]">{item.amount.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 이관 상세 리스트 */}
+                  {capexData.transfers.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+                        이관 자산 ({capexData.transfers.length}건)
+                      </h4>
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <table className="w-full text-xs table-fixed">
+                          <thead>
+                            <tr className="border-b border-blue-200">
+                              <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-700 w-[100px]">취득일</th>
+                              <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-700">자산명</th>
+                              <th className="px-2 py-1.5 text-right text-xs font-semibold text-gray-700 w-[100px]">이관금액</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {capexData.transfers.map((item, idx) => (
+                              <tr key={idx} className="border-b border-blue-100 last:border-b-0">
+                                <td className="px-2 py-1.5 text-xs text-gray-600 whitespace-nowrap w-[100px]">{item.acquisitionDate}</td>
+                                <td className="px-2 py-1.5 text-xs text-gray-900 truncate">{item.assetName}</td>
+                                <td className="px-2 py-1.5 text-right text-xs font-medium text-blue-700 w-[100px]">{item.amount.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 처분 상세 리스트 */}
+                  {capexData.disposals && capexData.disposals.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                        <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                        처분 자산 ({capexData.disposals.length}건)
+                      </h4>
+                      <div className="bg-red-50 rounded-lg p-3">
+                        <table className="w-full text-xs table-fixed">
+                          <thead>
+                            <tr className="border-b border-red-200">
+                              <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-700 w-[100px]">취득일</th>
+                              <th className="px-2 py-1.5 text-left text-xs font-semibold text-gray-700">자산명</th>
+                              <th className="px-2 py-1.5 text-right text-xs font-semibold text-gray-700 w-[100px]">처분금액</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {capexData.disposals.map((item, idx) => (
+                              <tr key={idx} className="border-b border-red-100 last:border-b-0">
+                                <td className="px-2 py-1.5 text-xs text-gray-600 whitespace-nowrap w-[100px]">{item.acquisitionDate}</td>
+                                <td className="px-2 py-1.5 text-xs text-gray-900 truncate">{item.assetName}</td>
+                                <td className="px-2 py-1.5 text-right text-xs font-medium text-red-600 w-[100px]">-{item.amount.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {capexData.acquisitions.length === 0 && capexData.transfers.length === 0 && (!capexData.disposals || capexData.disposals.length === 0) && (
+                    <div className="text-center py-8 text-gray-400">
+                      <p className="text-sm">{capexYear}년에 신규 취득, 이관 또는 처분된 자산이 없습니다.</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                  <p className="text-sm">데이터를 불러올 수 없습니다.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
