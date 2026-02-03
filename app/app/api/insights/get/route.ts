@@ -1,4 +1,4 @@
-백백import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { 
   getAllDescriptions, 
   getDescription, 
