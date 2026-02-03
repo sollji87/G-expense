@@ -8,7 +8,7 @@ myvenv/Lib/
 myvenv/Scripts/
 myvenv/Include/
 myvenv/__pycache__/
-myvenv/*.py
+# myvenv/*.py  → 파이썬 스크립트 커밋 포함
 myvenv/*.cfg
 venv/
 ENV/
