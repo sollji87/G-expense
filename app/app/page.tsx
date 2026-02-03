@@ -1078,6 +1078,28 @@ export default function Dashboard() {
     }
   }, [mainTab, capexYear]);
 
+  // 입사/퇴사/이동 및 비고 데이터 초기 로드
+  useEffect(() => {
+    const loadLaborMovementData = async () => {
+      try {
+        const response = await fetch('/api/labor-movement');
+        const result = await response.json();
+        if (result.success) {
+          if (result.movement && Object.keys(result.movement).length > 0) {
+            setLaborMovementData(result.movement);
+          }
+          if (result.remark && Object.keys(result.remark).length > 0) {
+            setLaborRemarkData(result.remark);
+          }
+        }
+      } catch (error) {
+        console.error('입사/퇴사/이동 데이터 로드 실패:', error);
+      }
+    };
+    
+    loadLaborMovementData();
+  }, []);
+
   // 입사/퇴사/이동 데이터 자동 저장 (debounce)
   useEffect(() => {
     if (Object.keys(laborMovementData).length === 0) return;
