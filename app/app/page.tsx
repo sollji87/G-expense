@@ -135,6 +135,40 @@ export default function Dashboard() {
   const [itExpenseLoading, setItExpenseLoading] = useState(false);
   const [itExpenseYear, setItExpenseYear] = useState<'2024' | '2025'>('2025');
   const [expandedItCategories, setExpandedItCategories] = useState<Set<string>>(new Set());
+  const [swCapexExpanded, setSwCapexExpanded] = useState(false); // SW상각비 클릭 시 유무형자산 섹션 펼침
+  const [itMaintenanceExpanded, setItMaintenanceExpanded] = useState(false); // IT유지보수비 클릭 시 상세 섹션 펼침
+  const [itMaintenanceData, setItMaintenanceData] = useState<{
+    items: { text: string; cctrCode: string; total: number; monthly: { [m: string]: number } }[];
+    monthlyTotals: { [m: string]: number };
+    monthlyTotals2024: { [m: string]: number };
+    months: string[];
+  } | null>(null);
+  const [itMaintenanceLoading, setItMaintenanceLoading] = useState(false);
+  const [expandedMaintenanceTeam, setExpandedMaintenanceTeam] = useState<string | null>(null);
+  const [teamMaintenanceDetails, setTeamMaintenanceDetails] = useState<{
+    text: string; monthly: { [m: string]: number }; total: number;
+  }[]>([]);
+  const [teamDetailsLoading, setTeamDetailsLoading] = useState(false);
+  const [allMaintenanceExpanded, setAllMaintenanceExpanded] = useState(false);
+  const [allTeamDetails, setAllTeamDetails] = useState<{ [team: string]: { text: string; monthly: { [m: string]: number }; total: number }[] }>({});
+  
+  // IT사용료 상세 상태
+  const [itUsageExpanded, setItUsageExpanded] = useState(false);
+  const [itUsageData, setItUsageData] = useState<{
+    items: { text: string; total: number; monthly: { [m: string]: number } }[];
+    monthlyTotals: { [m: string]: number };
+    monthlyTotals2024: { [m: string]: number };
+    monthlyHeadcount: { [m: string]: number };
+    months: string[];
+  } | null>(null);
+  const [itUsageLoading, setItUsageLoading] = useState(false);
+  const [expandedUsageTeam, setExpandedUsageTeam] = useState<string | null>(null);
+  const [teamUsageDetails, setTeamUsageDetails] = useState<{
+    text: string; monthly: { [m: string]: number }; total: number;
+  }[]>([]);
+  const [teamUsageDetailsLoading, setTeamUsageDetailsLoading] = useState(false);
+  const [allUsageExpanded, setAllUsageExpanded] = useState(false);
+  const [allUsageTeamDetails, setAllUsageTeamDetails] = useState<{ [team: string]: { text: string; monthly: { [m: string]: number }; total: number }[] }>({});
   
   // CAPEX (유무형자산) 상태
   const [capexData, setCapexData] = useState<{
@@ -545,6 +579,144 @@ export default function Dashboard() {
     } finally {
       setCapexLoading(false);
     }
+  };
+
+  // IT유지보수비 상세 데이터 로드
+  const loadItMaintenanceData = async (year: string) => {
+    setItMaintenanceLoading(true);
+    try {
+      const response = await fetch(`/api/it-maintenance?year=${year}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        setItMaintenanceData(result);
+      }
+    } catch (error) {
+      console.error('IT유지보수비 데이터 로드 실패:', error);
+    } finally {
+      setItMaintenanceLoading(false);
+    }
+  };
+
+  // IT유지보수비 팀별 상세 내역 로드
+  const loadTeamMaintenanceDetails = async (year: string, team: string) => {
+    setTeamDetailsLoading(true);
+    try {
+      const response = await fetch(`/api/it-maintenance?year=${year}&team=${encodeURIComponent(team)}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        setTeamMaintenanceDetails(result.items || []);
+      }
+    } catch (error) {
+      console.error('팀 상세 내역 로드 실패:', error);
+    } finally {
+      setTeamDetailsLoading(false);
+    }
+  };
+
+  // IT유지보수비 모두펼치기
+  const expandAllMaintenanceTeams = async () => {
+    if (!itMaintenanceData) return;
+    setAllMaintenanceExpanded(true);
+    const details: { [team: string]: { text: string; monthly: { [m: string]: number }; total: number }[] } = {};
+    
+    for (const item of itMaintenanceData.items) {
+      try {
+        const response = await fetch(`/api/it-maintenance?year=${itExpenseYear}&team=${encodeURIComponent(item.text)}`);
+        const result = await response.json();
+        if (result.success) {
+          details[item.text] = result.items || [];
+        }
+      } catch (error) {
+        console.error(`${item.text} 상세 로드 실패:`, error);
+      }
+    }
+    setAllTeamDetails(details);
+  };
+
+  // IT유지보수비 모두접기
+  const collapseAllMaintenanceTeams = () => {
+    setAllMaintenanceExpanded(false);
+    setAllTeamDetails({});
+    setExpandedMaintenanceTeam(null);
+    setTeamMaintenanceDetails([]);
+  };
+
+  // IT사용료 데이터 로드
+  const loadItUsageData = async (year: string) => {
+    setItUsageLoading(true);
+    try {
+      // laborData가 없으면 먼저 로드 (인원수 데이터 필요)
+      if (!laborData) {
+        const laborResponse = await fetch(`/api/labor?year=${year}`);
+        const laborResult = await laborResponse.json();
+        if (laborResult.success) {
+          setLaborData({
+            months: laborResult.months,
+            yearlyTotals: laborResult.yearlyTotals,
+            divisions: laborResult.divisions.map((d: { divisionName: string; teams: { deptNm: string; monthly: { [key: string]: number } }[]; subDivisions?: { name: string; teams: { deptNm: string; monthly: { [key: string]: number } }[]; monthly: { [key: string]: number } }[]; monthly: { [key: string]: number } }) => ({
+              ...d,
+              subDivisions: d.subDivisions || [],
+            })),
+          });
+        }
+      }
+      
+      const response = await fetch(`/api/it-usage?year=${year}`);
+      const result = await response.json();
+      if (result.success) {
+        setItUsageData(result);
+      }
+    } catch (error) {
+      console.error('IT사용료 데이터 로드 실패:', error);
+    } finally {
+      setItUsageLoading(false);
+    }
+  };
+
+  // IT사용료 팀별 상세 내역 로드
+  const loadTeamUsageDetails = async (year: string, team: string) => {
+    setTeamUsageDetailsLoading(true);
+    try {
+      const response = await fetch(`/api/it-usage?year=${year}&team=${encodeURIComponent(team)}`);
+      const result = await response.json();
+      if (result.success) {
+        setTeamUsageDetails(result.items || []);
+      }
+    } catch (error) {
+      console.error('팀 상세 내역 로드 실패:', error);
+    } finally {
+      setTeamUsageDetailsLoading(false);
+    }
+  };
+
+  // IT사용료 모두펼치기
+  const expandAllUsageTeams = async () => {
+    if (!itUsageData) return;
+    setAllUsageExpanded(true);
+    const details: { [team: string]: { text: string; monthly: { [m: string]: number }; total: number }[] } = {};
+    
+    for (const item of itUsageData.items) {
+      try {
+        const response = await fetch(`/api/it-usage?year=${itExpenseYear}&team=${encodeURIComponent(item.text)}`);
+        const result = await response.json();
+        if (result.success) {
+          details[item.text] = result.items || [];
+        }
+      } catch (error) {
+        console.error(`${item.text} 상세 로드 실패:`, error);
+      }
+    }
+    setAllUsageTeamDetails(details);
+  };
+
+  // IT사용료 모두접기
+  const collapseAllUsageTeams = () => {
+    setAllUsageExpanded(false);
+    setAllUsageTeamDetails({});
+    setExpandedUsageTeam(null);
+    setTeamUsageDetails([]);
   };
 
   // 부문 접기/펼치기 토글
@@ -2313,7 +2485,7 @@ export default function Dashboard() {
           <nav className="flex gap-1 overflow-x-auto">
             <button
               onClick={() => setMainTab('summary')}
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
                 mainTab === 'summary'
                   ? 'border-blue-600 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -2323,7 +2495,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setMainTab('allocation')}
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
                 mainTab === 'allocation'
                   ? 'border-blue-600 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -2333,7 +2505,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setMainTab('labor')}
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
                 mainTab === 'labor'
                   ? 'border-blue-600 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -2343,7 +2515,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setMainTab('it')}
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
                 mainTab === 'it'
                   ? 'border-blue-600 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -2353,7 +2525,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => setMainTab('commission')}
-              className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`px-4 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
                 mainTab === 'commission'
                   ? 'border-blue-600 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -5593,7 +5765,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setItExpenseYear('2024')}
+                    onClick={() => { setItExpenseYear('2024'); if (itMaintenanceExpanded) loadItMaintenanceData('2024'); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2024'
                         ? 'bg-blue-600 text-white'
@@ -5603,7 +5775,7 @@ export default function Dashboard() {
                     2024년
                   </button>
                   <button
-                    onClick={() => setItExpenseYear('2025')}
+                    onClick={() => { setItExpenseYear('2025'); if (itMaintenanceExpanded) loadItMaintenanceData('2025'); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2025'
                         ? 'bg-blue-600 text-white'
@@ -5715,10 +5887,18 @@ export default function Dashboard() {
                                 }
                                 return next;
                               });
+                              // SW상각비 클릭 시 유무형자산 섹션 토글
+                              if (category.name === 'SW상각비') {
+                                setSwCapexExpanded(prev => !prev);
+                              }
                             }}
                           >
                             <td className="px-2 py-2 text-sm font-semibold text-gray-800 sticky left-0 bg-gray-50">
-                              <span className="mr-2">{expandedItCategories.has(category.id) ? '▼' : '▶'}</span>
+                              <span className="mr-2">
+                                {category.name === 'SW상각비' 
+                                  ? (expandedItCategories.has(category.id) || swCapexExpanded ? '▼' : '▶')
+                                  : (expandedItCategories.has(category.id) ? '▼' : '▶')}
+                              </span>
                               {category.name}
                             </td>
                             {itExpenseData.months.map(month => {
@@ -5738,27 +5918,55 @@ export default function Dashboard() {
                           </tr>
                           
                           {/* 계정 상세 */}
-                          {expandedItCategories.has(category.id) && category.accounts.map(account => (
-                            <tr key={account.id} className="border-b border-gray-100 hover:bg-gray-50">
-                              <td className="px-2 py-1.5 text-xs text-gray-600 sticky left-0 bg-white pl-8">
-                                {account.accountName}
-                              </td>
-                              {itExpenseData.months.map(month => {
-                                const val = itExpenseYear === '2024' 
-                                  ? account.monthly2024[month] || 0
-                                  : account.monthly2025[month] || 0;
-                                return (
-                                  <td key={month} className="px-2 py-1.5 text-right text-xs text-gray-600">
-                                    {val.toLocaleString()}
-                                  </td>
-                                );
-                              })}
-                              <td className="px-2 py-1.5 text-right text-xs font-medium text-blue-600">
-                                {Object.values(itExpenseYear === '2024' ? account.monthly2024 : account.monthly2025)
-                                  .reduce((a, b) => a + b, 0).toLocaleString()}
-                              </td>
-                            </tr>
-                          ))}
+                          {expandedItCategories.has(category.id) && category.accounts.map(account => {
+                            const isMaintenanceAccount = account.accountName === '지급수수료_IT유지보수비';
+                            const isUsageAccount = account.accountName === '지급수수료_IT사용료';
+                            const isClickable = isMaintenanceAccount || isUsageAccount;
+                            return (
+                              <tr 
+                                key={account.id} 
+                                className={`border-b border-gray-100 hover:bg-gray-50 ${isClickable ? 'cursor-pointer' : ''}`}
+                                onClick={() => {
+                                  if (isMaintenanceAccount) {
+                                    setItMaintenanceExpanded(prev => !prev);
+                                    if (!itMaintenanceData) {
+                                      loadItMaintenanceData(itExpenseYear);
+                                    }
+                                  }
+                                  if (isUsageAccount) {
+                                    setItUsageExpanded(prev => !prev);
+                                    if (!itUsageData) {
+                                      loadItUsageData(itExpenseYear);
+                                    }
+                                  }
+                                }}
+                              >
+                                <td className="px-2 py-1.5 text-xs text-gray-600 sticky left-0 bg-white pl-8">
+                                  {isMaintenanceAccount && (
+                                    <span className="mr-1 text-gray-400">{itMaintenanceExpanded ? '▼' : '▶'}</span>
+                                  )}
+                                  {isUsageAccount && (
+                                    <span className="mr-1 text-gray-400">{itUsageExpanded ? '▼' : '▶'}</span>
+                                  )}
+                                  {account.accountName}
+                                </td>
+                                {itExpenseData.months.map(month => {
+                                  const val = itExpenseYear === '2024' 
+                                    ? account.monthly2024[month] || 0
+                                    : account.monthly2025[month] || 0;
+                                  return (
+                                    <td key={month} className="px-2 py-1.5 text-right text-xs text-gray-600">
+                                      {val.toLocaleString()}
+                                    </td>
+                                  );
+                                })}
+                                <td className="px-2 py-1.5 text-right text-xs font-medium text-blue-600">
+                                  {Object.values(itExpenseYear === '2024' ? account.monthly2024 : account.monthly2025)
+                                    .reduce((a, b) => a + b, 0).toLocaleString()}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </React.Fragment>
                       ))}
                     </tbody>
@@ -5772,7 +5980,439 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* CAPEX (유무형자산 취득/이관) */}
+          {/* IT사용료 상세 - 지급수수료_IT사용료 클릭 시에만 표시 */}
+          {itUsageExpanded && (
+          <Card className="mt-6">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-bold">IT사용료 상세 분석</CardTitle>
+                  <p className="text-sm text-muted-foreground">부서별 월별 IT사용료 현황 (단위: 백만원)</p>
+                </div>
+                <div className="flex gap-2">
+                  {allUsageExpanded ? (
+                    <button
+                      onClick={collapseAllUsageTeams}
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200"
+                    >
+                      모두접기
+                    </button>
+                  ) : (
+                    <button
+                      onClick={expandAllUsageTeams}
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200"
+                    >
+                      모두펼치기
+                    </button>
+                  )}
+                  <button
+                    onClick={() => { setItUsageExpanded(false); collapseAllUsageTeams(); }}
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  >
+                    접기
+                  </button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {itUsageLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : itUsageData ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b-2 border-gray-200">
+                        <th className="px-2 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 sticky left-0 min-w-[150px]">부서</th>
+                        {itUsageData.months.map(m => (
+                          <th key={m} className="px-2 py-2 text-right text-xs font-bold text-gray-900 bg-gray-50 min-w-[50px]">
+                            {parseInt(m)}월
+                          </th>
+                        ))}
+                        <th className="px-2 py-2 text-right text-xs font-bold text-blue-600 bg-gray-50 min-w-[60px]">연합계</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* 25년 합계 */}
+                      <tr className="border-b border-gray-200 bg-blue-50 font-bold">
+                        <td className="px-2 py-2 text-xs font-bold text-blue-700 sticky left-0 bg-blue-50">
+                          IT사용료 합계 (25년)
+                        </td>
+                        {itUsageData.months.map(m => (
+                          <td key={m} className="px-2 py-2 text-right text-xs font-bold text-blue-700">
+                            {(itUsageData.monthlyTotals[m] || 0).toLocaleString()}
+                          </td>
+                        ))}
+                        <td className="px-2 py-2 text-right text-xs font-bold text-blue-700">
+                          {Object.values(itUsageData.monthlyTotals).reduce((a, b) => a + b, 0).toLocaleString()}
+                        </td>
+                      </tr>
+                      {/* 24년 합계 */}
+                      <tr className="border-b border-gray-200 bg-gray-50">
+                        <td className="px-2 py-2 text-xs font-medium text-gray-600 sticky left-0 bg-gray-50">
+                          IT사용료 합계 (24년)
+                        </td>
+                        {itUsageData.months.map(m => (
+                          <td key={m} className="px-2 py-2 text-right text-xs text-gray-600">
+                            {(itUsageData.monthlyTotals2024?.[m] || 0).toLocaleString()}
+                          </td>
+                        ))}
+                        <td className="px-2 py-2 text-right text-xs font-medium text-gray-600">
+                          {Object.values(itUsageData.monthlyTotals2024 || {}).reduce((a, b) => a + b, 0).toLocaleString()}
+                        </td>
+                      </tr>
+                      {/* YOY */}
+                      <tr className="border-b-2 border-gray-300 bg-gray-50">
+                        <td className="px-2 py-2 text-xs font-medium text-gray-600 sticky left-0 bg-gray-50">
+                          YOY
+                        </td>
+                        {itUsageData.months.map(m => {
+                          const val25 = itUsageData.monthlyTotals[m] || 0;
+                          const val24 = itUsageData.monthlyTotals2024?.[m] || 0;
+                          const yoy = val24 > 0 ? (val25 / val24 * 100) : 0;
+                          const isOver100 = yoy > 100;
+                          return (
+                            <td key={m} className={`px-2 py-2 text-right text-xs font-medium ${isOver100 ? 'text-red-500' : 'text-blue-500'}`}>
+                              {val24 > 0 ? `${yoy.toFixed(1)}%` : '-'}
+                            </td>
+                          );
+                        })}
+                        <td className="px-2 py-2 text-right text-xs font-medium text-gray-600">
+                          {(() => {
+                            const total25 = Object.values(itUsageData.monthlyTotals).reduce((a, b) => a + b, 0);
+                            const total24 = Object.values(itUsageData.monthlyTotals2024 || {}).reduce((a, b) => a + b, 0);
+                            const yoy = total24 > 0 ? (total25 / total24 * 100) : 0;
+                            return total24 > 0 ? `${yoy.toFixed(1)}%` : '-';
+                          })()}
+                        </td>
+                      </tr>
+                      {/* 부서별 상세 */}
+                      {itUsageData.items.map((item, idx) => {
+                        const isAiUsage = item.text === '임직원 AI사용료';
+                        
+                        return (
+                        <React.Fragment key={idx}>
+                          {isAiUsage ? (
+                            <>
+                              {/* 임직원 AI사용료 행 - 접기 기능 없음 */}
+                              <tr className="border-b border-gray-200 bg-yellow-50">
+                                <td className="px-2 py-1.5 text-xs font-medium text-yellow-800 sticky left-0 bg-yellow-50">
+                                  {item.text}
+                                </td>
+                                {itUsageData.months.map(m => (
+                                  <td key={m} className="px-2 py-1.5 text-right text-xs font-medium text-yellow-800">
+                                    {item.monthly[m] && item.monthly[m] > 0 ? item.monthly[m].toLocaleString() : '-'}
+                                  </td>
+                                ))}
+                                <td className="px-2 py-1.5 text-right text-xs font-bold text-yellow-800">
+                                  {item.total.toLocaleString()}
+                                </td>
+                              </tr>
+                              {/* 임직원 수 행 - laborData에서 가져옴 */}
+                              <tr className="border-b border-gray-100 bg-yellow-50/50">
+                                <td className="px-2 py-1 text-xs text-gray-500 sticky left-0 bg-yellow-50/50 pl-4">
+                                  공통사업부 인원수
+                                </td>
+                                {itUsageData.months.map(m => {
+                                  // laborData.yearlyTotals는 '01', '02' 형식
+                                  const headcount = laborData?.yearlyTotals?.['2025']?.[m] || 0;
+                                  return (
+                                    <td key={m} className="px-2 py-1 text-right text-xs text-gray-500">
+                                      {headcount > 0 ? `${headcount}명` : '-'}
+                                    </td>
+                                  );
+                                })}
+                                <td className="px-2 py-1 text-right text-xs font-medium text-gray-600">
+                                  {(() => {
+                                    // 월별 인원수 합계 / 월 수 = 평균 인원수
+                                    const yearlyTotals = laborData?.yearlyTotals?.['2025'] || {};
+                                    const headcountValues = Object.values(yearlyTotals) as number[];
+                                    const totalHeadcount = headcountValues.reduce((a, b) => a + b, 0);
+                                    const monthCount = headcountValues.length || 12;
+                                    const avgHeadcount = Math.round(totalHeadcount / monthCount);
+                                    return avgHeadcount > 0 ? `${avgHeadcount}명` : '-';
+                                  })()}
+                                </td>
+                              </tr>
+                              {/* 인당 사용료 행 (만원 단위) */}
+                              <tr className="border-b-2 border-yellow-200 bg-yellow-50/50">
+                                <td className="px-2 py-1 text-xs text-gray-500 sticky left-0 bg-yellow-50/50 pl-4">
+                                  인당 사용료 (만원)
+                                </td>
+                                {itUsageData.months.map(m => {
+                                  const headcount = laborData?.yearlyTotals?.['2025']?.[m] || 0;
+                                  const perPerson = item.monthly[m] && item.monthly[m] > 0 && headcount > 0
+                                    ? Math.round((item.monthly[m] * 100) / headcount)  // 백만원 -> 만원 (x100), /인원
+                                    : 0;
+                                  return (
+                                    <td key={m} className="px-2 py-1 text-right text-xs text-gray-500">
+                                      {perPerson > 0 ? perPerson.toLocaleString() : '-'}
+                                    </td>
+                                  );
+                                })}
+                                <td className="px-2 py-1 text-right text-xs font-medium text-gray-600">
+                                  {(() => {
+                                    // 연합계 인당 사용료 = (연합계 금액 / 평균 인원수 * 100) / 12 = 월평균 인당 사용료
+                                    const yearlyTotals = laborData?.yearlyTotals?.['2025'] || {};
+                                    const headcountValues = Object.values(yearlyTotals) as number[];
+                                    const totalHeadcount = headcountValues.reduce((a, b) => a + b, 0);
+                                    const monthCount = headcountValues.length || 12;
+                                    const avgHeadcount = totalHeadcount / monthCount;
+                                    return avgHeadcount > 0 ? Math.round((item.total * 100) / avgHeadcount / 12).toLocaleString() : '-';
+                                  })()}
+                                </td>
+                              </tr>
+                            </>
+                          ) : (
+                          <tr 
+                            className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                            onClick={() => {
+                              if (expandedUsageTeam === item.text) {
+                                setExpandedUsageTeam(null);
+                                setTeamUsageDetails([]);
+                              } else {
+                                setExpandedUsageTeam(item.text);
+                                loadTeamUsageDetails(itExpenseYear, item.text);
+                              }
+                            }}
+                          >
+                            <td className="px-2 py-1.5 text-xs text-gray-700 sticky left-0 bg-white" title={item.text}>
+                              <span className="mr-1 text-gray-400">{(expandedUsageTeam === item.text || allUsageExpanded) ? '▼' : '▶'}</span>
+                              {item.text}
+                            </td>
+                            {itUsageData.months.map(m => (
+                              <td key={m} className="px-2 py-1.5 text-right text-xs text-gray-600">
+                                {item.monthly[m] && item.monthly[m] > 0 ? item.monthly[m].toLocaleString() : '-'}
+                              </td>
+                            ))}
+                            <td className="px-2 py-1.5 text-right text-xs font-medium text-blue-600">
+                              {item.total.toLocaleString()}
+                            </td>
+                          </tr>
+                          )}
+                          {/* 팀 상세 내역 드릴다운 - 임직원 AI사용료 제외 */}
+                          {!isAiUsage && (expandedUsageTeam === item.text || allUsageExpanded) && (
+                            (expandedUsageTeam === item.text && teamUsageDetailsLoading) ? (
+                              <tr>
+                                <td colSpan={14} className="bg-gray-50 py-3 text-center">
+                                  <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                                </td>
+                              </tr>
+                            ) : (
+                              (allUsageExpanded ? allUsageTeamDetails[item.text] : teamUsageDetails)?.length > 0 ? (
+                                (allUsageExpanded ? allUsageTeamDetails[item.text] : teamUsageDetails).map((detail, dIdx) => (
+                                  <tr key={`detail-${dIdx}`} className="border-b border-gray-100 bg-gray-50">
+                                    <td className="px-2 py-1 text-xs text-gray-500 sticky left-0 bg-gray-50 pl-6" title={detail.text}>
+                                      {detail.text.length > 20 ? detail.text.slice(0, 20) + '...' : detail.text}
+                                    </td>
+                                    {itUsageData?.months.map(m => (
+                                      <td key={m} className="px-2 py-1 text-right text-xs text-gray-500">
+                                        {detail.monthly && detail.monthly[m] && detail.monthly[m] > 0 ? detail.monthly[m].toLocaleString() : '-'}
+                                      </td>
+                                    ))}
+                                    <td className="px-2 py-1 text-right text-xs text-blue-500 font-medium">
+                                      {detail.total.toLocaleString()}
+                                    </td>
+                                  </tr>
+                                ))
+                              ) : null
+                            )
+                          )}
+                        </React.Fragment>
+                      );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                  <p className="text-sm">데이터를 불러올 수 없습니다.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          )}
+
+          {/* IT유지보수비 상세 - 지급수수료_IT유지보수비 클릭 시에만 표시 */}
+          {itMaintenanceExpanded && (
+          <Card className="mt-6">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-bold">IT유지보수비 상세 분석</CardTitle>
+                  <p className="text-sm text-muted-foreground">부서별 월별 유지보수비 현황 (단위: 백만원)</p>
+                </div>
+                <div className="flex gap-2">
+                  {allMaintenanceExpanded ? (
+                    <button
+                      onClick={collapseAllMaintenanceTeams}
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200"
+                    >
+                      모두접기
+                    </button>
+                  ) : (
+                    <button
+                      onClick={expandAllMaintenanceTeams}
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200"
+                    >
+                      모두펼치기
+                    </button>
+                  )}
+                  <button
+                    onClick={() => { setItMaintenanceExpanded(false); collapseAllMaintenanceTeams(); }}
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  >
+                    접기
+                  </button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {itMaintenanceLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : itMaintenanceData ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b-2 border-gray-200">
+                        <th className="px-2 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 sticky left-0 min-w-[150px]">부서</th>
+                        {itMaintenanceData.months.map(m => (
+                          <th key={m} className="px-2 py-2 text-right text-xs font-bold text-gray-900 bg-gray-50 min-w-[50px]">
+                            {parseInt(m)}월
+                          </th>
+                        ))}
+                        <th className="px-2 py-2 text-right text-xs font-bold text-blue-600 bg-gray-50 min-w-[60px]">연합계</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* 25년 합계 */}
+                      <tr className="border-b border-gray-200 bg-blue-50 font-bold">
+                        <td className="px-2 py-2 text-xs font-bold text-blue-700 sticky left-0 bg-blue-50">
+                          IT유지보수비 합계 (25년)
+                        </td>
+                        {itMaintenanceData.months.map(m => (
+                          <td key={m} className="px-2 py-2 text-right text-xs font-bold text-blue-700">
+                            {(itMaintenanceData.monthlyTotals[m] || 0).toLocaleString()}
+                          </td>
+                        ))}
+                        <td className="px-2 py-2 text-right text-xs font-bold text-blue-700">
+                          {Object.values(itMaintenanceData.monthlyTotals).reduce((a, b) => a + b, 0).toLocaleString()}
+                        </td>
+                      </tr>
+                      {/* 24년 합계 */}
+                      <tr className="border-b border-gray-200 bg-gray-50">
+                        <td className="px-2 py-2 text-xs font-medium text-gray-600 sticky left-0 bg-gray-50">
+                          IT유지보수비 합계 (24년)
+                        </td>
+                        {itMaintenanceData.months.map(m => (
+                          <td key={m} className="px-2 py-2 text-right text-xs text-gray-600">
+                            {(itMaintenanceData.monthlyTotals2024?.[m] || 0).toLocaleString()}
+                          </td>
+                        ))}
+                        <td className="px-2 py-2 text-right text-xs font-medium text-gray-600">
+                          {Object.values(itMaintenanceData.monthlyTotals2024 || {}).reduce((a, b) => a + b, 0).toLocaleString()}
+                        </td>
+                      </tr>
+                      {/* YOY */}
+                      <tr className="border-b-2 border-gray-300 bg-gray-50">
+                        <td className="px-2 py-2 text-xs font-medium text-gray-600 sticky left-0 bg-gray-50">
+                          YOY
+                        </td>
+                        {itMaintenanceData.months.map(m => {
+                          const val25 = itMaintenanceData.monthlyTotals[m] || 0;
+                          const val24 = itMaintenanceData.monthlyTotals2024?.[m] || 0;
+                          const yoy = val24 > 0 ? (val25 / val24 * 100) : 0;
+                          const isOver100 = yoy > 100;
+                          return (
+                            <td key={m} className={`px-2 py-2 text-right text-xs font-medium ${isOver100 ? 'text-red-500' : 'text-blue-500'}`}>
+                              {val24 > 0 ? `${yoy.toFixed(1)}%` : '-'}
+                            </td>
+                          );
+                        })}
+                        <td className="px-2 py-2 text-right text-xs font-medium text-gray-600">
+                          {(() => {
+                            const total25 = Object.values(itMaintenanceData.monthlyTotals).reduce((a, b) => a + b, 0);
+                            const total24 = Object.values(itMaintenanceData.monthlyTotals2024 || {}).reduce((a, b) => a + b, 0);
+                            const yoy = total24 > 0 ? (total25 / total24 * 100) : 0;
+                            return total24 > 0 ? `${yoy.toFixed(1)}%` : '-';
+                          })()}
+                        </td>
+                      </tr>
+                      {/* 부서별 상세 */}
+                      {itMaintenanceData.items.map((item, idx) => (
+                        <React.Fragment key={idx}>
+                          <tr 
+                            className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                            onClick={() => {
+                              if (expandedMaintenanceTeam === item.text) {
+                                setExpandedMaintenanceTeam(null);
+                                setTeamMaintenanceDetails([]);
+                              } else {
+                                setExpandedMaintenanceTeam(item.text);
+                                loadTeamMaintenanceDetails(itExpenseYear, item.text);
+                              }
+                            }}
+                          >
+                            <td className="px-2 py-1.5 text-xs text-gray-700 sticky left-0 bg-white" title={item.text}>
+                              <span className="mr-1 text-gray-400">{(expandedMaintenanceTeam === item.text || allMaintenanceExpanded) ? '▼' : '▶'}</span>
+                              {item.text}
+                            </td>
+                            {itMaintenanceData.months.map(m => (
+                              <td key={m} className="px-2 py-1.5 text-right text-xs text-gray-600">
+                                {item.monthly[m] && item.monthly[m] > 0 ? item.monthly[m].toLocaleString() : '-'}
+                              </td>
+                            ))}
+                            <td className="px-2 py-1.5 text-right text-xs font-medium text-blue-600">
+                              {item.total.toLocaleString()}
+                            </td>
+                          </tr>
+                          {/* 팀 상세 내역 드릴다운 - 텍스트별 월별 금액 */}
+                          {(expandedMaintenanceTeam === item.text || allMaintenanceExpanded) && (
+                            (expandedMaintenanceTeam === item.text && teamDetailsLoading) ? (
+                              <tr>
+                                <td colSpan={14} className="bg-gray-50 py-3 text-center">
+                                  <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                                </td>
+                              </tr>
+                            ) : (
+                              (allMaintenanceExpanded ? allTeamDetails[item.text] : teamMaintenanceDetails)?.length > 0 ? (
+                                (allMaintenanceExpanded ? allTeamDetails[item.text] : teamMaintenanceDetails).map((detail, dIdx) => (
+                                  <tr key={`detail-${dIdx}`} className="border-b border-gray-100 bg-gray-50">
+                                    <td className="px-2 py-1 text-xs text-gray-500 sticky left-0 bg-gray-50 pl-6" title={detail.text}>
+                                      {detail.text.length > 20 ? detail.text.slice(0, 20) + '...' : detail.text}
+                                    </td>
+                                    {itMaintenanceData?.months.map(m => (
+                                      <td key={m} className="px-2 py-1 text-right text-xs text-gray-500">
+                                        {detail.monthly && detail.monthly[m] && detail.monthly[m] > 0 ? detail.monthly[m].toLocaleString() : '-'}
+                                      </td>
+                                    ))}
+                                    <td className="px-2 py-1 text-right text-xs text-blue-500 font-medium">
+                                      {detail.total.toLocaleString()}
+                                    </td>
+                                  </tr>
+                                ))
+                              ) : null
+                            )
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                  <p className="text-sm">데이터를 불러올 수 없습니다.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          )}
+
+          {/* CAPEX (유무형자산 취득/이관) - SW상각비 행 클릭 시에만 표시 */}
+          {swCapexExpanded && (
           <Card className="mt-6">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -5993,6 +6633,7 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
+          )}
         </div>
       )}
 
