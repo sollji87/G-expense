@@ -14,6 +14,25 @@ const COST_CATEGORIES = {
   기타비용: '기타비용'
 };
 
+// 지급수수료 대분류 카테고리 정의
+const COMMISSION_CATEGORIES = [
+  {
+    id: 'ci',
+    name: 'CI사용료',
+    accounts: ['지급수수료_그룹CI사용료']
+  },
+  {
+    id: 'consulting',
+    name: '전문용역',
+    accounts: ['지급수수료_법률자문료', '지급수수료_컨설팅', '지급수수료_회계감사']
+  },
+  {
+    id: 'other',
+    name: '지급수수료',
+    accounts: [] // 나머지 모든 계정 (동적으로 채워짐)
+  }
+];
+
 // 계정별 고정 색상 매핑 (월 변경 시에도 동일한 색상 유지)
 const getColorForAccount = (accountName: string): string => {
   const colorMap: Record<string, string> = {
@@ -181,6 +200,7 @@ export default function Dashboard() {
   } | null>(null);
   const [commissionLoading, setCommissionLoading] = useState(false);
   const [commissionYear, setCommissionYear] = useState<'2024' | '2025'>('2025');
+  const [expandedCommissionCategories, setExpandedCommissionCategories] = useState<Set<string>>(new Set());
   const [expandedCommissionAccount, setExpandedCommissionAccount] = useState<string | null>(null);
   const [commissionAccountDetails, setCommissionAccountDetails] = useState<{
     team: string; total: number; total2024: number; monthly: { [m: string]: number }; monthly2024: { [m: string]: number };
@@ -1077,6 +1097,13 @@ export default function Dashboard() {
       loadCapexData(capexYear);
     }
   }, [mainTab, capexYear]);
+
+  // 지급수수료 탭 열 때 자동 로드
+  useEffect(() => {
+    if (mainTab === 'commission' && !commissionData) {
+      loadCommissionData(commissionYear);
+    }
+  }, [mainTab]);
 
   // 입사/퇴사/이동 및 비고 데이터 초기 로드
   useEffect(() => {
@@ -6734,10 +6761,10 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto">
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg font-bold">지급수수료</CardTitle>
-                  <p className="text-sm text-muted-foreground">계정별 상세 분석 (클릭하여 상세 확인)</p>
+                  <CardTitle className="text-lg font-bold">월별 지급수수료 현황</CardTitle>
+                  <p className="text-sm text-muted-foreground">계정별 월별 지급수수료 (단위: 백만원)</p>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -6764,168 +6791,365 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              {!commissionData ? (
-                <div className="flex flex-col items-center justify-center py-8">
-                  <button
-                    onClick={() => loadCommissionData(commissionYear)}
-                    disabled={commissionLoading}
-                    className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                  >
-                    {commissionLoading ? '로딩 중...' : '지급수수료 데이터 불러오기'}
-                  </button>
+              {!commissionData || commissionLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <p className="text-sm font-medium">데이터를 불러오는 중...</p>
                 </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b bg-gray-50">
-                        <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700 sticky left-0 bg-gray-50 min-w-[180px]">계정</th>
-                        {commissionData.months.map(m => (
-                          <th key={m} className="px-2 py-2 text-right text-xs font-semibold text-gray-700 min-w-[55px]">{parseInt(m)}월</th>
-                        ))}
-                        <th className="px-2 py-2 text-right text-xs font-semibold text-gray-700 min-w-[70px]">연합계</th>
-                        <th className="px-2 py-2 text-right text-xs font-semibold text-gray-700 min-w-[70px]">YoY</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {/* 전체 합계 행 */}
-                      <tr className="border-b bg-blue-50 font-semibold">
-                        <td className="px-2 py-2 text-xs text-gray-900 sticky left-0 bg-blue-50">전체 합계</td>
-                        {commissionData.months.map(m => (
-                          <td key={m} className="px-2 py-2 text-right text-xs text-gray-900">
-                            {(commissionData.totalMonthly[m] || 0).toLocaleString()}
-                          </td>
-                        ))}
-                        <td className="px-2 py-2 text-right text-xs text-gray-900 font-bold">
-                          {commissionData.grandTotal.toLocaleString()}
-                        </td>
-                        <td className={`px-2 py-2 text-right text-xs font-bold ${
-                          commissionData.grandTotal > commissionData.grandTotal2024 ? 'text-red-600' : 'text-blue-600'
-                        }`}>
-                          {commissionData.grandTotal2024 > 0 
-                            ? `${commissionData.grandTotal > commissionData.grandTotal2024 ? '+' : ''}${Math.round((commissionData.grandTotal - commissionData.grandTotal2024) / commissionData.grandTotal2024 * 100)}%`
-                            : '-'}
-                        </td>
-                      </tr>
+              ) : (() => {
+                // 기타수수료로 합칠 계정 임계값 (연간 100백만원 미만)
+                const MISC_FEE_THRESHOLD = 100;
+                
+                // 대분류 카테고리별로 데이터 그룹화
+                const categorizedData = COMMISSION_CATEGORIES.map(cat => {
+                  // 해당 카테고리에 속한 계정들 필터링
+                  let categoryAccounts = commissionData.items.filter(item => 
+                    cat.accounts.includes(item.account)
+                  );
+                  
+                  // "지급수수료" 카테고리는 다른 카테고리에 속하지 않는 모든 계정 포함
+                  if (cat.id === 'other') {
+                    const assignedAccounts = COMMISSION_CATEGORIES
+                      .filter(c => c.id !== 'other')
+                      .flatMap(c => c.accounts);
+                    const allOtherAccounts = commissionData.items.filter(item => 
+                      !assignedAccounts.includes(item.account)
+                    );
+                    
+                    // 큰 금액 계정과 소액 계정 분리
+                    const largeAccounts = allOtherAccounts.filter(item => 
+                      Math.abs(item.total) >= MISC_FEE_THRESHOLD
+                    );
+                    const smallAccounts = allOtherAccounts.filter(item => 
+                      Math.abs(item.total) < MISC_FEE_THRESHOLD
+                    );
+                    
+                    // 소액 계정들을 "기타수수료"로 합침
+                    if (smallAccounts.length > 0) {
+                      const miscMonthly: { [m: string]: number } = {};
+                      const miscMonthly2024: { [m: string]: number } = {};
+                      commissionData.months.forEach(m => {
+                        miscMonthly[m] = smallAccounts.reduce((sum, acc) => sum + (acc.monthly[m] || 0), 0);
+                        miscMonthly2024[m] = smallAccounts.reduce((sum, acc) => sum + (acc.monthly2024[m] || 0), 0);
+                      });
                       
-                      {/* 계정별 행 */}
-                      {commissionData.items.map((item) => (
-                        <React.Fragment key={item.account}>
-                          <tr 
-                            className={`border-b cursor-pointer hover:bg-gray-50 ${expandedCommissionAccount === item.account ? 'bg-green-50' : ''}`}
-                            onClick={() => {
-                              if (expandedCommissionAccount === item.account) {
-                                setExpandedCommissionAccount(null);
-                                setCommissionAccountDetails([]);
-                                setExpandedCommissionTeam(null);
-                                setCommissionTeamDetails([]);
-                              } else {
-                                setExpandedCommissionAccount(item.account);
-                                setExpandedCommissionTeam(null);
-                                setCommissionTeamDetails([]);
-                                loadCommissionAccountDetails(commissionYear, item.account);
-                              }
-                            }}
-                          >
-                            <td className="px-2 py-1.5 text-xs text-gray-700 sticky left-0 bg-white">
-                              <span className="mr-1 text-gray-400">{expandedCommissionAccount === item.account ? '▼' : '▶'}</span>
-                              {item.accountShort}
-                            </td>
-                            {commissionData.months.map(m => (
-                              <td key={m} className="px-2 py-1.5 text-right text-xs text-gray-600">
-                                {(item.monthly[m] || 0) > 0 ? (item.monthly[m] || 0).toLocaleString() : '-'}
+                      // 툴팁용 상세 정보 생성 (10백만원 이상만)
+                      const tooltipDetails = smallAccounts
+                        .filter(acc => Math.abs(acc.total) >= 10)
+                        .sort((a, b) => b.total - a.total)
+                        .map(acc => `${acc.accountShort} ${acc.total}백`)
+                        .join(', ');
+                      
+                      const miscFeeItem = {
+                        account: '지급수수료_기타수수료',
+                        accountShort: '기타수수료',
+                        total: smallAccounts.reduce((sum, acc) => sum + acc.total, 0),
+                        total2024: smallAccounts.reduce((sum, acc) => sum + acc.total2024, 0),
+                        monthly: miscMonthly,
+                        monthly2024: miscMonthly2024,
+                        tooltipDetails, // 툴팁용 상세 정보
+                        isMiscFee: true, // 기타수수료 플래그
+                        miscFeeAccounts: smallAccounts, // 드릴다운용 계정별 상세
+                      };
+                      
+                      categoryAccounts = [...largeAccounts, miscFeeItem];
+                    } else {
+                      categoryAccounts = largeAccounts;
+                    }
+                  }
+                  
+                  // 카테고리 합계 계산
+                  const monthly2025: { [m: string]: number } = {};
+                  const monthly2024: { [m: string]: number } = {};
+                  commissionData.months.forEach(m => {
+                    monthly2025[m] = categoryAccounts.reduce((sum, acc) => sum + (acc.monthly[m] || 0), 0);
+                    monthly2024[m] = categoryAccounts.reduce((sum, acc) => sum + (acc.monthly2024[m] || 0), 0);
+                  });
+                  
+                  return {
+                    ...cat,
+                    accounts: categoryAccounts,
+                    monthly2025,
+                    monthly2024,
+                    total2025: categoryAccounts.reduce((sum, acc) => sum + acc.total, 0),
+                    total2024: categoryAccounts.reduce((sum, acc) => sum + acc.total2024, 0),
+                  };
+                }).filter(cat => cat.accounts.length > 0); // 계정이 있는 카테고리만 표시
+                
+                return (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b-2 border-gray-300">
+                          <th className="px-2 py-2 text-left text-xs font-bold text-gray-900 bg-gray-100 sticky left-0 min-w-[200px]">계정</th>
+                          {commissionData.months.map(month => (
+                            <th key={month} className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-100 min-w-[60px]">
+                              {parseInt(month)}월
+                            </th>
+                          ))}
+                          <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-100 min-w-[70px]">합계</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* 전체 합계 - 25년 */}
+                        <tr className="border-b border-gray-200 bg-blue-50 font-bold">
+                          <td className="px-2 py-2 text-sm font-bold text-gray-900 sticky left-0 bg-blue-50">지급수수료 합계 (25년)</td>
+                          {commissionData.months.map(month => {
+                            const val = commissionData.totalMonthly[month] || 0;
+                            return (
+                              <td key={month} className="px-2 py-2 text-right text-sm font-bold text-blue-600">
+                                {val.toLocaleString()}
                               </td>
-                            ))}
-                            <td className="px-2 py-1.5 text-right text-xs text-gray-900 font-medium">
-                              {item.total.toLocaleString()}
-                            </td>
-                            <td className={`px-2 py-1.5 text-right text-xs font-medium ${
-                              item.total > item.total2024 ? 'text-red-600' : 'text-blue-600'
-                            }`}>
-                              {item.total2024 > 0 
-                                ? `${item.total > item.total2024 ? '+' : ''}${Math.round((item.total - item.total2024) / item.total2024 * 100)}%`
-                                : (item.total > 0 ? 'NEW' : '-')}
-                            </td>
-                          </tr>
-                          
-                          {/* 계정 상세 (팀별) */}
-                          {expandedCommissionAccount === item.account && (
-                            commissionAccountDetailsLoading ? (
-                              <tr><td colSpan={15} className="px-4 py-2 text-center text-xs text-gray-500">로딩 중...</td></tr>
-                            ) : (
-                              commissionAccountDetails.map((teamItem) => (
-                                <React.Fragment key={`${item.account}-${teamItem.team}`}>
-                                  <tr 
-                                    className={`border-b bg-gray-50 cursor-pointer hover:bg-gray-100 ${
-                                      expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team ? 'bg-yellow-50' : ''
-                                    }`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team) {
-                                        setExpandedCommissionTeam(null);
-                                        setCommissionTeamDetails([]);
-                                      } else {
-                                        setExpandedCommissionTeam({ account: item.account, team: teamItem.team });
-                                        loadCommissionTeamDetails(commissionYear, item.account, teamItem.team);
+                            );
+                          })}
+                          <td className="px-2 py-2 text-right text-sm font-bold text-blue-600">
+                            {commissionData.grandTotal.toLocaleString()}
+                          </td>
+                        </tr>
+                        
+                        {/* 전체 합계 - 24년 */}
+                        <tr className="border-b border-gray-200 bg-gray-50">
+                          <td className="px-2 py-2 text-sm font-medium text-gray-600 sticky left-0 bg-gray-50">지급수수료 합계 (24년)</td>
+                          {commissionData.months.map(month => {
+                            const val = commissionData.totalMonthly2024[month] || 0;
+                            return (
+                              <td key={month} className="px-2 py-2 text-right text-sm text-gray-600">
+                                {val.toLocaleString()}
+                              </td>
+                            );
+                          })}
+                          <td className="px-2 py-2 text-right text-sm font-medium text-gray-600">
+                            {commissionData.grandTotal2024.toLocaleString()}
+                          </td>
+                        </tr>
+                        
+                        {/* 전체 합계 - YOY */}
+                        <tr className="border-b-2 border-gray-300 bg-blue-100">
+                          <td className="px-2 py-2 text-sm font-bold text-gray-900 sticky left-0 bg-blue-100">YOY</td>
+                          {commissionData.months.map(month => {
+                            const val2024 = commissionData.totalMonthly2024[month] || 0;
+                            const val2025 = commissionData.totalMonthly[month] || 0;
+                            const yoy = val2024 > 0 ? (val2025 / val2024 * 100) : 0;
+                            return (
+                              <td key={month} className="px-2 py-2 text-right text-sm font-bold">
+                                <span className={yoy >= 100 ? 'text-red-600' : 'text-blue-600'}>
+                                  {yoy.toFixed(1)}%
+                                </span>
+                              </td>
+                            );
+                          })}
+                          <td className="px-2 py-2 text-right text-sm font-bold">
+                            {(() => {
+                              const total2024 = commissionData.grandTotal2024;
+                              const total2025 = commissionData.grandTotal;
+                              const yoy = total2024 > 0 ? (total2025 / total2024 * 100) : 0;
+                              return (
+                                <span className={yoy >= 100 ? 'text-red-600' : 'text-blue-600'}>
+                                  {yoy.toFixed(1)}%
+                                </span>
+                              );
+                            })()}
+                          </td>
+                        </tr>
+                        
+                        {/* 대분류별 */}
+                        {categorizedData.map(category => (
+                          <React.Fragment key={category.id}>
+                            {/* 대분류 헤더 */}
+                            <tr 
+                              className="border-b border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100"
+                              onClick={() => {
+                                setExpandedCommissionCategories(prev => {
+                                  const next = new Set(prev);
+                                  if (next.has(category.id)) {
+                                    next.delete(category.id);
+                                  } else {
+                                    next.add(category.id);
+                                  }
+                                  return next;
+                                });
+                              }}
+                            >
+                              <td className="px-2 py-2 text-sm font-semibold text-gray-800 sticky left-0 bg-gray-50">
+                                <span className="mr-2">
+                                  {expandedCommissionCategories.has(category.id) ? '▼' : '▶'}
+                                </span>
+                                {category.name}
+                              </td>
+                              {commissionData.months.map(month => {
+                                const val = commissionYear === '2024' 
+                                  ? category.monthly2024[month] || 0
+                                  : category.monthly2025[month] || 0;
+                                return (
+                                  <td key={month} className="px-2 py-2 text-right text-sm font-semibold text-gray-700">
+                                    {val.toLocaleString()}
+                                  </td>
+                                );
+                              })}
+                              <td className="px-2 py-2 text-right text-sm font-semibold text-blue-600">
+                                {(commissionYear === '2024' ? category.total2024 : category.total2025).toLocaleString()}
+                              </td>
+                            </tr>
+                            
+                            {/* 계정 상세 */}
+                            {expandedCommissionCategories.has(category.id) && category.accounts.map(item => {
+                              // CI사용료 카테고리는 드릴다운 불필요, 기타수수료는 드릴다운 가능
+                              const isMiscFee = (item as any).isMiscFee === true;
+                              const isDrilldownDisabled = category.id === 'ci';
+                              const tooltipDetails = (item as any).tooltipDetails;
+                              const miscFeeAccounts = (item as any).miscFeeAccounts || [];
+                              
+                              return (
+                              <React.Fragment key={item.account}>
+                                <tr 
+                                  className={`border-b border-gray-100 hover:bg-gray-50 ${!isDrilldownDisabled ? 'cursor-pointer' : ''} ${expandedCommissionAccount === item.account && !isDrilldownDisabled ? 'bg-green-50' : ''}`}
+                                  onClick={() => {
+                                    if (isDrilldownDisabled) return; // CI사용료는 클릭 무시
+                                    if (expandedCommissionAccount === item.account) {
+                                      setExpandedCommissionAccount(null);
+                                      setCommissionAccountDetails([]);
+                                      setExpandedCommissionTeam(null);
+                                      setCommissionTeamDetails([]);
+                                    } else {
+                                      setExpandedCommissionAccount(item.account);
+                                      setExpandedCommissionTeam(null);
+                                      setCommissionTeamDetails([]);
+                                      // 기타수수료는 API 호출 없이 바로 표시
+                                      if (!isMiscFee) {
+                                        loadCommissionAccountDetails(commissionYear, item.account);
                                       }
-                                    }}
-                                  >
-                                    <td className="px-2 py-1 text-xs text-gray-600 sticky left-0 bg-gray-50 pl-6">
-                                      <span className="mr-1 text-gray-400">
-                                        {expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team ? '▼' : '▶'}
-                                      </span>
-                                      {teamItem.team}
-                                    </td>
-                                    {commissionData.months.map(m => (
-                                      <td key={m} className="px-2 py-1 text-right text-xs text-gray-500">
-                                        {(teamItem.monthly[m] || 0) !== 0 ? (teamItem.monthly[m] || 0).toLocaleString() : '-'}
+                                    }
+                                  }}
+                                  title={isMiscFee && tooltipDetails ? tooltipDetails : undefined}
+                                >
+                                  <td className="px-2 py-1.5 text-xs text-gray-600 sticky left-0 bg-white pl-8">
+                                    {!isDrilldownDisabled && (
+                                      <span className="mr-1 text-gray-400">{expandedCommissionAccount === item.account ? '▼' : '▶'}</span>
+                                    )}
+                                    <span className={isMiscFee ? 'border-b border-dashed border-gray-400' : ''}>
+                                      {item.accountShort}
+                                    </span>
+                                  </td>
+                                  {commissionData.months.map(month => {
+                                    const val = commissionYear === '2024' 
+                                      ? item.monthly2024[month] || 0
+                                      : item.monthly[month] || 0;
+                                    return (
+                                      <td key={month} className="px-2 py-1.5 text-right text-xs text-gray-500">
+                                        {val > 0 ? val.toLocaleString() : '-'}
                                       </td>
-                                    ))}
-                                    <td className="px-2 py-1 text-right text-xs text-gray-700 font-medium">
-                                      {teamItem.total.toLocaleString()}
-                                    </td>
-                                    <td className={`px-2 py-1 text-right text-xs ${
-                                      teamItem.total > teamItem.total2024 ? 'text-red-600' : 'text-blue-600'
-                                    }`}>
-                                      {teamItem.total2024 !== 0 
-                                        ? `${teamItem.total > teamItem.total2024 ? '+' : ''}${Math.round((teamItem.total - teamItem.total2024) / Math.abs(teamItem.total2024) * 100)}%`
-                                        : '-'}
-                                    </td>
-                                  </tr>
-                                  
-                                  {/* 팀 상세 (텍스트별) */}
-                                  {expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team && (
-                                    commissionTeamDetailsLoading ? (
-                                      <tr><td colSpan={15} className="px-4 py-1 text-center text-xs text-gray-400">로딩 중...</td></tr>
-                                    ) : (
-                                      commissionTeamDetails.map((textItem, idx) => (
-                                        <tr key={`${item.account}-${teamItem.team}-${idx}`} className="border-b bg-yellow-50">
-                                          <td className="px-2 py-1 text-xs text-gray-500 sticky left-0 bg-yellow-50 pl-10 truncate max-w-[180px]" title={textItem.text}>
-                                            {textItem.text}
+                                    );
+                                  })}
+                                  <td className="px-2 py-1.5 text-right text-xs font-medium text-gray-700">
+                                    {(commissionYear === '2024' ? item.total2024 : item.total).toLocaleString()}
+                                  </td>
+                                </tr>
+                                
+                                {/* 기타수수료 드릴다운 - 계정별 월별 금액 표시 */}
+                                {isMiscFee && expandedCommissionAccount === item.account && (
+                                  miscFeeAccounts.map((accItem: any) => (
+                                    <tr key={`misc-${accItem.account}`} className="border-b bg-gray-50">
+                                      <td className="px-2 py-1 text-xs text-gray-600 sticky left-0 bg-gray-50 pl-12">
+                                        {accItem.accountShort}
+                                      </td>
+                                      {commissionData.months.map((m: string) => {
+                                        const val = commissionYear === '2024'
+                                          ? accItem.monthly2024[m] || 0
+                                          : accItem.monthly[m] || 0;
+                                        return (
+                                          <td key={m} className="px-2 py-1 text-right text-xs text-gray-500">
+                                            {val !== 0 ? val.toLocaleString() : '-'}
                                           </td>
-                                          {commissionData.months.map(m => (
-                                            <td key={m} className="px-2 py-1 text-right text-xs text-gray-400">
-                                              {(textItem.monthly[m] || 0) !== 0 ? (textItem.monthly[m] || 0).toLocaleString() : '-'}
-                                            </td>
-                                          ))}
-                                          <td className="px-2 py-1 text-right text-xs text-gray-600 font-medium">
-                                            {textItem.total.toLocaleString()}
+                                        );
+                                      })}
+                                      <td className="px-2 py-1 text-right text-xs text-gray-700 font-medium">
+                                        {(commissionYear === '2024' ? accItem.total2024 : accItem.total).toLocaleString()}
+                                      </td>
+                                    </tr>
+                                  ))
+                                )}
+                                
+                                {/* 계정 상세 (팀별) - CI사용료, 기타수수료는 표시하지 않음 */}
+                                {!isDrilldownDisabled && !isMiscFee && expandedCommissionAccount === item.account && (
+                                  commissionAccountDetailsLoading ? (
+                                    <tr><td colSpan={15} className="px-4 py-2 text-center text-xs text-gray-500">로딩 중...</td></tr>
+                                  ) : (
+                                    commissionAccountDetails.map((teamItem) => (
+                                      <React.Fragment key={`${item.account}-${teamItem.team}`}>
+                                        <tr 
+                                          className={`border-b bg-gray-50 cursor-pointer hover:bg-gray-100 ${
+                                            expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team ? 'bg-yellow-50' : ''
+                                          }`}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team) {
+                                              setExpandedCommissionTeam(null);
+                                              setCommissionTeamDetails([]);
+                                            } else {
+                                              setExpandedCommissionTeam({ account: item.account, team: teamItem.team });
+                                              loadCommissionTeamDetails(commissionYear, item.account, teamItem.team);
+                                            }
+                                          }}
+                                        >
+                                          <td className="px-2 py-1 text-xs text-gray-600 sticky left-0 bg-gray-50 pl-12">
+                                            <span className="mr-1 text-gray-400">
+                                              {expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team ? '▼' : '▶'}
+                                            </span>
+                                            {teamItem.team}
                                           </td>
-                                          <td className="px-2 py-1 text-right text-xs text-gray-400">-</td>
+                                          {commissionData.months.map(m => {
+                                            const val = commissionYear === '2024'
+                                              ? teamItem.monthly2024[m] || 0
+                                              : teamItem.monthly[m] || 0;
+                                            return (
+                                              <td key={m} className="px-2 py-1 text-right text-xs text-gray-500">
+                                                {val !== 0 ? val.toLocaleString() : '-'}
+                                              </td>
+                                            );
+                                          })}
+                                          <td className="px-2 py-1 text-right text-xs text-gray-700 font-medium">
+                                            {(commissionYear === '2024' ? teamItem.total2024 : teamItem.total).toLocaleString()}
+                                          </td>
                                         </tr>
-                                      ))
-                                    )
-                                  )}
-                                </React.Fragment>
-                              ))
-                            )
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                                        
+                                        {/* 팀 상세 (텍스트별) */}
+                                        {expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team && (
+                                          commissionTeamDetailsLoading ? (
+                                            <tr><td colSpan={15} className="px-4 py-1 text-center text-xs text-gray-400">로딩 중...</td></tr>
+                                          ) : (
+                                            commissionTeamDetails.map((textItem, idx) => (
+                                              <tr key={`${item.account}-${teamItem.team}-${idx}`} className="border-b bg-yellow-50">
+                                                <td className="px-2 py-1 text-xs text-gray-500 sticky left-0 bg-yellow-50 pl-16 truncate max-w-[180px]" title={textItem.text}>
+                                                  {textItem.text}
+                                                </td>
+                                                {commissionData.months.map(m => (
+                                                  <td key={m} className="px-2 py-1 text-right text-xs text-gray-400">
+                                                    {(textItem.monthly[m] || 0) !== 0 ? (textItem.monthly[m] || 0).toLocaleString() : '-'}
+                                                  </td>
+                                                ))}
+                                                <td className="px-2 py-1 text-right text-xs text-gray-600 font-medium">
+                                                  {textItem.total.toLocaleString()}
+                                                </td>
+                                              </tr>
+                                            ))
+                                          )
+                                        )}
+                                      </React.Fragment>
+                                    ))
+                                  )
+                                )}
+                              </React.Fragment>
+                            );
+                            })}
+                          </React.Fragment>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
         </div>
