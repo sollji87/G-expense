@@ -170,6 +170,28 @@ export default function Dashboard() {
   const [allUsageExpanded, setAllUsageExpanded] = useState(false);
   const [allUsageTeamDetails, setAllUsageTeamDetails] = useState<{ [team: string]: { text: string; monthly: { [m: string]: number }; total: number }[] }>({});
   
+  // 지급수수료 상태
+  const [commissionData, setCommissionData] = useState<{
+    items: { account: string; accountShort: string; total: number; total2024: number; monthly: { [m: string]: number }; monthly2024: { [m: string]: number } }[];
+    totalMonthly: { [m: string]: number };
+    totalMonthly2024: { [m: string]: number };
+    grandTotal: number;
+    grandTotal2024: number;
+    months: string[];
+  } | null>(null);
+  const [commissionLoading, setCommissionLoading] = useState(false);
+  const [commissionYear, setCommissionYear] = useState<'2024' | '2025'>('2025');
+  const [expandedCommissionAccount, setExpandedCommissionAccount] = useState<string | null>(null);
+  const [commissionAccountDetails, setCommissionAccountDetails] = useState<{
+    team: string; total: number; total2024: number; monthly: { [m: string]: number }; monthly2024: { [m: string]: number };
+  }[]>([]);
+  const [commissionAccountDetailsLoading, setCommissionAccountDetailsLoading] = useState(false);
+  const [expandedCommissionTeam, setExpandedCommissionTeam] = useState<{ account: string; team: string } | null>(null);
+  const [commissionTeamDetails, setCommissionTeamDetails] = useState<{
+    text: string; total: number; monthly: { [m: string]: number };
+  }[]>([]);
+  const [commissionTeamDetailsLoading, setCommissionTeamDetailsLoading] = useState(false);
+  
   // CAPEX (유무형자산) 상태
   const [capexData, setCapexData] = useState<{
     year: string;
@@ -717,6 +739,54 @@ export default function Dashboard() {
     setAllUsageTeamDetails({});
     setExpandedUsageTeam(null);
     setTeamUsageDetails([]);
+  };
+
+  // 지급수수료 데이터 로드
+  const loadCommissionData = async (year: string) => {
+    setCommissionLoading(true);
+    try {
+      const response = await fetch(`/api/commission?year=${year}`);
+      const result = await response.json();
+      if (result.success) {
+        setCommissionData(result);
+      }
+    } catch (error) {
+      console.error('지급수수료 데이터 로드 실패:', error);
+    } finally {
+      setCommissionLoading(false);
+    }
+  };
+
+  // 지급수수료 계정별 상세 로드
+  const loadCommissionAccountDetails = async (year: string, account: string) => {
+    setCommissionAccountDetailsLoading(true);
+    try {
+      const response = await fetch(`/api/commission?year=${year}&account=${encodeURIComponent(account)}`);
+      const result = await response.json();
+      if (result.success) {
+        setCommissionAccountDetails(result.items || []);
+      }
+    } catch (error) {
+      console.error('계정 상세 로드 실패:', error);
+    } finally {
+      setCommissionAccountDetailsLoading(false);
+    }
+  };
+
+  // 지급수수료 팀별 텍스트 상세 로드
+  const loadCommissionTeamDetails = async (year: string, account: string, team: string) => {
+    setCommissionTeamDetailsLoading(true);
+    try {
+      const response = await fetch(`/api/commission?year=${year}&account=${encodeURIComponent(account)}&team=${encodeURIComponent(team)}`);
+      const result = await response.json();
+      if (result.success) {
+        setCommissionTeamDetails(result.items || []);
+      }
+    } catch (error) {
+      console.error('팀 상세 로드 실패:', error);
+    } finally {
+      setCommissionTeamDetailsLoading(false);
+    }
   };
 
   // 부문 접기/펼치기 토글
@@ -6642,17 +6712,198 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-bold">지급수수료</CardTitle>
-              <p className="text-sm text-muted-foreground">지급수수료 상세 분석</p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-lg font-bold">지급수수료</CardTitle>
+                  <p className="text-sm text-muted-foreground">계정별 상세 분석 (클릭하여 상세 확인)</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setCommissionYear('2024'); if (commissionData) loadCommissionData('2024'); }}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      commissionYear === '2024'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    2024년
+                  </button>
+                  <button
+                    onClick={() => { setCommissionYear('2025'); if (commissionData) loadCommissionData('2025'); }}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      commissionYear === '2025'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    2025년
+                  </button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <p className="text-lg font-medium mb-2">지급수수료 분석 기능 준비 중</p>
-                <p className="text-sm">지급용역비, 법률자문료, 인사채용 등 지급수수료 상세 분석을 확인할 수 있습니다.</p>
-              </div>
+              {!commissionData ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <button
+                    onClick={() => loadCommissionData(commissionYear)}
+                    disabled={commissionLoading}
+                    className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {commissionLoading ? '로딩 중...' : '지급수수료 데이터 불러오기'}
+                  </button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-gray-50">
+                        <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700 sticky left-0 bg-gray-50 min-w-[180px]">계정</th>
+                        {commissionData.months.map(m => (
+                          <th key={m} className="px-2 py-2 text-right text-xs font-semibold text-gray-700 min-w-[55px]">{parseInt(m)}월</th>
+                        ))}
+                        <th className="px-2 py-2 text-right text-xs font-semibold text-gray-700 min-w-[70px]">연합계</th>
+                        <th className="px-2 py-2 text-right text-xs font-semibold text-gray-700 min-w-[70px]">YoY</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* 전체 합계 행 */}
+                      <tr className="border-b bg-blue-50 font-semibold">
+                        <td className="px-2 py-2 text-xs text-gray-900 sticky left-0 bg-blue-50">전체 합계</td>
+                        {commissionData.months.map(m => (
+                          <td key={m} className="px-2 py-2 text-right text-xs text-gray-900">
+                            {(commissionData.totalMonthly[m] || 0).toLocaleString()}
+                          </td>
+                        ))}
+                        <td className="px-2 py-2 text-right text-xs text-gray-900 font-bold">
+                          {commissionData.grandTotal.toLocaleString()}
+                        </td>
+                        <td className={`px-2 py-2 text-right text-xs font-bold ${
+                          commissionData.grandTotal > commissionData.grandTotal2024 ? 'text-red-600' : 'text-blue-600'
+                        }`}>
+                          {commissionData.grandTotal2024 > 0 
+                            ? `${commissionData.grandTotal > commissionData.grandTotal2024 ? '+' : ''}${Math.round((commissionData.grandTotal - commissionData.grandTotal2024) / commissionData.grandTotal2024 * 100)}%`
+                            : '-'}
+                        </td>
+                      </tr>
+                      
+                      {/* 계정별 행 */}
+                      {commissionData.items.map((item) => (
+                        <React.Fragment key={item.account}>
+                          <tr 
+                            className={`border-b cursor-pointer hover:bg-gray-50 ${expandedCommissionAccount === item.account ? 'bg-green-50' : ''}`}
+                            onClick={() => {
+                              if (expandedCommissionAccount === item.account) {
+                                setExpandedCommissionAccount(null);
+                                setCommissionAccountDetails([]);
+                                setExpandedCommissionTeam(null);
+                                setCommissionTeamDetails([]);
+                              } else {
+                                setExpandedCommissionAccount(item.account);
+                                setExpandedCommissionTeam(null);
+                                setCommissionTeamDetails([]);
+                                loadCommissionAccountDetails(commissionYear, item.account);
+                              }
+                            }}
+                          >
+                            <td className="px-2 py-1.5 text-xs text-gray-700 sticky left-0 bg-white">
+                              <span className="mr-1 text-gray-400">{expandedCommissionAccount === item.account ? '▼' : '▶'}</span>
+                              {item.accountShort}
+                            </td>
+                            {commissionData.months.map(m => (
+                              <td key={m} className="px-2 py-1.5 text-right text-xs text-gray-600">
+                                {(item.monthly[m] || 0) > 0 ? (item.monthly[m] || 0).toLocaleString() : '-'}
+                              </td>
+                            ))}
+                            <td className="px-2 py-1.5 text-right text-xs text-gray-900 font-medium">
+                              {item.total.toLocaleString()}
+                            </td>
+                            <td className={`px-2 py-1.5 text-right text-xs font-medium ${
+                              item.total > item.total2024 ? 'text-red-600' : 'text-blue-600'
+                            }`}>
+                              {item.total2024 > 0 
+                                ? `${item.total > item.total2024 ? '+' : ''}${Math.round((item.total - item.total2024) / item.total2024 * 100)}%`
+                                : (item.total > 0 ? 'NEW' : '-')}
+                            </td>
+                          </tr>
+                          
+                          {/* 계정 상세 (팀별) */}
+                          {expandedCommissionAccount === item.account && (
+                            commissionAccountDetailsLoading ? (
+                              <tr><td colSpan={15} className="px-4 py-2 text-center text-xs text-gray-500">로딩 중...</td></tr>
+                            ) : (
+                              commissionAccountDetails.map((teamItem) => (
+                                <React.Fragment key={`${item.account}-${teamItem.team}`}>
+                                  <tr 
+                                    className={`border-b bg-gray-50 cursor-pointer hover:bg-gray-100 ${
+                                      expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team ? 'bg-yellow-50' : ''
+                                    }`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team) {
+                                        setExpandedCommissionTeam(null);
+                                        setCommissionTeamDetails([]);
+                                      } else {
+                                        setExpandedCommissionTeam({ account: item.account, team: teamItem.team });
+                                        loadCommissionTeamDetails(commissionYear, item.account, teamItem.team);
+                                      }
+                                    }}
+                                  >
+                                    <td className="px-2 py-1 text-xs text-gray-600 sticky left-0 bg-gray-50 pl-6">
+                                      <span className="mr-1 text-gray-400">
+                                        {expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team ? '▼' : '▶'}
+                                      </span>
+                                      {teamItem.team}
+                                    </td>
+                                    {commissionData.months.map(m => (
+                                      <td key={m} className="px-2 py-1 text-right text-xs text-gray-500">
+                                        {(teamItem.monthly[m] || 0) !== 0 ? (teamItem.monthly[m] || 0).toLocaleString() : '-'}
+                                      </td>
+                                    ))}
+                                    <td className="px-2 py-1 text-right text-xs text-gray-700 font-medium">
+                                      {teamItem.total.toLocaleString()}
+                                    </td>
+                                    <td className={`px-2 py-1 text-right text-xs ${
+                                      teamItem.total > teamItem.total2024 ? 'text-red-600' : 'text-blue-600'
+                                    }`}>
+                                      {teamItem.total2024 !== 0 
+                                        ? `${teamItem.total > teamItem.total2024 ? '+' : ''}${Math.round((teamItem.total - teamItem.total2024) / Math.abs(teamItem.total2024) * 100)}%`
+                                        : '-'}
+                                    </td>
+                                  </tr>
+                                  
+                                  {/* 팀 상세 (텍스트별) */}
+                                  {expandedCommissionTeam?.account === item.account && expandedCommissionTeam?.team === teamItem.team && (
+                                    commissionTeamDetailsLoading ? (
+                                      <tr><td colSpan={15} className="px-4 py-1 text-center text-xs text-gray-400">로딩 중...</td></tr>
+                                    ) : (
+                                      commissionTeamDetails.map((textItem, idx) => (
+                                        <tr key={`${item.account}-${teamItem.team}-${idx}`} className="border-b bg-yellow-50">
+                                          <td className="px-2 py-1 text-xs text-gray-500 sticky left-0 bg-yellow-50 pl-10 truncate max-w-[180px]" title={textItem.text}>
+                                            {textItem.text}
+                                          </td>
+                                          {commissionData.months.map(m => (
+                                            <td key={m} className="px-2 py-1 text-right text-xs text-gray-400">
+                                              {(textItem.monthly[m] || 0) !== 0 ? (textItem.monthly[m] || 0).toLocaleString() : '-'}
+                                            </td>
+                                          ))}
+                                          <td className="px-2 py-1 text-right text-xs text-gray-600 font-medium">
+                                            {textItem.total.toLocaleString()}
+                                          </td>
+                                          <td className="px-2 py-1 text-right text-xs text-gray-400">-</td>
+                                        </tr>
+                                      ))
+                                    )
+                                  )}
+                                </React.Fragment>
+                              ))
+                            )
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
