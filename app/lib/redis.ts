@@ -6,6 +6,8 @@ export const REDIS_KEYS = {
   INSIGHTS: 'insights',
   ALLOCATION_CRITERIA: 'allocation_criteria', // 공통비 배부기준
   LABOR_INSIGHT: 'labor_insight', // 인원 현황 주요 시사점
+  LABOR_MOVEMENT: 'labor_movement', // 입사/퇴사/이동 데이터
+  LABOR_REMARK: 'labor_remark', // 비고 데이터
 } as const;
 
 // 타입 정의
@@ -233,6 +235,78 @@ export async function saveAllocationCriteria(criteria: string[]): Promise<string
     return criteria;
   } catch (error) {
     console.error('Redis saveAllocationCriteria 오류:', error);
+    throw error;
+  }
+}
+
+// === Labor Movement (입사/퇴사/이동) 관련 함수 ===
+
+export type LaborMovementData = Record<string, { hire: string; resign: string; transfer: string }>;
+
+/**
+ * 입사/퇴사/이동 데이터 조회
+ */
+export async function getLaborMovement(): Promise<LaborMovementData> {
+  try {
+    const jsonString = await kv.get<string>(REDIS_KEYS.LABOR_MOVEMENT);
+    if (!jsonString) return {};
+    
+    if (typeof jsonString === 'object') {
+      return jsonString as LaborMovementData;
+    }
+    
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error('Redis getLaborMovement 오류:', error);
+    return {};
+  }
+}
+
+/**
+ * 입사/퇴사/이동 데이터 저장
+ */
+export async function saveLaborMovement(data: LaborMovementData): Promise<LaborMovementData> {
+  try {
+    await kv.set(REDIS_KEYS.LABOR_MOVEMENT, JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error('Redis saveLaborMovement 오류:', error);
+    throw error;
+  }
+}
+
+// === Labor Remark (비고) 관련 함수 ===
+
+export type LaborRemarkData = Record<string, string>;
+
+/**
+ * 비고 데이터 조회
+ */
+export async function getLaborRemark(): Promise<LaborRemarkData> {
+  try {
+    const jsonString = await kv.get<string>(REDIS_KEYS.LABOR_REMARK);
+    if (!jsonString) return {};
+    
+    if (typeof jsonString === 'object') {
+      return jsonString as LaborRemarkData;
+    }
+    
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error('Redis getLaborRemark 오류:', error);
+    return {};
+  }
+}
+
+/**
+ * 비고 데이터 저장
+ */
+export async function saveLaborRemark(data: LaborRemarkData): Promise<LaborRemarkData> {
+  try {
+    await kv.set(REDIS_KEYS.LABOR_REMARK, JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error('Redis saveLaborRemark 오류:', error);
     throw error;
   }
 }

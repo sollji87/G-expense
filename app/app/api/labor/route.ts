@@ -187,7 +187,7 @@ export async function GET(request: Request) {
               ('10022','F04900'),('10023','F04900'),('10024','F04800'),('10025','F04800'),
               ('10026','F00500'),('20001','F02700'),('20002','F02900'),('20003','F03000'),
               ('20004','F03000'),('20005','F03200'),('20006','F03900'),('20007','F02900'),
-              ('20008','F03000'),('20009','F03000'),('20012','F05200'),('31005','F00000'),
+              ('20008','F03000'),('20009','F03000'),('20011','F01200'),('20012','F05200'),('31005','F00000'),
               ('31010','F00100'),('31012','F00200'),('31014','F02400'),('31015','F00300'),
               ('31016','F00400'),('31017','F00500'),('31018','F00600'),('31020','F00700'),
               ('31021','F00400'),('31022','F02300'),('31023','F01900'),('31025','F01300'),
@@ -284,6 +284,7 @@ export async function GET(request: Request) {
       'Branch팀': 'Operation팀',
       'Distributor팀': 'Commercial팀',
       '직원서비스안전담당': '총무팀',
+      '총무': '총무팀',  // 총무 → 총무팀으로 통합
       '통합인플루언서마케팅팀': '인플루언서마케팅팀',
       '통합마케팅담당': 'DV/ST마케팅팀',
       '통합마케팅팀': 'DV/ST마케팅팀',
@@ -291,6 +292,7 @@ export async function GET(request: Request) {
       '성장브랜드마케팅팀': 'DV/ST마케팅팀',
       '성장브랜드마케팅담당': 'DV/ST마케팅팀',
       '사업운영지원담당': '임원',
+      '디지털콘텐츠팀': 'e-BIZ팀',  // HR부서코드 20011 → e-BIZ팀으로 통합
     };
 
     // 부서명 기준으로 데이터 집계 (코스트센터가 아닌 부서명 기준)
@@ -526,6 +528,22 @@ export async function GET(request: Request) {
             }
           });
           
+          // 25년 5-7월 데이터 조정: Process담당 +1, PI팀 -1
+          processTeams.forEach(team => {
+            if (team.deptNm === 'Process담당') {
+              // Process담당: 5월 22→23, 6월 24→25, 7월 26→27
+              if (team.monthly['202505']) team.monthly['202505'] += 1;
+              if (team.monthly['202506']) team.monthly['202506'] += 1;
+              if (team.monthly['202507']) team.monthly['202507'] += 1;
+            }
+            if (team.deptNm === 'PI팀') {
+              // PI팀: 5월 8→7, 6월 8→7, 7월 9→8
+              if (team.monthly['202505']) team.monthly['202505'] -= 1;
+              if (team.monthly['202506']) team.monthly['202506'] -= 1;
+              if (team.monthly['202507']) team.monthly['202507'] -= 1;
+            }
+          });
+          
           // 현재 연도 기준 총 인원수 계산 함수
           const getTotalHeadcount = (team: { monthly: { [key: string]: number } }) => {
             // 가장 최근 월의 인원수 사용
@@ -611,11 +629,191 @@ export async function GET(request: Request) {
         };
       });
     
+    // === 대분류(임원/지원부서/사업부서)로 재구성 ===
+    const categoryDivisions: typeof divisions = [];
+    
+    // 1. 임원 찾기
+    const executiveDiv = divisions.find(d => d.divisionName === '임원');
+    if (executiveDiv) {
+      categoryDivisions.push(executiveDiv);
+    }
+    
+    // 2. 지원부서 구성
+    const supportDivisionNames = [
+      '경영지원담당',
+      '경영기획담당',
+      '법무담당',
+      '경영개선팀',
+      'HR/총무담당',
+      '소비자전략팀',
+      '자산관리담당',
+    ];
+    
+    // 디지털본부담당에서 지원부서로 갈 팀들
+    const digitalSupportTeamNames = ['디지털본부담당', '정보보안팀'];
+    const digitalSupportSubDivNames = ['IT담당', 'Process담당'];
+    
+    const supportSubDivisions: { name: string; teams: { deptNm: string; monthly: { [key: string]: number } }[]; monthly: { [key: string]: number } }[] = [];
+    const supportMonthly: { [key: string]: number } = {};
+    
+    supportDivisionNames.forEach(divName => {
+      const div = divisions.find(d => d.divisionName === divName);
+      if (div) {
+        // 기존 부문을 subDivision으로 변환
+        const subDivMonthly: { [key: string]: number } = {};
+        div.teams.forEach(t => {
+          Object.entries(t.monthly).forEach(([yyyymm, count]) => {
+            subDivMonthly[yyyymm] = (subDivMonthly[yyyymm] || 0) + count;
+            supportMonthly[yyyymm] = (supportMonthly[yyyymm] || 0) + count;
+          });
+        });
+        supportSubDivisions.push({
+          name: divName,
+          teams: div.teams,
+          monthly: subDivMonthly,
+        });
+      }
+    });
+    
+    // 디지털본부담당에서 지원부서 팀/subDivision 추출
+    const digitalDiv = divisions.find(d => d.divisionName === '디지털본부담당');
+    if (digitalDiv) {
+      // 직속 팀 중 지원부서로 갈 팀들
+      const digitalSupportTeams = digitalDiv.teams.filter(t => 
+        digitalSupportTeamNames.includes(t.deptNm)
+      );
+      
+      // IT담당, Process담당 subDivision
+      const digitalSupportSubs = digitalDiv.subDivisions?.filter(sub => 
+        digitalSupportSubDivNames.includes(sub.name)
+      ) || [];
+      
+      if (digitalSupportTeams.length > 0 || digitalSupportSubs.length > 0) {
+        const digitalSupportMonthly: { [key: string]: number } = {};
+        
+        // 디지털본부담당 직속팀 + IT담당/Process담당 팀들을 모두 합쳐서 하나의 디지털본부담당으로
+        const allDigitalSupportTeams = [...digitalSupportTeams];
+        digitalSupportSubs.forEach(sub => {
+          allDigitalSupportTeams.push(...sub.teams);
+        });
+        
+        allDigitalSupportTeams.forEach(t => {
+          Object.entries(t.monthly).forEach(([yyyymm, count]) => {
+            digitalSupportMonthly[yyyymm] = (digitalSupportMonthly[yyyymm] || 0) + count;
+            supportMonthly[yyyymm] = (supportMonthly[yyyymm] || 0) + count;
+          });
+        });
+        
+        supportSubDivisions.push({
+          name: '디지털본부담당',
+          teams: allDigitalSupportTeams,
+          monthly: digitalSupportMonthly,
+        });
+      }
+    }
+    
+    categoryDivisions.push({
+      divisionName: '지원부서',
+      teams: [],
+      subDivisions: supportSubDivisions,
+      monthly: supportMonthly,
+    });
+    
+    // 3. 사업부서 구성 - 순서: 디지털본부담당, 마케팅본부담당, 해외사업담당, 팀들
+    const digitalBusinessTeamNames = ['퍼포먼스마케팅팀', 'e-BIZ팀', '통합온라인채널팀'];
+    
+    const businessSubDivisions: { name: string; teams: { deptNm: string; monthly: { [key: string]: number } }[]; monthly: { [key: string]: number } }[] = [];
+    const businessMonthly: { [key: string]: number } = {};
+    
+    // 1) 디지털본부담당 (사업부서 소속)
+    if (digitalDiv) {
+      const digitalBusinessTeams = digitalDiv.teams.filter(t => 
+        digitalBusinessTeamNames.includes(t.deptNm)
+      );
+      
+      if (digitalBusinessTeams.length > 0) {
+        const digitalBusinessMonthly: { [key: string]: number } = {};
+        digitalBusinessTeams.forEach(t => {
+          Object.entries(t.monthly).forEach(([yyyymm, count]) => {
+            digitalBusinessMonthly[yyyymm] = (digitalBusinessMonthly[yyyymm] || 0) + count;
+            businessMonthly[yyyymm] = (businessMonthly[yyyymm] || 0) + count;
+          });
+        });
+        
+        businessSubDivisions.push({
+          name: '디지털본부담당',
+          teams: digitalBusinessTeams,
+          monthly: digitalBusinessMonthly,
+        });
+      }
+    }
+    
+    // 2) 마케팅본부담당
+    const marketingDiv = divisions.find(d => d.divisionName === '마케팅본부담당');
+    if (marketingDiv) {
+      const subDivMonthly: { [key: string]: number } = {};
+      marketingDiv.teams.forEach(t => {
+        Object.entries(t.monthly).forEach(([yyyymm, count]) => {
+          subDivMonthly[yyyymm] = (subDivMonthly[yyyymm] || 0) + count;
+          businessMonthly[yyyymm] = (businessMonthly[yyyymm] || 0) + count;
+        });
+      });
+      businessSubDivisions.push({
+        name: '마케팅본부담당',
+        teams: marketingDiv.teams,
+        monthly: subDivMonthly,
+      });
+    }
+    
+    // 3) 해외사업담당
+    const overseasDiv = divisions.find(d => d.divisionName === '해외사업담당');
+    if (overseasDiv) {
+      const subDivMonthly: { [key: string]: number } = {};
+      overseasDiv.teams.forEach(t => {
+        Object.entries(t.monthly).forEach(([yyyymm, count]) => {
+          subDivMonthly[yyyymm] = (subDivMonthly[yyyymm] || 0) + count;
+          businessMonthly[yyyymm] = (businessMonthly[yyyymm] || 0) + count;
+        });
+      });
+      businessSubDivisions.push({
+        name: '해외사업담당',
+        teams: overseasDiv.teams,
+        monthly: subDivMonthly,
+      });
+    }
+    
+    // 4) 나머지 팀들
+    const otherBusinessDivisionNames = ['통합소싱팀', '통합영업팀', '글로벌슈즈팀'];
+    otherBusinessDivisionNames.forEach(divName => {
+      const div = divisions.find(d => d.divisionName === divName);
+      if (div) {
+        const subDivMonthly: { [key: string]: number } = {};
+        div.teams.forEach(t => {
+          Object.entries(t.monthly).forEach(([yyyymm, count]) => {
+            subDivMonthly[yyyymm] = (subDivMonthly[yyyymm] || 0) + count;
+            businessMonthly[yyyymm] = (businessMonthly[yyyymm] || 0) + count;
+          });
+        });
+        businessSubDivisions.push({
+          name: divName,
+          teams: div.teams,
+          monthly: subDivMonthly,
+        });
+      }
+    });
+    
+    categoryDivisions.push({
+      divisionName: '사업부서',
+      teams: [],
+      subDivisions: businessSubDivisions,
+      monthly: businessMonthly,
+    });
+    
     return NextResponse.json({
       success: true,
       year,
       months,
-      divisions,
+      divisions: categoryDivisions,
       yearlyTotals,
     });
     

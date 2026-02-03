@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowUpIcon, ArrowDownIcon, TrendingUpIcon, CalendarIcon, PencilIcon, ChevronUpIcon, ChevronDownIcon, ChevronRightIcon, SaveIcon, XIcon, SparklesIcon } from 'lucide-react';
-import { ComposedChart, Bar, Line, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, BarChart, Cell, ScatterChart, Scatter, ReferenceArea, LabelList, Rectangle } from 'recharts';
+import { ComposedChart, Bar, Line, LineChart, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine, BarChart, Cell, ScatterChart, Scatter, ReferenceArea, LabelList, Rectangle } from 'recharts';
 
 // 비용 카테고리 정의
 const COST_CATEGORIES = {
@@ -152,11 +152,58 @@ export default function Dashboard() {
   const [capexYear, setCapexYear] = useState<'2024' | '2025'>('2025');
   
   const [laborYear, setLaborYear] = useState<'2024' | '2025'>('2025');
+  const [laborMonthsExpanded, setLaborMonthsExpanded] = useState(false); // 과거 월 펼침/접힘
+  const [laborDecemberExpanded, setLaborDecemberExpanded] = useState(true); // 12월 입사/퇴사/이동 상세 펼침 (디폴트 펼침)
+  const [laborMovementData, setLaborMovementData] = useState<Record<string, { hire: string; resign: string; transfer: string }>>({}); // 입사/퇴사/이동 입력 데이터
+  const [laborRemarkData, setLaborRemarkData] = useState<Record<string, string>>({}); // 비고 입력 데이터
+  
+  // 입사/퇴사/이동 합계 계산 함수
+  const calculateMovementSum = (keys: string[], field: 'hire' | 'resign' | 'transfer'): number => {
+    return keys.reduce((sum, key) => {
+      const value = parseInt(laborMovementData[key]?.[field] || '0', 10);
+      return sum + (isNaN(value) ? 0 : value);
+    }, 0);
+  };
+  
+  // 부문별 팀 키 목록 생성 함수
+  const getTeamKeysForDivision = (division: any): string[] => {
+    const keys: string[] = [];
+    // 직속 팀
+    division.teams?.forEach((team: any) => {
+      keys.push(`${division.divisionName}-${team.deptNm}`);
+    });
+    // 하위 부문의 팀
+    division.subDivisions?.forEach((subDiv: any) => {
+      subDiv.teams?.forEach((team: any) => {
+        keys.push(`${subDiv.name}-${team.deptNm}`);
+      });
+    });
+    return keys;
+  };
+  
+  // 하위 부문별 팀 키 목록 생성 함수
+  const getTeamKeysForSubDivision = (subDiv: any): string[] => {
+    return subDiv.teams?.map((team: any) => `${subDiv.name}-${team.deptNm}`) || [];
+  };
+  
+  // 전체 팀 키 목록 생성 함수
+  const getAllTeamKeys = (): string[] => {
+    if (!laborData) return [];
+    const keys: string[] = [];
+    laborData.divisions.forEach((division: any) => {
+      keys.push(...getTeamKeysForDivision(division));
+    });
+    return keys;
+  };
   const [expandedDivisions, setExpandedDivisions] = useState<Set<string>>(new Set());
   const [expandedSubDivisions, setExpandedSubDivisions] = useState<Set<string>>(new Set());
   const [laborInsight, setLaborInsight] = useState<string>('');
   const [laborInsightEditMode, setLaborInsightEditMode] = useState(false);
   const [laborInsightLoading, setLaborInsightLoading] = useState(false);
+  const [laborDetailPopup, setLaborDetailPopup] = useState<{ divisionName: string; data: any } | null>(null);
+  const [laborCostMonthly, setLaborCostMonthly] = useState<{ month: string; cost2024: number; cost2025: number; headcount2024: number; headcount2025: number }[]>([]); // 월별 인건비/인원수
+  const [laborCostByCategory, setLaborCostByCategory] = useState<{ name: string; cost2024: number; cost2025: number; costPrev: number }[]>([]); // 대분류별 인건비
+  const [laborCostBySubDiv, setLaborCostBySubDiv] = useState<{ name: string; category: string; cost2024: number; cost2025: number; costPrev: number }[]>([]); // 중분류별 인건비
   const [editedData, setEditedData] = useState<Record<string, { amount?: number; comment?: string }>>({});
   const [chartData, setChartData] = useState<any[]>([]);
   const [selectedChartMonth, setSelectedChartMonth] = useState<string | null>(null);
@@ -447,6 +494,14 @@ export default function Dashboard() {
           })),
         });
       }
+      
+      // 입사/퇴사/이동/비고 데이터 로드
+      const movementResponse = await fetch('/api/labor-movement');
+      const movementResult = await movementResponse.json();
+      if (movementResult.success) {
+        setLaborMovementData(movementResult.movement || {});
+        setLaborRemarkData(movementResult.remark || {});
+      }
     } catch (error) {
       console.error('인원수 데이터 로드 실패:', error);
     } finally {
@@ -720,6 +775,53 @@ export default function Dashboard() {
     }
   }, [mainTab]);
 
+  // 인건비 탭에서 인건비 로드 (인당인건비 계산용)
+  useEffect(() => {
+    if (mainTab !== 'labor' || !laborData) return;
+    const fetchLaborCostData = async () => {
+      try {
+        // 12개월 인건비 병렬 로드
+        const promises = [];
+        for (let m = 1; m <= 12; m++) {
+          promises.push(fetch(`/api/kpi?month=${m.toString().padStart(2, '0')}&mode=monthly`).then(r => r.json()));
+        }
+        const results = await Promise.all(promises);
+        
+        const monthlyData: { month: string; cost2024: number; cost2025: number; headcount2024: number; headcount2025: number }[] = [];
+        results.forEach((result, idx) => {
+          const m = idx + 1;
+          const monthStr = m.toString().padStart(2, '0');
+          if (result.success && Array.isArray(result.data)) {
+            const laborCat = result.data.find((c: any) => c.category === '인건비');
+            if (laborCat) {
+              monthlyData.push({
+                month: `${m}월`,
+                cost2024: laborCat.previous,
+                cost2025: laborCat.current,
+                headcount2024: laborData.yearlyTotals['2024']?.[monthStr] || 0,
+                headcount2025: laborData.yearlyTotals['2025']?.[monthStr] || 0,
+              });
+            }
+          }
+        });
+        setLaborCostMonthly(monthlyData);
+        
+        // 12월 기준 대분류별/중분류별 인건비 로드
+        const catRes = await fetch('/api/labor-cost?month=12');
+        const catResult = await catRes.json();
+        if (catResult.success && catResult.categories) {
+          setLaborCostByCategory(catResult.categories);
+        }
+        if (catResult.success && catResult.subDivisions) {
+          setLaborCostBySubDiv(catResult.subDivisions);
+        }
+      } catch (e) {
+        console.error('인건비 로드 실패:', e);
+      }
+    };
+    fetchLaborCostData();
+  }, [mainTab, laborData]);
+
   // IT수수료 탭 진입 시 데이터 로드
   useEffect(() => {
     if (mainTab === 'it' && !itExpenseData) {
@@ -733,6 +835,36 @@ export default function Dashboard() {
       loadCapexData(capexYear);
     }
   }, [mainTab, capexYear]);
+
+  // 입사/퇴사/이동 데이터 자동 저장 (debounce)
+  useEffect(() => {
+    if (Object.keys(laborMovementData).length === 0) return;
+    
+    const timer = setTimeout(() => {
+      fetch('/api/labor-movement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ movement: laborMovementData })
+      }).catch(err => console.error('입사/퇴사/이동 저장 실패:', err));
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [laborMovementData]);
+
+  // 비고 데이터 자동 저장 (debounce)
+  useEffect(() => {
+    if (Object.keys(laborRemarkData).length === 0) return;
+    
+    const timer = setTimeout(() => {
+      fetch('/api/labor-movement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ remark: laborRemarkData })
+      }).catch(err => console.error('비고 저장 실패:', err));
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [laborRemarkData]);
 
   const loadAccountData = async () => {
     try {
@@ -3966,14 +4098,21 @@ export default function Dashboard() {
                 </div>
               ) : allocationData ? (
                 <>
+                {/* 테이블에는 SUPRA, STRETCH ANGELS 제외 (공통비 합계에는 포함됨) */}
+                {(() => {
+                  const HIDDEN_ALLOCATION_BRANDS = ['SUPRA', 'STRETCH ANGELS'];
+                  const visibleBrands = allocationData.brands.filter(
+                    (b) => !HIDDEN_ALLOCATION_BRANDS.includes(b.name)
+                  );
+                  return (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
+                  <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b-2 border-gray-200">
-                        <th className="px-2 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[40px]">구분</th>
-                        <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[90px]" colSpan={2}>공통비</th>
-                        {allocationData.brands.map((brand) => (
-                          <th key={brand.name} className="px-2 py-2 text-center text-[11px] font-bold text-gray-900 bg-gray-50 w-[90px]" colSpan={2}>
+                        <th className="px-3 py-2.5 text-left text-sm font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[48px]">구분</th>
+                        <th className="px-3 py-2.5 text-center text-sm font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[100px]" colSpan={2}>공통비</th>
+                        {visibleBrands.map((brand) => (
+                          <th key={brand.name} className="px-3 py-2.5 text-center text-sm font-bold text-gray-900 bg-gray-50 w-[100px]" colSpan={2}>
                             {brand.name.includes(' ') && brand.name !== 'MLB KIDS' ? (
                               <span className="whitespace-pre-line leading-tight">{brand.name.replace(' ', '\n')}</span>
                             ) : (
@@ -3983,13 +4122,13 @@ export default function Dashboard() {
                         ))}
                       </tr>
                       <tr className="border-b border-gray-200 bg-gray-50">
-                        <th className="px-2 py-1 text-left text-[10px] text-gray-500"></th>
-                        <th className="px-2 py-1 text-center text-[10px] text-gray-500">금액</th>
-                        <th className="px-2 py-1 text-center text-[10px] text-gray-500">비중</th>
-                        {allocationData.brands.map((brand) => (
+                        <th className="px-3 py-1.5 text-left text-xs text-gray-500"></th>
+                        <th className="px-3 py-1.5 text-center text-xs text-gray-500">금액</th>
+                        <th className="px-3 py-1.5 text-center text-xs text-gray-500">비중</th>
+                        {visibleBrands.map((brand) => (
                           <React.Fragment key={`header-${brand.name}`}>
-                            <th className="px-2 py-1 text-center text-[10px] text-gray-500">금액</th>
-                            <th className="px-2 py-1 text-center text-[10px] text-gray-500">비중</th>
+                            <th className="px-3 py-1.5 text-center text-xs text-gray-500">금액</th>
+                            <th className="px-3 py-1.5 text-center text-xs text-gray-500">비중</th>
                           </React.Fragment>
                         ))}
                       </tr>
@@ -3997,17 +4136,17 @@ export default function Dashboard() {
                     <tbody>
                       {/* 24년 행 */}
                       <tr className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="px-2 py-2 text-[10px] font-medium text-gray-700">24년</td>
-                        <td className="px-2 py-2 text-right text-sm text-gray-900 font-semibold">
+                        <td className="px-3 py-2.5 text-sm font-medium text-gray-700 whitespace-nowrap">24년</td>
+                        <td className="px-3 py-2.5 text-right text-base text-gray-900 font-semibold">
                           {allocationData.total.previous.toLocaleString()}
                         </td>
-                        <td className="px-2 py-2 text-right text-[10px] text-gray-500">100%</td>
-                        {allocationData.brands.map((brand) => (
+                        <td className="px-3 py-2.5 text-right text-sm text-gray-500">100%</td>
+                        {visibleBrands.map((brand) => (
                           <React.Fragment key={`prev-${brand.name}`}>
-                            <td className="px-2 py-2 text-right text-sm text-gray-900">
+                            <td className="px-3 py-2.5 text-right text-base text-gray-900">
                               {brand.previous.toLocaleString()}
                             </td>
-                            <td className="px-2 py-2 text-right text-[10px] text-gray-500">
+                            <td className="px-3 py-2.5 text-right text-sm text-gray-500">
                               {brand.previousRatio.toFixed(1)}%
                             </td>
                           </React.Fragment>
@@ -4015,17 +4154,17 @@ export default function Dashboard() {
                       </tr>
                       {/* 25년 행 */}
                       <tr className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="px-2 py-2 text-[10px] font-medium text-gray-700">25년</td>
-                        <td className="px-2 py-2 text-right text-sm text-blue-600 font-bold">
+                        <td className="px-3 py-2.5 text-sm font-medium text-gray-700 whitespace-nowrap">25년</td>
+                        <td className="px-3 py-2.5 text-right text-base text-blue-600 font-bold">
                           {allocationData.total.current.toLocaleString()}
                         </td>
-                        <td className="px-2 py-2 text-right text-[10px] text-gray-500">100%</td>
-                        {allocationData.brands.map((brand) => (
+                        <td className="px-3 py-2.5 text-right text-sm text-gray-500">100%</td>
+                        {visibleBrands.map((brand) => (
                           <React.Fragment key={`cur-${brand.name}`}>
-                            <td className="px-2 py-2 text-right text-sm text-blue-600 font-semibold">
+                            <td className="px-3 py-2.5 text-right text-base text-blue-600 font-semibold">
                               {brand.current.toLocaleString()}
                             </td>
-                            <td className="px-2 py-2 text-right text-[10px] text-gray-500">
+                            <td className="px-3 py-2.5 text-right text-sm text-gray-500">
                               {brand.currentRatio.toFixed(1)}%
                             </td>
                           </React.Fragment>
@@ -4033,19 +4172,19 @@ export default function Dashboard() {
                       </tr>
                       {/* 차이 행 */}
                       <tr className="bg-gray-50 border-t-2 border-gray-200">
-                        <td className="px-2 py-2 text-[10px] font-bold text-gray-900">차이</td>
-                        <td className={`px-2 py-2 text-right text-sm font-bold ${allocationData.total.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                        <td className="px-3 py-2.5 text-sm font-bold text-gray-900 whitespace-nowrap">차이</td>
+                        <td className={`px-3 py-2.5 text-right text-base font-bold ${allocationData.total.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
                           {allocationData.total.change >= 0 ? '+' : ''}{allocationData.total.change.toLocaleString()}
                         </td>
-                        <td className={`px-2 py-2 text-right text-[10px] font-semibold ${allocationData.total.changePercent >= 100 ? 'text-red-600' : 'text-blue-600'}`}>
+                        <td className={`px-3 py-2.5 text-right text-sm font-semibold ${allocationData.total.changePercent >= 100 ? 'text-red-600' : 'text-blue-600'}`}>
                           {allocationData.total.changePercent.toFixed(1)}%
                         </td>
-                        {allocationData.brands.map((brand) => (
+                        {visibleBrands.map((brand) => (
                           <React.Fragment key={`diff-${brand.name}`}>
-                            <td className={`px-2 py-2 text-right text-sm font-semibold ${brand.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                            <td className={`px-3 py-2.5 text-right text-base font-semibold ${brand.change >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
                               {brand.change >= 0 ? '+' : ''}{brand.change.toLocaleString()}
                             </td>
-                            <td className={`px-2 py-2 text-right text-[10px] font-semibold ${brand.changePercent >= 100 ? 'text-red-600' : 'text-blue-600'}`}>
+                            <td className={`px-3 py-2.5 text-right text-sm font-semibold ${brand.changePercent >= 100 ? 'text-red-600' : 'text-blue-600'}`}>
                               {brand.changePercent.toFixed(1)}%
                             </td>
                           </React.Fragment>
@@ -4054,6 +4193,8 @@ export default function Dashboard() {
                     </tbody>
                   </table>
                 </div>
+                  );
+                })()}
                 
                 {/* 배부기준 입력 영역 */}
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -4227,41 +4368,233 @@ export default function Dashboard() {
                 </div>
               ) : laborData ? (
                 <>
+                {/* 과거 월 접기/펼치기 버튼 */}
+                <div className="mb-3 flex items-center gap-2">
+                  <button
+                    onClick={() => setLaborMonthsExpanded(!laborMonthsExpanded)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  >
+                    <svg 
+                      className={`w-4 h-4 transition-transform ${laborMonthsExpanded ? 'rotate-90' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    {laborMonthsExpanded ? '과거 월 접기 (1~10월)' : '과거 월 펼치기 (1~10월)'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (expandedDivisions.size > 0) {
+                        setExpandedDivisions(new Set());
+                        setExpandedSubDivisions(new Set());
+                      } else {
+                        const allDivisions = new Set(laborData?.divisions.map(d => d.divisionName) || []);
+                        setExpandedDivisions(allDivisions);
+                      }
+                    }}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  >
+                    <svg 
+                      className={`w-4 h-4 transition-transform ${expandedDivisions.size > 0 ? 'rotate-90' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    {expandedDivisions.size > 0 ? '전체 부문 접기' : '전체 부문 펼치기'}
+                  </button>
+                </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b-2 border-gray-200">
-                        <th className="px-3 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap sticky left-0 min-w-[180px]">부문/팀</th>
-                        {laborData.months.map((month) => (
+                        <th className="px-3 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap sticky left-0">부문/팀</th>
+                        {/* 25년 선택 시 24말 컬럼 */}
+                        {laborYear === '2025' && (
+                          <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
+                            24말
+                          </th>
+                        )}
+                        {/* 1~10월: 펼침 상태에 따라 표시 */}
+                        {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => (
                           <th key={month} className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap min-w-[45px]">
                             {parseInt(month)}월
                           </th>
                         ))}
+                        {/* 11월: 항상 표시 */}
+                        <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
+                          11월
+                        </th>
+                        {/* 12월 입사/퇴사/이동 헤더 - 클릭하면 펼침 */}
+                        {laborDecemberExpanded && (
+                          <>
+                            <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
+                              입사
+                            </th>
+                            <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
+                              퇴사
+                            </th>
+                            <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
+                              이동
+                            </th>
+                          </>
+                        )}
+                        {/* 12월: 클릭 가능 */}
+                        <th 
+                          className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px] cursor-pointer hover:bg-blue-100 transition-colors"
+                          onClick={() => setLaborDecemberExpanded(!laborDecemberExpanded)}
+                        >
+                          <div className="flex items-center justify-center gap-1">
+                            12월
+                            <svg 
+                              className={`w-3 h-3 transition-transform ${laborDecemberExpanded ? 'rotate-180' : ''}`} 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </th>
+                        {/* 전월비 컬럼 */}
+                        <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
+                          전월비
+                        </th>
+                        {/* 전년비 컬럼 */}
+                        <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
+                          전년비
+                        </th>
+                        {/* 비고 컬럼 */}
+                        <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap min-w-[100px]">
+                          비고 (전월대비)
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {/* 25년 전체 합계 행 */}
                       <tr className="border-b border-gray-200 bg-blue-50 font-bold">
                         <td className="px-3 py-2 text-sm text-blue-700 sticky left-0 bg-blue-50">2025년</td>
-                        {laborData.months.map((month) => (
+                        {/* 25년 선택 시 24년 12월 값 */}
+                        {laborYear === '2025' && (
+                          <td className="px-2 py-2 text-center text-sm text-blue-700">
+                            {laborData.yearlyTotals['2024']?.['12'] || 0}
+                          </td>
+                        )}
+                        {/* 1~10월 */}
+                        {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => (
                           <td key={month} className="px-2 py-2 text-center text-sm text-blue-700">
                             {laborData.yearlyTotals['2025']?.[month] || 0}
                           </td>
                         ))}
+                        {/* 11월 */}
+                        <td className="px-2 py-2 text-center text-sm text-blue-700">
+                          {laborData.yearlyTotals['2025']?.['11'] || 0}
+                        </td>
+                        {/* 입사/퇴사/이동 - 자동 합계 */}
+                        {laborDecemberExpanded && (() => {
+                          const allKeys = getAllTeamKeys();
+                          const hireSum = calculateMovementSum(allKeys, 'hire');
+                          const resignSum = calculateMovementSum(allKeys, 'resign');
+                          const transferSum = calculateMovementSum(allKeys, 'transfer');
+                          return (
+                            <>
+                              <td className="px-2 py-2 text-center text-sm text-blue-700 font-bold">
+                                {hireSum || '-'}
+                              </td>
+                              <td className="px-2 py-2 text-center text-sm text-blue-700 font-bold">
+                                {resignSum || '-'}
+                              </td>
+                              <td className="px-2 py-2 text-center text-sm text-blue-700 font-bold">
+                                {transferSum || '-'}
+                              </td>
+                            </>
+                          );
+                        })()}
+                        {/* 12월 */}
+                        <td className="px-2 py-2 text-center text-sm text-blue-700">
+                          {laborData.yearlyTotals['2025']?.['12'] || 0}
+                        </td>
+                        {/* 전월비 (12월 - 11월) */}
+                        {(() => {
+                          const dec = laborData.yearlyTotals['2025']?.['12'] || 0;
+                          const nov = laborData.yearlyTotals['2025']?.['11'] || 0;
+                          const momDiff = dec - nov;
+                          return (
+                            <td className={`px-2 py-2 text-center text-sm font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                              {momDiff > 0 ? `+${momDiff}` : momDiff}
+                            </td>
+                          );
+                        })()}
+                        {/* 전년비 (25년 12월 - 24년 12월) */}
+                        {(() => {
+                          const dec25 = laborData.yearlyTotals['2025']?.['12'] || 0;
+                          const dec24 = laborData.yearlyTotals['2024']?.['12'] || 0;
+                          const yoyDiff = dec25 - dec24;
+                          return (
+                            <td className={`px-2 py-2 text-center text-sm font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                              {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff}
+                            </td>
+                          );
+                        })()}
+                        {/* 비고 */}
+                        <td className="px-2 py-2 text-center text-sm text-blue-700">
+                          <input
+                            type="text"
+                            value={laborRemarkData['total'] || ''}
+                            onChange={(e) => setLaborRemarkData(prev => ({ ...prev, total: e.target.value }))}
+                            className="w-full text-left bg-transparent focus:outline-none text-xs text-blue-700"
+                            placeholder=""
+                          />
+                        </td>
                       </tr>
                       {/* 24년 전체 합계 행 */}
                       <tr className="border-b border-gray-200 bg-gray-50">
                         <td className="px-3 py-2 text-sm text-gray-600 sticky left-0 bg-gray-50">2024년</td>
-                        {laborData.months.map((month) => (
+                        {/* 25년 선택 시 빈 셀 */}
+                        {laborYear === '2025' && (
+                          <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        )}
+                        {/* 1~10월 */}
+                        {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => (
                           <td key={month} className="px-2 py-2 text-center text-sm text-gray-600">
                             {laborData.yearlyTotals['2024']?.[month] || 0}
                           </td>
                         ))}
+                        {/* 11월 */}
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">
+                          {laborData.yearlyTotals['2024']?.['11'] || 0}
+                        </td>
+                        {/* 입사/퇴사/이동 빈 셀 */}
+                        {laborDecemberExpanded && (
+                          <>
+                            <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                            <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                            <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                          </>
+                        )}
+                        {/* 12월 */}
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">
+                          {laborData.yearlyTotals['2024']?.['12'] || 0}
+                        </td>
+                        {/* 빈 전월비 셀 */}
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        {/* 빈 전년비 셀 */}
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        {/* 빈 비고 셀 */}
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
                       </tr>
                       {/* YOY 증감 행 */}
-                      <tr className="border-b-2 border-gray-300 bg-green-50">
-                        <td className="px-3 py-2 text-sm font-semibold text-gray-700 sticky left-0 bg-green-50">YOY 증감</td>
-                        {laborData.months.map((month) => {
+                      <tr className="border-b-2 border-gray-300 bg-gray-100">
+                        <td className="px-3 py-2 text-sm font-semibold text-gray-700 sticky left-0 bg-gray-100">YOY 증감</td>
+                        {/* 25년 선택 시 빈 셀 */}
+                        {laborYear === '2025' && (
+                          <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        )}
+                        {/* 1~10월 */}
+                        {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
                           const current = laborData.yearlyTotals['2025']?.[month] || 0;
                           const previous = laborData.yearlyTotals['2024']?.[month] || 0;
                           const diff = current - previous;
@@ -4271,6 +4604,42 @@ export default function Dashboard() {
                             </td>
                           );
                         })}
+                        {/* 11월 */}
+                        {(() => {
+                          const current = laborData.yearlyTotals['2025']?.['11'] || 0;
+                          const previous = laborData.yearlyTotals['2024']?.['11'] || 0;
+                          const diff = current - previous;
+                          return (
+                            <td className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                              {diff > 0 ? `+${diff}` : diff}
+                            </td>
+                          );
+                        })()}
+                        {/* 입사/퇴사/이동 빈 셀 */}
+                        {laborDecemberExpanded && (
+                          <>
+                            <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                            <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                            <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                          </>
+                        )}
+                        {/* 12월 */}
+                        {(() => {
+                          const current = laborData.yearlyTotals['2025']?.['12'] || 0;
+                          const previous = laborData.yearlyTotals['2024']?.['12'] || 0;
+                          const diff = current - previous;
+                          return (
+                            <td className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                              {diff > 0 ? `+${diff}` : diff}
+                            </td>
+                          );
+                        })()}
+                        {/* 빈 전월비 셀 */}
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        {/* 빈 전년비 셀 */}
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        {/* 빈 비고 셀 */}
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
                       </tr>
                       {/* 부문별 행 */}
                       {laborData.divisions.map((division) => (
@@ -4293,7 +4662,14 @@ export default function Dashboard() {
                                 {division.divisionName}
                               </div>
                             </td>
-                            {laborData.months.map((month) => {
+                            {/* 25년 선택 시 24년 12월 값 */}
+                            {laborYear === '2025' && (
+                              <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
+                                {division.monthly['202412'] || '-'}
+                              </td>
+                            )}
+                            {/* 1~10월 */}
+                            {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
                               const key = `${laborYear}${month}`;
                               const value = division.monthly[key] || 0;
                               return (
@@ -4302,17 +4678,92 @@ export default function Dashboard() {
                                 </td>
                               );
                             })}
+                            {/* 11월 */}
+                            <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
+                              {division.monthly[`${laborYear}11`] || '-'}
+                            </td>
+                            {/* 입사/퇴사/이동 입력 */}
+                            {laborDecemberExpanded && (
+                              <>
+                                {/* 부문 자동 합계 */}
+                                {(() => {
+                                  const divisionKeys = getTeamKeysForDivision(division);
+                                  const hireSum = calculateMovementSum(divisionKeys, 'hire');
+                                  const resignSum = calculateMovementSum(divisionKeys, 'resign');
+                                  const transferSum = calculateMovementSum(divisionKeys, 'transfer');
+                                  return (
+                                    <>
+                                      <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
+                                        {hireSum || '-'}
+                                      </td>
+                                      <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
+                                        {resignSum || '-'}
+                                      </td>
+                                      <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
+                                        {transferSum || '-'}
+                                      </td>
+                                    </>
+                                  );
+                                })()}
+                              </>
+                            )}
+                            {/* 12월 */}
+                            <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
+                              {division.monthly[`${laborYear}12`] || '-'}
+                            </td>
+                            {/* 전월비 (12월 - 11월) */}
+                            {(() => {
+                              const dec = division.monthly[`${laborYear}12`] || 0;
+                              const nov = division.monthly[`${laborYear}11`] || 0;
+                              const momDiff = dec - nov;
+                              return (
+                                <td className={`px-2 py-2 text-center text-sm font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                  {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
+                                </td>
+                              );
+                            })()}
+                            {/* 전년비 (25년 12월 - 24년 12월) */}
+                            {(() => {
+                              const dec25 = division.monthly['202512'] || 0;
+                              const dec24 = division.monthly['202412'] || 0;
+                              const yoyDiff = dec25 - dec24;
+                              return (
+                                <td className={`px-2 py-2 text-center text-sm font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                  {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
+                                </td>
+                              );
+                            })()}
+                            {/* 비고 */}
+                            <td className="px-2 py-2 text-center text-sm text-gray-800">
+                              <input
+                                type="text"
+                                value={laborRemarkData[division.divisionName] || ''}
+                                onChange={(e) => setLaborRemarkData(prev => ({ ...prev, [division.divisionName]: e.target.value }))}
+                                className="w-full text-left bg-transparent focus:outline-none text-xs text-gray-800"
+                                placeholder=""
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </td>
                           </tr>
                           {/* 팀별 행 (펼쳤을 때만 표시) */}
                           {expandedDivisions.has(division.divisionName) && (
                             <>
                               {/* 직속 팀 */}
-                              {division.teams.map((team, teamIndex) => (
+                              {division.teams.map((team, teamIndex) => {
+                                const teamKey = `${division.divisionName}-${team.deptNm}`;
+                                return (
                                 <tr key={`${division.divisionName}-${team.deptNm}-${teamIndex}`} className="border-b border-gray-100 hover:bg-gray-50">
                                   <td className="px-3 py-1.5 text-xs text-gray-600 sticky left-0 bg-white pl-8">
                                     {team.deptNm}
                                   </td>
-                                  {laborData.months.map((month) => {
+                                  {/* 25년 선택 시 24년 12월 값 */}
+                                  {laborYear === '2025' && (
+                                    <td className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                      {team.monthly['202412'] || '-'}
+                                    </td>
+                                  )}
+                                  {/* 1~10월 */}
+                                  {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
                                     const key = `${laborYear}${month}`;
                                     const value = team.monthly[key] || 0;
                                     return (
@@ -4321,10 +4772,93 @@ export default function Dashboard() {
                                       </td>
                                     );
                                   })}
+                                  {/* 11월 */}
+                                  <td className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                    {team.monthly[`${laborYear}11`] || '-'}
+                                  </td>
+                                  {/* 입사/퇴사/이동 입력 */}
+                                  {laborDecemberExpanded && (
+                                    <>
+                                      <td className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                        <input
+                                          type="number"
+                                          value={laborMovementData[teamKey]?.hire || ''}
+                                          onChange={(e) => setLaborMovementData(prev => ({
+                                            ...prev,
+                                            [teamKey]: { hire: e.target.value.replace(/[^0-9-]/g, ''), resign: prev[teamKey]?.resign || '', transfer: prev[teamKey]?.transfer || '' }
+                                          }))}
+                                          className="w-full text-center bg-transparent focus:outline-none text-xs text-gray-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                          placeholder="-"
+                                        />
+                                      </td>
+                                      <td className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                        <input
+                                          type="number"
+                                          value={laborMovementData[teamKey]?.resign || ''}
+                                          onChange={(e) => setLaborMovementData(prev => ({
+                                            ...prev,
+                                            [teamKey]: { hire: prev[teamKey]?.hire || '', resign: e.target.value.replace(/[^0-9-]/g, ''), transfer: prev[teamKey]?.transfer || '' }
+                                          }))}
+                                          className="w-full text-center bg-transparent focus:outline-none text-xs text-gray-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                          placeholder="-"
+                                        />
+                                      </td>
+                                      <td className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                        <input
+                                          type="number"
+                                          value={laborMovementData[teamKey]?.transfer || ''}
+                                          onChange={(e) => setLaborMovementData(prev => ({
+                                            ...prev,
+                                            [teamKey]: { hire: prev[teamKey]?.hire || '', resign: prev[teamKey]?.resign || '', transfer: e.target.value.replace(/[^0-9-]/g, '') }
+                                          }))}
+                                          className="w-full text-center bg-transparent focus:outline-none text-xs text-gray-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                          placeholder="-"
+                                        />
+                                      </td>
+                                    </>
+                                  )}
+                                  {/* 12월 */}
+                                  <td className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                    {team.monthly[`${laborYear}12`] || '-'}
+                                  </td>
+                                  {/* 전월비 (12월 - 11월) */}
+                                  {(() => {
+                                    const dec = team.monthly[`${laborYear}12`] || 0;
+                                    const nov = team.monthly[`${laborYear}11`] || 0;
+                                    const momDiff = dec - nov;
+                                    return (
+                                      <td className={`px-2 py-1.5 text-center text-xs ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                        {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
+                                      </td>
+                                    );
+                                  })()}
+                                  {/* 전년비 */}
+                                  {(() => {
+                                    const dec25 = team.monthly['202512'] || 0;
+                                    const dec24 = team.monthly['202412'] || 0;
+                                    const yoyDiff = dec25 - dec24;
+                                    return (
+                                      <td className={`px-2 py-1.5 text-center text-xs ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                        {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
+                                      </td>
+                                    );
+                                  })()}
+                                  {/* 비고 */}
+                                  <td className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                    <input
+                                      type="text"
+                                      value={laborRemarkData[teamKey] || ''}
+                                      onChange={(e) => setLaborRemarkData(prev => ({ ...prev, [teamKey]: e.target.value }))}
+                                      className="w-full text-left bg-transparent focus:outline-none text-xs text-gray-600"
+                                      placeholder=""
+                                    />
+                                  </td>
                                 </tr>
-                              ))}
+                              );})}
                               {/* 하위 부문 */}
-                              {division.subDivisions?.map((subDiv) => (
+                              {division.subDivisions?.map((subDiv) => {
+                                const subDivKey = subDiv.name;
+                                return (
                                 <React.Fragment key={`${division.divisionName}-sub-${subDiv.name}`}>
                                   {/* 하위 부문 헤더 */}
                                   <tr 
@@ -4344,7 +4878,14 @@ export default function Dashboard() {
                                         {subDiv.name}
                                       </div>
                                     </td>
-                                    {laborData.months.map((month) => {
+                                    {/* 25년 선택 시 24년 12월 값 */}
+                                    {laborYear === '2025' && (
+                                      <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
+                                        {subDiv.monthly['202412'] || '-'}
+                                      </td>
+                                    )}
+                                    {/* 1~10월 */}
+                                    {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
                                       const key = `${laborYear}${month}`;
                                       const value = subDiv.monthly[key] || 0;
                                       return (
@@ -4353,14 +4894,84 @@ export default function Dashboard() {
                                         </td>
                                       );
                                     })}
+                                    {/* 11월 */}
+                                    <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
+                                      {subDiv.monthly[`${laborYear}11`] || '-'}
+                                    </td>
+                                    {/* 입사/퇴사/이동 - 하위 부문 자동 합계 */}
+                                    {laborDecemberExpanded && (() => {
+                                      const subDivKeys = getTeamKeysForSubDivision(subDiv);
+                                      const hireSum = calculateMovementSum(subDivKeys, 'hire');
+                                      const resignSum = calculateMovementSum(subDivKeys, 'resign');
+                                      const transferSum = calculateMovementSum(subDivKeys, 'transfer');
+                                      return (
+                                        <>
+                                          <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
+                                            {hireSum || '-'}
+                                          </td>
+                                          <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
+                                            {resignSum || '-'}
+                                          </td>
+                                          <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
+                                            {transferSum || '-'}
+                                          </td>
+                                        </>
+                                      );
+                                    })()}
+                                    {/* 12월 */}
+                                    <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
+                                      {subDiv.monthly[`${laborYear}12`] || '-'}
+                                    </td>
+                                    {/* 전월비 (12월 - 11월) */}
+                                    {(() => {
+                                      const dec = subDiv.monthly[`${laborYear}12`] || 0;
+                                      const nov = subDiv.monthly[`${laborYear}11`] || 0;
+                                      const momDiff = dec - nov;
+                                      return (
+                                        <td className={`px-2 py-1.5 text-center text-xs font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                          {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
+                                        </td>
+                                      );
+                                    })()}
+                                    {/* 전년비 */}
+                                    {(() => {
+                                      const dec25 = subDiv.monthly['202512'] || 0;
+                                      const dec24 = subDiv.monthly['202412'] || 0;
+                                      const yoyDiff = dec25 - dec24;
+                                      return (
+                                        <td className={`px-2 py-1.5 text-center text-xs font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                          {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
+                                        </td>
+                                      );
+                                    })()}
+                                    {/* 비고 */}
+                                    <td className="px-2 py-1.5 text-center text-xs text-gray-700">
+                                      <input
+                                        type="text"
+                                        value={laborRemarkData[subDivKey] || ''}
+                                        onChange={(e) => setLaborRemarkData(prev => ({ ...prev, [subDivKey]: e.target.value }))}
+                                        className="w-full text-left bg-transparent focus:outline-none text-xs text-gray-700"
+                                        placeholder=""
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                    </td>
                                   </tr>
                                   {/* 하위 부문의 팀들 */}
-                                  {expandedSubDivisions.has(subDiv.name) && subDiv.teams.map((team, teamIndex) => (
+                                  {expandedSubDivisions.has(subDiv.name) && subDiv.teams.map((team, teamIndex) => {
+                                    const subTeamKey = `${subDiv.name}-${team.deptNm}`;
+                                    return (
                                     <tr key={`${subDiv.name}-${team.deptNm}-${teamIndex}`} className="border-b border-gray-100 hover:bg-gray-50">
                                       <td className="px-3 py-1.5 text-xs text-gray-500 sticky left-0 bg-white pl-12">
                                         {team.deptNm}
                                       </td>
-                                      {laborData.months.map((month) => {
+                                      {/* 25년 선택 시 24년 12월 값 */}
+                                      {laborYear === '2025' && (
+                                        <td className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                          {team.monthly['202412'] || '-'}
+                                        </td>
+                                      )}
+                                      {/* 1~10월 */}
+                                      {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
                                         const key = `${laborYear}${month}`;
                                         const value = team.monthly[key] || 0;
                                         return (
@@ -4369,10 +4980,91 @@ export default function Dashboard() {
                                           </td>
                                         );
                                       })}
+                                      {/* 11월 */}
+                                      <td className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                        {team.monthly[`${laborYear}11`] || '-'}
+                                      </td>
+                                      {/* 입사/퇴사/이동 입력 */}
+                                      {laborDecemberExpanded && (
+                                        <>
+                                          <td className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                            <input
+                                              type="number"
+                                              value={laborMovementData[subTeamKey]?.hire || ''}
+                                              onChange={(e) => setLaborMovementData(prev => ({
+                                                ...prev,
+                                                [subTeamKey]: { hire: e.target.value.replace(/[^0-9-]/g, ''), resign: prev[subTeamKey]?.resign || '', transfer: prev[subTeamKey]?.transfer || '' }
+                                              }))}
+                                              className="w-full text-center bg-transparent focus:outline-none text-xs text-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                              placeholder="-"
+                                            />
+                                          </td>
+                                          <td className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                            <input
+                                              type="number"
+                                              value={laborMovementData[subTeamKey]?.resign || ''}
+                                              onChange={(e) => setLaborMovementData(prev => ({
+                                                ...prev,
+                                                [subTeamKey]: { hire: prev[subTeamKey]?.hire || '', resign: e.target.value.replace(/[^0-9-]/g, ''), transfer: prev[subTeamKey]?.transfer || '' }
+                                              }))}
+                                              className="w-full text-center bg-transparent focus:outline-none text-xs text-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                              placeholder="-"
+                                            />
+                                          </td>
+                                          <td className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                            <input
+                                              type="number"
+                                              value={laborMovementData[subTeamKey]?.transfer || ''}
+                                              onChange={(e) => setLaborMovementData(prev => ({
+                                                ...prev,
+                                                [subTeamKey]: { hire: prev[subTeamKey]?.hire || '', resign: prev[subTeamKey]?.resign || '', transfer: e.target.value.replace(/[^0-9-]/g, '') }
+                                              }))}
+                                              className="w-full text-center bg-transparent focus:outline-none text-xs text-gray-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                              placeholder="-"
+                                            />
+                                          </td>
+                                        </>
+                                      )}
+                                      {/* 12월 */}
+                                      <td className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                        {team.monthly[`${laborYear}12`] || '-'}
+                                      </td>
+                                      {/* 전월비 (12월 - 11월) */}
+                                      {(() => {
+                                        const dec = team.monthly[`${laborYear}12`] || 0;
+                                        const nov = team.monthly[`${laborYear}11`] || 0;
+                                        const momDiff = dec - nov;
+                                        return (
+                                          <td className={`px-2 py-1.5 text-center text-xs ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                            {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
+                                          </td>
+                                        );
+                                      })()}
+                                      {/* 전년비 */}
+                                      {(() => {
+                                        const dec25 = team.monthly['202512'] || 0;
+                                        const dec24 = team.monthly['202412'] || 0;
+                                        const yoyDiff = dec25 - dec24;
+                                        return (
+                                          <td className={`px-2 py-1.5 text-center text-xs ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                            {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
+                                          </td>
+                                        );
+                                      })()}
+                                      {/* 비고 */}
+                                      <td className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                        <input
+                                          type="text"
+                                          value={laborRemarkData[subTeamKey] || ''}
+                                          onChange={(e) => setLaborRemarkData(prev => ({ ...prev, [subTeamKey]: e.target.value }))}
+                                          className="w-full text-left bg-transparent focus:outline-none text-xs text-gray-500"
+                                          placeholder=""
+                                        />
+                                      </td>
                                     </tr>
-                                  ))}
+                                  );})}
                                 </React.Fragment>
-                              ))}
+                              );})}
                             </>
                           )}
                         </React.Fragment>
@@ -4396,16 +5088,33 @@ export default function Dashboard() {
                       const diff = dec2025 - dec2024;
                       const diffPercent = dec2024 > 0 ? ((diff / dec2024) * 100).toFixed(1) : 0;
                       
-                      // 부문별 증감 계산 (모든 부문)
-                      const allDivisionChanges = laborData.divisions.map(div => {
+                      // 대분류별 증감 계산
+                      const categoryChanges = laborData.divisions.map(div => {
                         const prev = div.monthly['202412'] || 0;
                         const curr = div.monthly['202512'] || 0;
                         return { name: div.divisionName, prev, curr, diff: curr - prev };
-                      }).sort((a, b) => b.diff - a.diff);
+                      });
                       
-                      const increased = allDivisionChanges.filter(d => d.diff > 0);
-                      const decreased = allDivisionChanges.filter(d => d.diff < 0);
-                      const unchanged = allDivisionChanges.filter(d => d.diff === 0);
+                      // 하위 부문별 상세 증감 계산
+                      const subDivisionChanges: { name: string; prev: number; curr: number; diff: number; parent: string }[] = [];
+                      laborData.divisions.forEach(div => {
+                        div.subDivisions?.forEach(subDiv => {
+                          const prev = subDiv.monthly['202412'] || 0;
+                          const curr = subDiv.monthly['202512'] || 0;
+                          if (prev > 0 || curr > 0) {
+                            subDivisionChanges.push({ 
+                              name: subDiv.name, 
+                              prev, 
+                              curr, 
+                              diff: curr - prev,
+                              parent: div.divisionName
+                            });
+                          }
+                        });
+                      });
+                      
+                      const increasedSubs = subDivisionChanges.filter(d => d.diff > 0).sort((a, b) => b.diff - a.diff);
+                      const decreasedSubs = subDivisionChanges.filter(d => d.diff < 0).sort((a, b) => a.diff - b.diff);
                       
                       return (
                         <>
@@ -4416,40 +5125,83 @@ export default function Dashboard() {
                             </span> 했습니다.
                           </div>
                           
-                          {increased.length > 0 && (
-                            <div className="mb-2">
-                              <strong className="text-red-600">📈 증가 부문 ({increased.length}개):</strong>
-                              <div className="ml-4 mt-1 grid grid-cols-2 md:grid-cols-3 gap-1">
-                                {increased.map(d => (
-                                  <span key={d.name} className="text-red-600">
-                                    • {d.name}: {d.prev}명 → {d.curr}명 <strong>(+{d.diff})</strong>
-                                  </span>
-                                ))}
-                              </div>
+                          {/* 대분류 요약 - 클릭하면 아래에 펼침 */}
+                          <div className="mb-3 p-2 bg-white rounded border">
+                            <strong>부문별 현황</strong>
+                            <div className="mt-2 space-y-2">
+                              {categoryChanges.map(d => {
+                                const division = laborData.divisions.find(div => div.divisionName === d.name);
+                                const isExpanded = laborDetailPopup?.divisionName === d.name;
+                                
+                                // 하위 부문 증감 계산
+                                const subDivChanges: { name: string; prev: number; curr: number; diff: number }[] = [];
+                                if (division) {
+                                  division.teams?.forEach(team => {
+                                    const prev = team.monthly['202412'] || 0;
+                                    const curr = team.monthly['202512'] || 0;
+                                    if (prev > 0 || curr > 0) {
+                                      subDivChanges.push({ name: team.deptNm, prev, curr, diff: curr - prev });
+                                    }
+                                  });
+                                  division.subDivisions?.forEach(subDiv => {
+                                    const subPrev = subDiv.monthly['202412'] || 0;
+                                    const subCurr = subDiv.monthly['202512'] || 0;
+                                    if (subPrev > 0 || subCurr > 0) {
+                                      subDivChanges.push({ name: subDiv.name, prev: subPrev, curr: subCurr, diff: subCurr - subPrev });
+                                    }
+                                  });
+                                }
+                                const increased = subDivChanges.filter(t => t.diff > 0).sort((a, b) => b.diff - a.diff);
+                                const decreased = subDivChanges.filter(t => t.diff < 0).sort((a, b) => a.diff - b.diff);
+                                
+                                return (
+                                  <div key={d.name}>
+                                    {/* 대분류 헤더 */}
+                                    <div 
+                                      className={`flex items-center justify-between p-2 rounded cursor-pointer transition-all ${isExpanded ? 'bg-blue-100' : 'bg-gray-50 hover:bg-gray-100'}`}
+                                      onClick={() => {
+                                        if (isExpanded) {
+                                          setLaborDetailPopup(null);
+                                        } else {
+                                          setLaborDetailPopup({ divisionName: d.name, data: { prev: d.prev, curr: d.curr, diff: d.diff, increased, decreased } });
+                                        }
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <svg className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                        <span className="font-medium text-gray-800">{d.name}</span>
+                                        <span className="text-xs text-gray-500">{d.prev}명 → {d.curr}명</span>
+                                      </div>
+                                      <span className={`text-sm font-bold ${d.diff > 0 ? 'text-red-600' : d.diff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                        {d.diff > 0 ? `+${d.diff}` : d.diff === 0 ? '±0' : d.diff}
+                                      </span>
+                                    </div>
+                                    
+                                    {/* 펼침 상세 */}
+                                    {isExpanded && (
+                                      <div className="ml-5 mt-1 p-2 bg-gray-50 rounded text-xs space-y-0.5">
+                                        {increased.map((t, i) => (
+                                          <div key={`inc-${i}`} className="text-red-600">
+                                            • {t.name}: {t.prev}명 → {t.curr}명 <strong>(+{t.diff})</strong>
+                                          </div>
+                                        ))}
+                                        {decreased.map((t, i) => (
+                                          <div key={`dec-${i}`} className="text-blue-600">
+                                            • {t.name}: {t.prev}명 → {t.curr}명 <strong>({t.diff})</strong>
+                                          </div>
+                                        ))}
+                                        {increased.length === 0 && decreased.length === 0 && (
+                                          <div className="text-gray-400">변동 없음</div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
-                          )}
-                          
-                          {decreased.length > 0 && (
-                            <div className="mb-2">
-                              <strong className="text-blue-600">📉 감소 부문 ({decreased.length}개):</strong>
-                              <div className="ml-4 mt-1 grid grid-cols-2 md:grid-cols-3 gap-1">
-                                {decreased.map(d => (
-                                  <span key={d.name} className="text-blue-600">
-                                    • {d.name}: {d.prev}명 → {d.curr}명 <strong>({d.diff})</strong>
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {unchanged.length > 0 && (
-                            <div className="mb-2">
-                              <strong className="text-gray-500">➖ 변동 없음 ({unchanged.length}개):</strong>
-                              <span className="ml-2 text-gray-500">
-                                {unchanged.map(d => `${d.name}(${d.curr}명)`).join(', ')}
-                              </span>
-                            </div>
-                          )}
+                          </div>
                           
                         </>
                       );
@@ -4616,6 +5368,198 @@ export default function Dashboard() {
                       </div>
                     )}
                   </div>
+                </div>
+                
+                {/* 인당인건비 섹션 */}
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <h4 className="text-sm font-bold text-blue-700 mb-2">인당인건비</h4>
+                  <div className="text-[10px] text-gray-500 mb-3">
+                    * 인건비 = 급료와임금 + 제수당 + 잡급 + 퇴직급여충당금전입액 + 복리후생비(의료/고용/산재보험) + 국민연금
+                  </div>
+                  
+                  {laborCostMonthly.length > 0 ? (() => {
+                    const chartData = laborCostMonthly.map(d => ({
+                      month: d.month,
+                      '24년': d.headcount2024 > 0 ? Math.round((d.cost2024 / d.headcount2024) * 10) / 10 : 0,
+                      '25년': d.headcount2025 > 0 ? Math.round((d.cost2025 / d.headcount2025) * 10) / 10 : 0,
+                    }));
+                    const dec = laborCostMonthly.find(d => d.month === '12월');
+                    const perPerson24 = dec && dec.headcount2024 > 0 ? dec.cost2024 / dec.headcount2024 : 0;
+                    const perPerson25 = dec && dec.headcount2025 > 0 ? dec.cost2025 / dec.headcount2025 : 0;
+                    const diff = perPerson25 - perPerson24;
+                    const diffPct = perPerson24 > 0 ? (diff / perPerson24 * 100).toFixed(1) : '0';
+                    
+                    return (
+                      <>
+                        {/* 12월 기준 요약 */}
+                        <div className="mb-3 text-sm text-gray-700">
+                          <span className="text-gray-500">12월 기준 전체:</span>{' '}
+                          <span className="text-gray-600">24년 <strong>{perPerson24.toFixed(1)}</strong></span>
+                          <span className="text-gray-400 mx-1">→</span>
+                          <span className="text-gray-600">25년 <strong>{perPerson25.toFixed(1)}</strong></span>
+                          <span className={`ml-2 font-semibold ${diff >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                            {diff >= 0 ? '+' : ''}{diff.toFixed(1)} ({diffPct}%)
+                          </span>
+                          <span className="text-gray-400 text-xs ml-1">백만원/명</span>
+                        </div>
+                        
+                        {/* 그래프 */}
+                        <div className="h-36 bg-white rounded border p-2">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={chartData} margin={{ top: 5, right: 15, left: -10, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                              <XAxis dataKey="month" tick={{ fontSize: 10 }} tickLine={false} axisLine={{ stroke: '#e5e7eb' }} />
+                              <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} domain={['dataMin - 0.5', 'dataMax + 0.5']} width={35} />
+                              <Tooltip 
+                                contentStyle={{ fontSize: 11, padding: '6px 10px', border: '1px solid #e5e7eb', borderRadius: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
+                                formatter={(value: number, name: string) => [`${value.toFixed(1)} 백만원/명`, name]}
+                              />
+                              <Line type="monotone" dataKey="24년" stroke="#9ca3af" strokeWidth={1.5} dot={{ r: 2, fill: '#9ca3af' }} activeDot={{ r: 3 }} />
+                              <Line type="monotone" dataKey="25년" stroke="#2563eb" strokeWidth={2} dot={{ r: 2, fill: '#2563eb' }} activeDot={{ r: 4 }} />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                        
+                        {/* 범례 */}
+                        <div className="mt-1.5 flex justify-center gap-6 text-xs text-gray-500">
+                          <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-gray-400 inline-block"></span> 24년</span>
+                          <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-blue-600 inline-block"></span> 25년</span>
+                        </div>
+                        
+                        {/* 부문별 인당인건비 (12월 기준) - 클릭하여 펼치기 */}
+                        {laborCostByCategory.length > 0 && (
+                          <div className="mt-4 pt-3 border-t border-blue-200">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-medium text-gray-600">부문별 인당인건비 (12월 기준)</span>
+                              <span className="text-[10px] text-gray-400">전월비 / 전년비</span>
+                            </div>
+                            <div className="p-2 bg-white rounded border space-y-1">
+                              {laborCostByCategory.map(cat => {
+                                // 해당 부문의 인원수 찾기
+                                const divData = laborData.divisions.find(d => d.divisionName === cat.name);
+                                const hc24 = divData?.monthly['202412'] || 0;
+                                const hc25 = divData?.monthly['202512'] || 0;
+                                const hcPrev = divData?.monthly['202511'] || 0; // 전월 인원수
+                                const pp24 = hc24 > 0 ? cat.cost2024 / hc24 : 0;
+                                const pp25 = hc25 > 0 ? cat.cost2025 / hc25 : 0;
+                                const ppPrev = hcPrev > 0 ? (cat.costPrev || 0) / hcPrev : 0; // 전월 인당인건비
+                                const yoyDiff = pp25 - pp24; // 전년비
+                                const momDiff = pp25 - ppPrev; // 전월비
+                                const isExpanded = laborDetailPopup?.divisionName === `cost-${cat.name}`;
+                                
+                                return (
+                                  <div key={cat.name}>
+                                    <div 
+                                      className="flex items-center justify-between py-1 cursor-pointer hover:bg-gray-50 px-1 rounded"
+                                      onClick={() => setLaborDetailPopup(isExpanded ? null : { divisionName: `cost-${cat.name}`, data: divData?.subDivisions || [] })}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-gray-400">{isExpanded ? '∨' : '>'}</span>
+                                        <span className="text-xs font-medium text-gray-700">{cat.name}</span>
+                                        <span className="text-xs text-gray-400">{hc24}명 → {hc25}명</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 text-xs">
+                                        <span className="text-gray-500">{pp24.toFixed(1)} → {pp25.toFixed(1)}</span>
+                                        <span className={`font-semibold ${momDiff >= 0 ? 'text-red-500' : 'text-blue-500'}`} title="전월비">
+                                          {momDiff >= 0 ? '+' : ''}{momDiff.toFixed(1)}
+                                        </span>
+                                        <span className="text-gray-300">/</span>
+                                        <span className={`font-semibold ${yoyDiff >= 0 ? 'text-red-500' : 'text-blue-500'}`} title="전년비">
+                                          {yoyDiff >= 0 ? '+' : ''}{yoyDiff.toFixed(1)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    {/* 중분류 펼침 */}
+                                    {isExpanded && divData?.subDivisions && (
+                                      <div className="ml-6 pl-2 border-l border-gray-200 mt-1 space-y-0.5">
+                                        {divData.subDivisions.map(subDiv => {
+                                          const subHc24 = subDiv.monthly['202412'] || 0;
+                                          const subHc25 = subDiv.monthly['202512'] || 0;
+                                          const subHcPrev = subDiv.monthly['202511'] || 0; // 전월 인원수
+                                          // 실제 중분류 인건비 데이터 사용 (대분류+중분류로 매칭)
+                                          const actualSubCost = laborCostBySubDiv.find(s => s.name === subDiv.name && s.category === cat.name);
+                                          const subCost24 = actualSubCost?.cost2024 || 0;
+                                          const subCost25 = actualSubCost?.cost2025 || 0;
+                                          const subCostPrev = actualSubCost?.costPrev || 0; // 전월 인건비
+                                          
+                                          const subPp24 = subHc24 > 0 ? subCost24 / subHc24 : 0;
+                                          const subPp25 = subHc25 > 0 ? subCost25 / subHc25 : 0;
+                                          const subPpPrev = subHcPrev > 0 ? subCostPrev / subHcPrev : 0; // 전월 인당인건비
+                                          
+                                          const yoyDiff = subPp25 - subPp24; // 전년비 (YoY)
+                                          const momDiff = subPp25 - subPpPrev; // 전월비 (MoM)
+                                          const hcChange = subHc25 - subHc24;
+                                          
+                                          const hasTeams = subDiv.teams && subDiv.teams.length > 0;
+                                          const isSubExpanded = laborDetailPopup?.divisionName === `team-${cat.name}-${subDiv.name}`;
+                                          
+                                          return (
+                                            <div key={subDiv.name}>
+                                              <div 
+                                                className={`flex items-center justify-between py-0.5 text-xs ${hasTeams ? 'cursor-pointer hover:bg-gray-50 rounded px-1' : ''}`}
+                                                onClick={() => hasTeams && setLaborDetailPopup(isSubExpanded ? null : { divisionName: `team-${cat.name}-${subDiv.name}`, data: subDiv.teams })}
+                                              >
+                                                <div className="flex items-center gap-2">
+                                                  {hasTeams && <span className="text-gray-400 text-[10px]">{isSubExpanded ? '∨' : '>'}</span>}
+                                                  <span className="text-gray-600">{subDiv.name}</span>
+                                                  <span className="text-gray-400">{subHc24}명 → {subHc25}명</span>
+                                                  {hcChange !== 0 && (
+                                                    <span className={`${hcChange > 0 ? 'text-red-500' : 'text-blue-500'}`}>
+                                                      ({hcChange > 0 ? '+' : ''}{hcChange})
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                  <span className="text-gray-500">{subPp24.toFixed(1)} → {subPp25.toFixed(1)}</span>
+                                                  <span className={`font-medium ${momDiff >= 0 ? 'text-red-500' : 'text-blue-500'}`} title="전월비">
+                                                    {momDiff >= 0 ? '+' : ''}{momDiff.toFixed(1)}
+                                                  </span>
+                                                  <span className="text-gray-300">/</span>
+                                                  <span className={`font-medium ${yoyDiff >= 0 ? 'text-red-500' : 'text-blue-500'}`} title="전년비">
+                                                    {yoyDiff >= 0 ? '+' : ''}{yoyDiff.toFixed(1)}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                              {/* 팀 레벨 펼침 */}
+                                              {isSubExpanded && hasTeams && (
+                                                <div className="ml-4 pl-2 border-l border-gray-100 mt-0.5 space-y-0.5">
+                                                  {subDiv.teams.map((team: any) => {
+                                                    const teamHc24 = team.monthly?.['202412'] || 0;
+                                                    const teamHc25 = team.monthly?.['202512'] || 0;
+                                                    const teamHcChange = teamHc25 - teamHc24;
+                                                    // 팀 레벨 인당인건비는 중분류 인당인건비와 동일하게 표시 (개별 팀 인건비 데이터 없음)
+                                                    return (
+                                                      <div key={team.deptNm} className="flex items-center justify-between py-0.5 text-[11px]">
+                                                        <div className="flex items-center gap-2">
+                                                          <span className="text-gray-500">{team.deptNm}</span>
+                                                          <span className="text-gray-400">{teamHc24}명 → {teamHc25}명</span>
+                                                          {teamHcChange !== 0 && (
+                                                            <span className={`${teamHcChange > 0 ? 'text-red-500' : 'text-blue-500'}`}>
+                                                              ({teamHcChange > 0 ? '+' : ''}{teamHcChange})
+                                                            </span>
+                                                          )}
+                                                        </div>
+                                                      </div>
+                                                    );
+                                                  })}
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })() : (
+                    <div className="text-gray-500 text-sm py-4 text-center">데이터 로딩 중...</div>
+                  )}
                 </div>
                 </>
               ) : (
