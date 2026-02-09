@@ -58,6 +58,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const year = searchParams.get('year') || '2025';
+    const prevYear = String(parseInt(year) - 1); // 전년도 동적 계산
     const account = searchParams.get('account');  // 계정 필터 (예: 지급수수료_법률자문료)
     const team = searchParams.get('team');  // 팀 필터 (특정 계정 내 팀별 상세)
     
@@ -103,8 +104,8 @@ export async function GET(request: Request) {
     }
     
     // 전년 데이터 집계
-    if (detailData && detailData['2024']) {
-      for (const record of detailData['2024']) {
+    if (detailData && detailData[prevYear]) {
+      for (const record of detailData[prevYear]) {
         const accName = record.account;
         
         if (!accountData[accName]) {
@@ -173,6 +174,7 @@ export async function GET(request: Request) {
 // 특정 계정의 팀별 상세
 async function getAccountDetails(year: string, account: string, months: string[]) {
   const detailData = loadCommissionJson();
+  const prevYear = String(parseInt(year) - 1);
   
   if (!detailData) {
     return NextResponse.json({ success: true, year, account, items: [] });
@@ -198,8 +200,8 @@ async function getAccountDetails(year: string, account: string, months: string[]
   }
   
   // 전년 데이터
-  if (detailData['2024']) {
-    for (const record of detailData['2024']) {
+  if (detailData[prevYear]) {
+    for (const record of detailData[prevYear]) {
       if (record.account !== account) continue;
       
       const teamName = normalizeTeamName(record.cctr);

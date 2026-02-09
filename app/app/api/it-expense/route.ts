@@ -47,6 +47,9 @@ export async function GET(request: Request) {
     
     const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
     
+    // 선택된 연도와 전년도
+    const prevYear = String(parseInt(year) - 1);
+    
     // 계정별 월별 데이터 구조화
     interface AccountData {
       id: string;
@@ -78,16 +81,16 @@ export async function GET(request: Request) {
       
       const account = accountMap.get(id)!;
       
-      // 월별 데이터 추출 (백만원 단위로 변환)
+      // 월별 데이터 추출 (백만원 단위로 변환) - 전년/당년 동적 매핑
       months.forEach(month => {
-        const key2024 = `2024${month}`;
-        const key2025 = `2025${month}`;
+        const keyPrev = `${prevYear}${month}`;
+        const keyCurr = `${year}${month}`;
         
-        const val2024 = parseFloat(record[key2024] || '0');
-        const val2025 = parseFloat(record[key2025] || '0');
+        const valPrev = parseFloat(record[keyPrev] || '0');
+        const valCurr = parseFloat(record[keyCurr] || '0');
         
-        account.monthly2024[month] = (account.monthly2024[month] || 0) + Math.round(val2024 / 1000000);
-        account.monthly2025[month] = (account.monthly2025[month] || 0) + Math.round(val2025 / 1000000);
+        account.monthly2024[month] = (account.monthly2024[month] || 0) + Math.round(valPrev / 1000000);
+        account.monthly2025[month] = (account.monthly2025[month] || 0) + Math.round(valCurr / 1000000);
       });
     });
     

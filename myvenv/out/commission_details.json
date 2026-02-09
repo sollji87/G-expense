@@ -51302,5 +51302,2311 @@
       "cctr": "공통",
       "amount": 307000000.0
     }
+  ],
+  "2026": [
+    {
+      "month": "01",
+      "account": "지급수수료_회계감사",
+      "text": "25년 회계감사 보수(4차중도금 실사와조회)",
+      "original_text": "25년 회계감사 보수(4차중도금_실사와조회)",
+      "vendor": "한영회계법인",
+      "cctr": "회계팀",
+      "amount": 70000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_폐기물처리",
+      "text": "본사 일반 폐기물 처리",
+      "original_text": "26.01 본사 일반 폐기물 처리",
+      "vendor": "(주）신용에이엔디",
+      "cctr": "총무",
+      "amount": 3870000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_퀵서비스",
+      "text": "퀵서비스 사용료 공통",
+      "original_text": "26.01 퀵서비스 사용료_공통",
+      "vendor": "주식회사 더불어물류",
+      "cctr": "공통",
+      "amount": 9479000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_컨설팅",
+      "text": "RAG 구현 간 QA 진행 등 컨설팅",
+      "original_text": "26.01월_RAG 구현 간 QA 진행 등 컨설팅",
+      "vendor": "",
+      "cctr": "AX팀",
+      "amount": 415027.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_컨설팅",
+      "text": "3D 인테리어 솔루션 PoC 계약 착수금",
+      "original_text": "3D 인테리어 솔루션 PoC 계약 착수금",
+      "vendor": "(주)아키스케치",
+      "cctr": "AX팀",
+      "amount": 1350000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_컨설팅",
+      "text": "3D 인테리어 솔루션 PoC 계약 잔금",
+      "original_text": "3D 인테리어 솔루션 PoC 계약 잔금",
+      "vendor": "(주)아키스케치",
+      "cctr": "AX팀",
+      "amount": 3150000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_컨설팅",
+      "text": "[FnF]EAP 비용 정산의",
+      "original_text": "[FnF]25.12 EAP 비용 정산의",
+      "vendor": "이지앤웰니스(주)",
+      "cctr": "HR팀",
+      "amount": 1125000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "EC OMS BE 개발 및 운영",
+      "original_text": "26년 01월 EC OMS BE 개발 및 운영",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 4725000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "ES팀 유통파트 프리랜서 오경종",
+      "original_text": "ES팀 유통파트 프리랜서 오경종",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 7500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "EC OMS BE 개발 및 운영",
+      "original_text": "26년 01월 EC OMS BE 개발 및 운영",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": -4725000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "EC OMS BE 개발 및 운영",
+      "original_text": "26년 01월 EC OMS BE 개발 및 운영",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 4725000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "보안 및 전산 지원 외주 용역비",
+      "original_text": "26.01 보안 및 전산 지원 외주 용역비",
+      "vendor": "인토비스 주식회사",
+      "cctr": "정보보안팀",
+      "amount": 5500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "보안 및 전산 지원 외주 용역비",
+      "original_text": "26.01 보안 및 전산 지원 외주 용역비",
+      "vendor": "인토비스 주식회사",
+      "cctr": "정보보안팀",
+      "amount": 6750000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "25년STIP/STO 투자주식 및 영업권 평가",
+      "original_text": "25년STIP/STO 투자주식 및 영업권 평가",
+      "vendor": "서현회계법인",
+      "cctr": "회계팀",
+      "amount": 10000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "HR팀 파견직 비용 정산 (김혜진)",
+      "original_text": "26.01 HR팀 파견직 비용 정산 (김혜진)",
+      "vendor": "보보스링크(주)",
+      "cctr": "HR팀",
+      "amount": 3963500.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "메타엠 지급수수료(고객관리)",
+      "original_text": "26.01월 메타엠 지급수수료(고객관리)",
+      "vendor": "(주)메타엠",
+      "cctr": "e-BIZ팀",
+      "amount": 6893820.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "영업관리/고객관리 도급비용 정산",
+      "original_text": "26년 1월 영업관리/고객관리 도급비용 정산",
+      "vendor": "씨앤에스에프 주식회사 (CNSF CO",
+      "cctr": "경영관리팀",
+      "amount": 126700000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "해외사업부 파견직 1월",
+      "original_text": "해외사업부 파견직 1월",
+      "vendor": "(주)키스템프 엠엔씨에스",
+      "cctr": "해외사업팀",
+      "amount": 3421254.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "파견직 도급비 잡라이프",
+      "original_text": "26.01월 파견직 도급비_잡라이프",
+      "vendor": "주식회사 잡라이프",
+      "cctr": "마케팅본부",
+      "amount": 2561590.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "파견직 도급비 키스템프",
+      "original_text": "26.01월 파견직 도급비_키스템프",
+      "vendor": "(주)키스템프 엠엔씨에스",
+      "cctr": "마케팅본부",
+      "amount": 5998920.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "파견직 도급비 보보스링크",
+      "original_text": "26.01월 파견직 도급비_보보스링크",
+      "vendor": "보보스링크(주)",
+      "cctr": "마케팅본부",
+      "amount": 6078300.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "MLB MKT 파견직 정산 보보스링크(김연진)",
+      "original_text": "MLB MKT 파견직 정산_보보스링크(김연진)",
+      "vendor": "보보스링크(주)",
+      "cctr": "마케팅본부",
+      "amount": 286600.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "MLB MKT 파견직 정산 보보스링크(차지우)",
+      "original_text": "MLB MKT 파견직 정산_보보스링크(차지우)",
+      "vendor": "보보스링크(주)",
+      "cctr": "마케팅본부",
+      "amount": 191100.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "MLB MKT 파견직 정산 보보스링크(오지민)",
+      "original_text": "MLB MKT 파견직 정산_보보스링크(오지민)",
+      "vendor": "보보스링크(주)",
+      "cctr": "마케팅본부",
+      "amount": 1910900.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "공통 회계팀 1월 파견직 비용 결재의 건",
+      "original_text": "공통_회계팀 1월 파견직 비용 결재의 건",
+      "vendor": "주식회사 잡라이프",
+      "cctr": "회계팀",
+      "amount": 3179730.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "RFID 시스템 운영지원비",
+      "original_text": "26년 01월 RFID 시스템 운영지원비",
+      "vendor": "주식회사 유에스소프트",
+      "cctr": "IT팀",
+      "amount": 2500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "파견직 비용-김은애",
+      "original_text": "26년 01월 파견직 비용-김은애",
+      "vendor": "(주)키스템프 엠엔씨에스",
+      "cctr": "IT팀",
+      "amount": 2905780.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "[MKT] 파견직 강소진 1월 정산의 건",
+      "original_text": "[MKT] 파견직 강소진 1월 정산의 건",
+      "vendor": "보보스링크(주)",
+      "cctr": "마케팅본부",
+      "amount": 2788600.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "ST 파견 아르바이트생 김원영 급여",
+      "original_text": "1월 ST 파견 아르바이트생 김원영 급여",
+      "vendor": "보보스링크(주)",
+      "cctr": "마케팅본부",
+      "amount": 2957100.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "INF 1월 파견직 이지훈 비용",
+      "original_text": "INF_1월 파견직 이지훈 비용",
+      "vendor": "보보스링크(주)",
+      "cctr": "마케팅본부",
+      "amount": 2957100.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "파견직 도급비",
+      "original_text": "26.01월 파견직 도급비",
+      "vendor": "주식회사 잡라이프",
+      "cctr": "IT팀",
+      "amount": 3143680.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "INF DX 아르바이트 박미소님 정산",
+      "original_text": "INF_DX 아르바이트 박미소님 정산",
+      "vendor": "보보스링크(주)",
+      "cctr": "마케팅본부",
+      "amount": 2957100.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "INF MLB 1월 파견직아르바이트 서가희님",
+      "original_text": "INF MLB_1월_파견직아르바이트_서가희님",
+      "vendor": "보보스링크(주)",
+      "cctr": "마케팅본부",
+      "amount": 2961900.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "이천 A/B동 도급비(미화/보안)",
+      "original_text": "26.01 이천 A/B동 도급비(미화/보안)",
+      "vendor": "10(주)에프앤에프홀딩스",
+      "cctr": "총무",
+      "amount": 53724051.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "총무팀 파견직 비용 정산 박대선",
+      "original_text": "26.01 총무팀 파견직 비용 정산_박대선",
+      "vendor": "(주)키스템프 엠엔씨에스",
+      "cctr": "총무",
+      "amount": 3500590.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "총무팀 파견근로자 용역비(류효주)",
+      "original_text": "26.01 총무팀 파견근로자 용역비(류효주)",
+      "vendor": "보보스링크(주)",
+      "cctr": "총무",
+      "amount": 3715700.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "월 급여아웃소싱비용정산(헬로인사)",
+      "original_text": "2026.01월 급여아웃소싱비용정산(헬로인사)",
+      "vendor": "(주)헬로인사",
+      "cctr": "HR팀",
+      "amount": 4765800.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "통합영업팀 파견직 급여 지급 건",
+      "original_text": "26.1월 통합영업팀 파견직 급여 지급 건",
+      "vendor": "보보스링크(주)",
+      "cctr": "통합영업팀",
+      "amount": 3035900.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "행낭차량 도급 업무비",
+      "original_text": "26.01 행낭차량 도급 업무비",
+      "vendor": "(주)디엘로지스코리아",
+      "cctr": "총무",
+      "amount": 3653297.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "총무팀 파견근로자 용역비",
+      "original_text": "총무팀 파견근로자 용역비",
+      "vendor": "주식회사 밸류에이치알 (VALUE H",
+      "cctr": "총무",
+      "amount": 3234707.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_지급용역비",
+      "text": "25년 공정가치 평가(마이다스성장지원PEF)",
+      "original_text": "25년 공정가치 평가(마이다스성장지원PEF)",
+      "vendor": "서울신용평가(주)",
+      "cctr": "회계팀",
+      "amount": 1000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_인사채용",
+      "text": "DX 마케팅팀 알바몬 결재",
+      "original_text": "DX 마케팅팀 알바몬 결재",
+      "vendor": "A202412007, 김동영",
+      "cctr": "마케팅본부",
+      "amount": 15400.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_인사채용",
+      "text": "지급수수료 인사채용(강호재)",
+      "original_text": "26.01 지급수수료_인사채용(강호재)",
+      "vendor": "(주)베스트에치알",
+      "cctr": "마케팅본부",
+      "amount": 10600000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_인사채용",
+      "text": "지급수수료 인사채용(박정우)",
+      "original_text": "26.01 지급수수료_인사채용(박정우)",
+      "vendor": "제이와이파트너스 주식회사",
+      "cctr": "경영기획팀",
+      "amount": 14800000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26035.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26429.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26706.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 42192.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26865.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": ".14 외화지급",
+      "original_text": "2026.01.14 외화지급",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 23862.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 42272.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 42414.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26722.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26712.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 28059.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 27791.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 25898.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26175.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26235.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26226.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26235.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26235.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26258.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26258.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26256.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26271.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26269.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26278.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 29114.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 21836.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 10190.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 80526.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "신한은행 가상계좌수수료",
+      "original_text": "26.01월 신한은행 가상계좌수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 198600.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료 및 하자수수료 외",
+      "original_text": "이체수수료 및 하자수수료 외",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 200582.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료 및 하자수수료 외",
+      "original_text": "이체수수료 및 하자수수료 외",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 200582.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26766.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26766.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26784.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26762.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26764.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26766.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 36820.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 10310.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 8837.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 36938.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26455.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 45679.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 36838.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 10315.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26865.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26841.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26843.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26847.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26884.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26870.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 10270.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26301.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26305.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26312.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26308.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26314.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 24510.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26316.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26296.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26287.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26287.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26287.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26296.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26298.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26312.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 26314.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 394536.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26301.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26305.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26312.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26308.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26314.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -24510.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26316.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26296.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26287.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26287.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26287.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26296.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26298.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26312.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "송금수수료",
+      "original_text": "송금수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": -26314.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료 및 하자수수료 외",
+      "original_text": "이체수수료 및 하자수수료 외",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 245276.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료 및 하자수수료 외",
+      "original_text": "이체수수료 및 하자수수료 외",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 197664.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 6164.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 20546.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_이체수수료",
+      "text": "이체수수료",
+      "original_text": "이체수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 20546.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "자사몰 BE 개발 및 운영 초급",
+      "original_text": "26년 01월 자사몰 BE 개발 및 운영 초급",
+      "vendor": "(주)파슬리베이",
+      "cctr": "IT팀",
+      "amount": 7000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "자사몰 BE 개발 및 운영 고급",
+      "original_text": "26년 01월 자사몰 BE 개발 및 운영 고급",
+      "vendor": "(주)파슬리베이",
+      "cctr": "IT팀",
+      "amount": 6000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "자사몰 BE 개발 및 운영 특급",
+      "original_text": "26년 01월 자사몰 BE 개발 및 운영 특급",
+      "vendor": "(주)파슬리베이",
+      "cctr": "IT팀",
+      "amount": 11550000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "EC OMS BE 개발 및 운영",
+      "original_text": "26년 01월 EC OMS BE 개발 및 운영",
+      "vendor": "단순추구",
+      "cctr": "IT팀",
+      "amount": 11550000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "자사몰 BE 개발 및 운영",
+      "original_text": "26년 01월 자사몰 BE 개발 및 운영",
+      "vendor": "더 가이즈",
+      "cctr": "IT팀",
+      "amount": 9400000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "자사몰 운영 디자인",
+      "original_text": "26년 01월 자사몰 운영 디자인",
+      "vendor": "익스피리언스 코너",
+      "cctr": "IT팀",
+      "amount": 6050000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "자사몰 FE 개발 및 운영",
+      "original_text": "26년 01월 자사몰 FE 개발 및 운영",
+      "vendor": "비사이드 소프트（BSIDE SOFT）",
+      "cctr": "IT팀",
+      "amount": 60000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "자사몰 리뉴얼 구축 디자인",
+      "original_text": "26년 01월 자사몰 리뉴얼 구축 디자인",
+      "vendor": "주식회사 홀리스틱스",
+      "cctr": "IT팀",
+      "amount": 10125000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "자사몰 운영 QA",
+      "original_text": "26년 01월 자사몰 운영 QA",
+      "vendor": "와이즈와이어즈(주)",
+      "cctr": "IT팀",
+      "amount": 10890000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "운영 대행 외주 용역비용(요일)",
+      "original_text": "26.1월 운영 대행 외주 용역비용(요일)",
+      "vendor": "(주)요일(YOIL CO., LTD.",
+      "cctr": "e-BIZ팀",
+      "amount": 32000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "글로벌몰 운영대행 (요일)",
+      "original_text": "26년 1월 글로벌몰 운영대행 (요일)",
+      "vendor": "(주)요일(YOIL CO., LTD.",
+      "cctr": "e-BIZ팀",
+      "amount": 1516900.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_온라인몰운영비",
+      "text": "운영대행사 외주용역 수수료 바이널",
+      "original_text": "26.01월 운영대행사 외주용역 수수료_바이널",
+      "vendor": "주식회사 바이널엑스",
+      "cctr": "e-BIZ팀",
+      "amount": 42500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_안전보건진단",
+      "text": "25년 근골격계유해요인 조사 정산의 건",
+      "original_text": "25년 근골격계유해요인 조사 정산의 건",
+      "vendor": "주식회사 한국안전보건연구원",
+      "cctr": "안전보건팀",
+      "amount": 1500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_안전보건교육",
+      "text": "안전보건관리책임저 신규교육",
+      "original_text": "안전보건관리책임저 신규교육",
+      "vendor": "A202410007, 윤형진",
+      "cctr": "안전보건팀",
+      "amount": 49000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_안전보건교육",
+      "text": "25년 하반기 산업안전보건교육 정산의 건",
+      "original_text": "25년 하반기 산업안전보건교육 정산의 건",
+      "vendor": "(주)휴넷",
+      "cctr": "안전보건팀",
+      "amount": -2335000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_안전보건교육",
+      "text": "25년 하반기 정기산업안전보건교육 정산의 건",
+      "original_text": "25년 하반기 정기산업안전보건교육 정산의 건",
+      "vendor": "(주)휴넷",
+      "cctr": "안전보건팀",
+      "amount": 2264500.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_사내행사",
+      "text": "신년간담회 떡 구매",
+      "original_text": "26.01 신년간담회 떡 구매",
+      "vendor": "아라연",
+      "cctr": "총무",
+      "amount": 2420000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_보안",
+      "text": "이천 A/B동 보안 용역료",
+      "original_text": "26년 01월 이천 A/B동 보안 용역료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "공통",
+      "amount": 7590000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_보안",
+      "text": "비서실 에스원 요금",
+      "original_text": "26년 01월 비서실 에스원 요금",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 110000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_보안",
+      "text": "자금팀 에스원 요금",
+      "original_text": "26년 01월 자금팀 에스원 요금",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 93500.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_보안",
+      "text": "역삼 사옥 보안 용역료",
+      "original_text": "26년 01월 역삼 사옥 보안 용역료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 112200.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_법률자문료",
+      "text": "BCLP - 모빈 분쟁 대응 법률비용 10월",
+      "original_text": "BCLP - 모빈 분쟁 대응 법률비용 10월",
+      "vendor": "",
+      "cctr": "법무팀",
+      "amount": 60603905.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_법률자문료",
+      "text": "'FF 노무자문수수료 정산의",
+      "original_text": "'26년 1월 FF 노무자문수수료 정산의",
+      "vendor": "노무법인 인사이트",
+      "cctr": "HR팀",
+      "amount": 300000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_법률자문료",
+      "text": "FnF 노무 이슈 관련 조사 비용 정산 건",
+      "original_text": "FnF 노무 이슈 관련 조사 비용 정산 건",
+      "vendor": "노무법인 인사이트",
+      "cctr": "HR팀",
+      "amount": 3000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_법률자문료",
+      "text": "세무자문료",
+      "original_text": "26.1월 세무자문료",
+      "vendor": "세무법인 더택스",
+      "cctr": "회계팀",
+      "amount": 1000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_법률자문료",
+      "text": "인사위원회 참석 및 노무자문 비용 지급의 건",
+      "original_text": "인사위원회 참석 및 노무자문 비용 지급의 건",
+      "vendor": "함께 가는 노무사",
+      "cctr": "HR팀",
+      "amount": 300000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_법률자문료",
+      "text": "공통법무팀 IPCUBE 사용료",
+      "original_text": "26.1월 공통법무팀 IPCUBE 사용료",
+      "vendor": "주식회사 아이피큐브",
+      "cctr": "법무팀",
+      "amount": 100000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_법률자문료",
+      "text": "공통법무팀 법률자문료(율촌)",
+      "original_text": "26.1월 공통법무팀 법률자문료(율촌)",
+      "vendor": "법무법인 (유한) 율촌",
+      "cctr": "법무팀",
+      "amount": 2000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_법률자문료",
+      "text": "공통법무팀 법률자문료(태평양)",
+      "original_text": "26.1월 공통법무팀 법률자문료(태평양)",
+      "vendor": "법무법인(유한)태평양",
+      "cctr": "법무팀",
+      "amount": 500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_물류운송비",
+      "text": "DHL",
+      "original_text": "26년1월 DHL",
+      "vendor": "",
+      "cctr": "해외사업팀",
+      "amount": 369134.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_물류운송비",
+      "text": "통인팀 전브랜드 로젠택배 이용료",
+      "original_text": "통인팀 전브랜드 로젠택배 이용료",
+      "vendor": "역삼217 영업소",
+      "cctr": "마케팅본부",
+      "amount": 128182.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_물류운송비",
+      "text": "월 공통 택배비",
+      "original_text": "2026.01월 공통 택배비",
+      "vendor": "역삼217영업소",
+      "cctr": "공통",
+      "amount": 345454.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_물류운송비",
+      "text": "공통 행낭비",
+      "original_text": "26.01 공통 행낭비",
+      "vendor": "（주）포인트특송물류",
+      "cctr": "공통",
+      "amount": 5838000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_물류운송비",
+      "text": "DX 마케팅팀 택배비",
+      "original_text": "1월 DX 마케팅팀 택배비",
+      "vendor": "역삼217 영업소",
+      "cctr": "마케팅본부",
+      "amount": 12728.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_물류운송비",
+      "text": "중국법인 다이어리 배송료",
+      "original_text": "26.01 중국법인 다이어리 배송료",
+      "vendor": "(주)자이언트네트워크그룹",
+      "cctr": "총무",
+      "amount": 1278000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_물류운송비",
+      "text": "물류비 정산(입고운송비)",
+      "original_text": "26.01월 물류비 정산(입고운송비)",
+      "vendor": "로젠 주식회사",
+      "cctr": "e-BIZ팀",
+      "amount": 1500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_리스료(차량)",
+      "text": "법인차량 리스료 선급금 정산의 건",
+      "original_text": "26.01 법인차량 리스료 선급금 정산의 건",
+      "vendor": "하나캐피탈(주)",
+      "cctr": "총무",
+      "amount": 1478700.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "WP팀 테스트 단말기 대여",
+      "original_text": "26.01월_WP팀 테스트 단말기 대여",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 254795.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "법무팀 지급수수료 렌탈료",
+      "original_text": "26.1월 법무팀 지급수수료_렌탈료",
+      "vendor": "A201709004, 우지영",
+      "cctr": "법무팀",
+      "amount": 88000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "수지 청정기 렌탈료",
+      "original_text": "26년 01월 수지 청정기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 29909.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "수지 청정기 렌탈료",
+      "original_text": "26년 01월 수지 청정기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 29909.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "수지 청정기 렌탈료",
+      "original_text": "26년 01월 수지 청정기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 29909.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "수지 청정기 렌탈료",
+      "original_text": "26년 01월 수지 청정기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 29909.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "수지 정수기 렌탈료",
+      "original_text": "26년 01월 수지 정수기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 38091.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "수지 정수기 렌탈료",
+      "original_text": "26년 01월 수지 정수기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 38091.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "수지 정수기 렌탈료",
+      "original_text": "26년 01월 수지 정수기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 41727.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "수지 정수기 렌탈료",
+      "original_text": "26년 01월 수지 정수기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 41727.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "부산청정기 렌탈료",
+      "original_text": "26년 01월 부산청정기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 44455.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "부산청정기 렌탈료",
+      "original_text": "26년 01월 부산청정기 렌탈료",
+      "vendor": "A202410004, 장은빈",
+      "cctr": "총무",
+      "amount": 52636.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "코웨이 청정기 3대",
+      "original_text": "코웨이 청정기 3대",
+      "vendor": "에이치디씨랩스(주)",
+      "cctr": "총무",
+      "amount": 135000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "공용 복합기 렌탈료 공통 공통",
+      "original_text": "26.01 공용 복합기 렌탈료_공통_공통",
+      "vendor": "한국후지필름비즈니스이노베이션(주)",
+      "cctr": "공통",
+      "amount": 2026813.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량제외)",
+      "text": "강남사옥 코웨이 렌탈료",
+      "original_text": "26.01 강남사옥 코웨이 렌탈료",
+      "vendor": "에이치디씨랩스(주)",
+      "cctr": "총무",
+      "amount": 2539091.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량)",
+      "text": "법인차량 렌탈료 공통 공통",
+      "original_text": "26.01 법인차량 렌탈료_공통_공통",
+      "vendor": "에스케이렌터카 주식회사",
+      "cctr": "공통",
+      "amount": 12596001.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_렌탈료(차량)",
+      "text": "촬영용 차량 렌탈 정산의 건",
+      "original_text": "26.01 촬영용 차량 렌탈 정산의 건",
+      "vendor": "(주)동아렌트카",
+      "cctr": "공통",
+      "amount": 281600.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "공통 경영관리팀 대한상공회의소 유통표준코드 연회비",
+      "original_text": "26.01월_공통 경영관리팀 대한상공회의소 유통표준코드 연회비",
+      "vendor": "",
+      "cctr": "경영관리팀",
+      "amount": 269744.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "법인차량 리스 보증연장료",
+      "original_text": "26.01월_법인차량(2882) 리스 보증연장료",
+      "vendor": "",
+      "cctr": "총무",
+      "amount": 219664.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "25년 웰링턴 연회비 납부",
+      "original_text": "26.01월_25년 웰링턴 연회비 납부",
+      "vendor": "",
+      "cctr": "총무",
+      "amount": 1868493.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "25. 12월 KT-NET 전자무역 수수료",
+      "original_text": "25. 12월 KT-NET 전자무역 수수료",
+      "vendor": "",
+      "cctr": "무역팀",
+      "amount": 10000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "LGU+ 전자세금계산서 비용 정산의 건",
+      "original_text": "1월 LGU+ 전자세금계산서 비용 정산의 건",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 10000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "[OC] 26년 에프앤에프 증권대행수수료 납부",
+      "original_text": "[OC] 26년 에프앤에프 증권대행수수료 납부",
+      "vendor": "",
+      "cctr": "자금팀",
+      "amount": 4185720.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "법인차량 통행료",
+      "original_text": "법인차량 통행료",
+      "vendor": "",
+      "cctr": "총무",
+      "amount": 2000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "CNSF 고객관리팀 택배비 정산",
+      "original_text": "26년 1월 CNSF 고객관리팀 택배비 정산",
+      "vendor": "",
+      "cctr": "경영관리팀",
+      "amount": 51300.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "물품 배송",
+      "original_text": "물품 배송",
+      "vendor": "A202506012, 강준호",
+      "cctr": "총무",
+      "amount": 15800.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "현대카드 연회비",
+      "original_text": "26.01월 현대카드 연회비",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 2500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "부동산등기부등본발급",
+      "original_text": "부동산등기부등본발급",
+      "vendor": "A201801012, 김도균",
+      "cctr": "자산관리팀",
+      "amount": 1000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "부동산등기부등본발급",
+      "original_text": "부동산등기부등본발급",
+      "vendor": "A201801012, 김도균",
+      "cctr": "자산관리팀",
+      "amount": 1000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "스포티파이 정기 결제의 건",
+      "original_text": "1월 스포티파이 정기 결제의 건",
+      "vendor": "A202306023, 김민정",
+      "cctr": "안전보건팀",
+      "amount": 8690.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "물품배송",
+      "original_text": "물품배송",
+      "vendor": "A202506012, 강준호",
+      "cctr": "총무",
+      "amount": 4364.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "부동산 등기부등본 발급수수료",
+      "original_text": "26.01월 부동산 등기부등본 발급수수료",
+      "vendor": "A202203012, 방다애",
+      "cctr": "회계팀",
+      "amount": 700.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "부동산 등기부등본 발급수수료",
+      "original_text": "26.01월 부동산 등기부등본 발급수수료",
+      "vendor": "A202203012, 방다애",
+      "cctr": "회계팀",
+      "amount": 700.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "등기부등본 조회",
+      "original_text": "26.01월 등기부등본 조회",
+      "vendor": "A202012001, 여명대",
+      "cctr": "경영개선팀",
+      "amount": 700.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "등기부 조회",
+      "original_text": "26.01월 등기부 조회",
+      "vendor": "A202012001, 여명대",
+      "cctr": "경영개선팀",
+      "amount": 1400.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "인감증명서 발급",
+      "original_text": "인감증명서 발급",
+      "vendor": "A202511001, 박나연",
+      "cctr": "자금팀",
+      "amount": 600.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "비서실 1월 지피티구독료",
+      "original_text": "비서실 1월 지피티구독료",
+      "vendor": "A202402006, 김양지",
+      "cctr": "총무",
+      "amount": 32746.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "자산관리업무자격관련협회연회비",
+      "original_text": "자산관리업무자격관련협회연회비",
+      "vendor": "A201801012, 김도균",
+      "cctr": "자산관리팀",
+      "amount": 30000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "공통법무팀 지급수수료 기타",
+      "original_text": "26년 1월 공통법무팀_지급수수료 기타",
+      "vendor": "A201709004, 우지영",
+      "cctr": "법무팀",
+      "amount": 150.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "공통법무팀 지급수수료 기타",
+      "original_text": "26년 1월 공통법무팀_지급수수료 기타",
+      "vendor": "A201709004, 우지영",
+      "cctr": "법무팀",
+      "amount": 3000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "공통법무팀 지급수수료 기타",
+      "original_text": "26년 1월 공통법무팀_지급수수료 기타",
+      "vendor": "A202407008, 김정원",
+      "cctr": "법무팀",
+      "amount": 4040.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "회계팀 삼일웹사이트 이용료",
+      "original_text": "26.01월 회계팀 삼일웹사이트 이용료",
+      "vendor": "삼일피더블유씨솔루션(주)",
+      "cctr": "회계팀",
+      "amount": 350000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "유니포스트 전자세금계산서 비용 정산",
+      "original_text": "1월 유니포스트 전자세금계산서 비용 정산",
+      "vendor": "주식회사 유니포스트",
+      "cctr": "공통",
+      "amount": 400000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "NICE 본인인증 수수료",
+      "original_text": "25.12월 NICE 본인인증 수수료",
+      "vendor": "NICE평가정보(주)",
+      "cctr": "e-BIZ팀",
+      "amount": 1085721.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "ectax서비스 이용료 정산의 건",
+      "original_text": "26.1월 ectax서비스 이용료 정산의 건",
+      "vendor": "(주)신세계아이앤씨",
+      "cctr": "공통",
+      "amount": 10000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "월 사이버브랜치 관리용역수수료",
+      "original_text": "2026.01월 사이버브랜치 관리용역수수료",
+      "vendor": "(주)국민은행 ERP사업부(P)",
+      "cctr": "자금팀",
+      "amount": 200000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "회계팀 택스넷 이용료",
+      "original_text": "26.01월 회계팀 택스넷 이용료",
+      "vendor": "도서출판 공감스토리",
+      "cctr": "회계팀",
+      "amount": 85000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "월 쿠콘 예금주조회 사용료",
+      "original_text": "2026.01월 쿠콘 예금주조회 사용료",
+      "vendor": "(주)쿠콘",
+      "cctr": "자금팀",
+      "amount": 100000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "보증보험 서비스 이용료(SP)",
+      "original_text": "26.1 보증보험 서비스 이용료(SP)",
+      "vendor": "주식회사 유세이프",
+      "cctr": "e-BIZ팀",
+      "amount": 35500.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "보증보험 서비스 이용료(DX)",
+      "original_text": "26.01 보증보험 서비스 이용료(DX)",
+      "vendor": "주식회사 유세이프",
+      "cctr": "e-BIZ팀",
+      "amount": 77500.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "보증보험 서비스 이용료(MLB)",
+      "original_text": "26.1 보증보험 서비스 이용료(MLB)",
+      "vendor": "주식회사 유세이프",
+      "cctr": "e-BIZ팀",
+      "amount": 67500.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "RFID 장비 수리",
+      "original_text": "26년 12월 RFID 장비 수리",
+      "vendor": "주식회사 유에스소프트",
+      "cctr": "IT팀",
+      "amount": 1105000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "상조용품 보관",
+      "original_text": "26.01 상조용품 보관",
+      "vendor": "(주)삼신",
+      "cctr": "총무",
+      "amount": 58000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "스마트링크 서비스 이용료",
+      "original_text": "26.01 스마트링크 서비스 이용료",
+      "vendor": "에스케이렌터카 주식회사",
+      "cctr": "총무",
+      "amount": 90000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "스마트링크 서비스 이용료",
+      "original_text": "26.01 스마트링크 서비스 이용료",
+      "vendor": "에스케이렌터카 주식회사",
+      "cctr": "총무",
+      "amount": 50000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "스마트링크 주유카드 사용료",
+      "original_text": "26.01 스마트링크 주유카드 사용료",
+      "vendor": "에스케이렌터카 주식회사",
+      "cctr": "총무",
+      "amount": 2901.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "스마트링크 주유비",
+      "original_text": "26.01 스마트링크 주유비",
+      "vendor": "에스케이렌터카 주식회사",
+      "cctr": "총무",
+      "amount": 31584.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "스마트링크 하이패스 대금",
+      "original_text": "26.01 스마트링크 하이패스 대금",
+      "vendor": "에스케이렌터카 주식회사",
+      "cctr": "총무",
+      "amount": 93362.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "스마트링크 하이패스카드 사용료",
+      "original_text": "26.01 스마트링크 하이패스카드 사용료",
+      "vendor": "에스케이렌터카 주식회사",
+      "cctr": "총무",
+      "amount": 5730.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "SA 출장관리비 사용료",
+      "original_text": "26.01월 SA 출장관리비 사용료",
+      "vendor": "(주)비즈니스온커뮤니케이션",
+      "cctr": "회계팀",
+      "amount": 1700000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "SA 전표관리수수료",
+      "original_text": "26.01월 SA 전표관리수수료",
+      "vendor": "(주)비즈니스온커뮤니케이션",
+      "cctr": "회계팀",
+      "amount": 2600000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "매입통합서비스 이용료",
+      "original_text": "26.01월 매입통합서비스 이용료",
+      "vendor": "(주)비즈니스온커뮤니케이션",
+      "cctr": "회계팀",
+      "amount": 500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "자산운용서비스 수수료(HC)",
+      "original_text": "26.01월 자산운용서비스 수수료(HC)",
+      "vendor": "10(주)에프앤에프홀딩스",
+      "cctr": "회계팀",
+      "amount": 7934673.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": ".02 베트남 추심수수료",
+      "original_text": "2026.01.02 베트남 추심수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 22000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "금융조회서 발급수수료",
+      "original_text": "금융조회서 발급수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 424900.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "금융조회서 발급수수료",
+      "original_text": "금융조회서 발급수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 41650.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": ".28 베트남 추심수수료",
+      "original_text": "2026.01.28 베트남 추심수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 22000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_기타",
+      "text": "금융조회서 발급수수료",
+      "original_text": "금융조회서 발급수수료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 81750.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_그룹CI사용료",
+      "text": "[결산] 그룹브랜드(CI)사용료",
+      "original_text": "[26.01결산] 그룹브랜드(CI)사용료",
+      "vendor": "",
+      "cctr": "공통",
+      "amount": 328000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "업무관련 전시관람티켓 구매비용 리빙디자인페어",
+      "original_text": "업무관련 전시관람티켓 구매비용_리빙디자인페어",
+      "vendor": "A202409008, 김지원",
+      "cctr": "공간기획팀",
+      "amount": 45000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "직무교육 (AI교육)",
+      "original_text": "직무교육 (AI교육)",
+      "vendor": "A202208025, 최수연",
+      "cctr": "퍼포먼스마케팅팀",
+      "amount": 79200.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "직무 관련 서밋 참가 비용",
+      "original_text": "26.1 직무 관련 서밋 참가 비용",
+      "vendor": "A202010006, 정준영",
+      "cctr": "퍼포먼스마케팅팀",
+      "amount": 500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "직무 관련 서밋 참가 비용",
+      "original_text": "26.1 직무 관련 서밋 참가 비용",
+      "vendor": "A202501006, 김한슬",
+      "cctr": "퍼포먼스마케팅팀",
+      "amount": 500000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "HCI UX 2026 서밋 컨퍼런스 티켓 구매",
+      "original_text": "HCI UX 2026 서밋 컨퍼런스 티켓 구매",
+      "vendor": "A202209003, 이가희",
+      "cctr": "통합온라인채널팀",
+      "amount": 176000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "HCI UX 2026 서밋 컨퍼런스 티켓 구매",
+      "original_text": "HCI UX 2026 서밋 컨퍼런스 티켓 구매",
+      "vendor": "A202009014, 홍정은",
+      "cctr": "통합온라인채널팀",
+      "amount": 176000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "AX팀 컨퍼런스 참가비 (퇴근 후 AI)",
+      "original_text": "AX팀 컨퍼런스 참가비 (퇴근 후 AI)",
+      "vendor": "A202307010, 조한솔",
+      "cctr": "AX팀",
+      "amount": 30000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "AX팀 마케팅 외부 세미나",
+      "original_text": "26.01 AX팀_마케팅 외부 세미나",
+      "vendor": "A202203018, 김효은",
+      "cctr": "AX팀",
+      "amount": 30000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "교육정산(송민지)",
+      "original_text": "26.01 교육정산(송민지)",
+      "vendor": "A201708003, 오선영",
+      "cctr": "HR팀",
+      "amount": 90000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "시장조사",
+      "original_text": "시장조사",
+      "vendor": "A201711002, 허지현",
+      "cctr": "공간기획팀",
+      "amount": 16000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "시장조사",
+      "original_text": "시장조사",
+      "vendor": "A201711002, 허지현",
+      "cctr": "공간기획팀",
+      "amount": 19000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "FnF 겟스마트 플랫폼 사용비 정산",
+      "original_text": "FnF 26.01 겟스마트 플랫폼 사용비 정산",
+      "vendor": "주식회사 겟스마트",
+      "cctr": "HR팀",
+      "amount": 1400000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_교육훈련",
+      "text": "25.하반기 AI 교육 사외강사비 정산",
+      "original_text": "25.하반기 AI 교육_사외강사비 정산",
+      "vendor": "㈜멀티캠퍼스",
+      "cctr": "HR팀",
+      "amount": 3200000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_공사비",
+      "text": "FAAL, 로비 크리스마스 조명 세팅",
+      "original_text": "FAAL, 로비 크리스마스 조명 세팅",
+      "vendor": "(주)에이피라인",
+      "cctr": "공간기획팀",
+      "amount": 1000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_공사비",
+      "text": "큰길타워 4F 원복공사 진행",
+      "original_text": "큰길타워 4F 원복공사 진행",
+      "vendor": "（주）엑사이엔씨",
+      "cctr": "총무",
+      "amount": 127000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_공사비",
+      "text": "8F 마케팅본부 행거 설치",
+      "original_text": "8F 마케팅본부 행거 설치",
+      "vendor": "(주）신용에이엔디",
+      "cctr": "마케팅본부",
+      "amount": 6703000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_공사비",
+      "text": "큰길타워 4F 원복공사 대금 지급 (cc대체)",
+      "original_text": "큰길타워 4F 원복공사 대금 지급 (cc대체)",
+      "vendor": "",
+      "cctr": "총무",
+      "amount": -127000000.0
+    },
+    {
+      "month": "01",
+      "account": "지급수수료_공사비",
+      "text": "FAAL, 로비 크리스마스 조명 세팅(cc대체)",
+      "original_text": "FAAL, 로비 크리스마스 조명 세팅(cc대체)",
+      "vendor": "",
+      "cctr": "공간기획팀",
+      "amount": -1000000.0
+    }
   ]
 }

@@ -46,7 +46,12 @@ export async function GET(request: Request) {
     const year = searchParams.get('year') || '2025';
 
     // CSV 파일 경로 (git에 포함된 파일)
-    const fileName = year === '2024' ? 'assets_2024.csv' : 'assets_2025.csv';
+    const yearFileMap: { [key: string]: string } = {
+      '2024': 'assets_2024.csv',
+      '2025': 'assets_2025.csv',
+      '2026': 'assets_2026.csv',
+    };
+    const fileName = yearFileMap[year] || 'assets_2025.csv';
     let filePath = path.join(process.cwd(), '..', 'CAPEX', fileName);
     
     if (!fs.existsSync(filePath)) {

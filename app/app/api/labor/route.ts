@@ -114,7 +114,7 @@ export async function GET(request: Request) {
           SELECT
                 TO_CHAR(DATEADD(month, seq4(), TO_DATE('2024-01-18')), 'YYYYMM') AS yyyymm
               , DATEADD(month, seq4(), TO_DATE('2024-01-18'))                    AS std_date
-          FROM TABLE(GENERATOR(ROWCOUNT => 24))
+          FROM TABLE(GENERATOR(ROWCOUNT => 36))
       ),
 
       base_emp AS (
@@ -425,6 +425,7 @@ export async function GET(request: Request) {
     const yearlyTotals: { [key: string]: { [month: string]: number } } = {
       '2024': {},
       '2025': {},
+      '2026': {},
     };
     
     rows.forEach((row) => {
@@ -432,6 +433,9 @@ export async function GET(request: Request) {
       const rowYear = yearMonth.substring(0, 4);
       const month = yearMonth.substring(4, 6);
       
+      if (!yearlyTotals[rowYear]) {
+        yearlyTotals[rowYear] = {};
+      }
       if (!yearlyTotals[rowYear][month]) {
         yearlyTotals[rowYear][month] = 0;
       }
@@ -458,7 +462,9 @@ export async function GET(request: Request) {
             const allMonths = ['202401', '202402', '202403', '202404', '202405', '202406', 
                               '202407', '202408', '202409', '202410', '202411', '202412',
                               '202501', '202502', '202503', '202504', '202505', '202506',
-                              '202507', '202508', '202509', '202510', '202511', '202512'];
+                              '202507', '202508', '202509', '202510', '202511', '202512',
+                              '202601', '202602', '202603', '202604', '202605', '202606',
+                              '202607', '202608', '202609', '202610', '202611', '202612'];
             
             allMonths.forEach(yyyymm => {
               if (!hrDamdang.monthly[yyyymm] || hrDamdang.monthly[yyyymm] === 0) {
@@ -547,8 +553,11 @@ export async function GET(request: Request) {
           // 현재 연도 기준 총 인원수 계산 함수
           const getTotalHeadcount = (team: { monthly: { [key: string]: number } }) => {
             // 가장 최근 월의 인원수 사용
-            const months2025 = ['202512', '202511', '202510', '202509', '202508', '202507', '202506', '202505', '202504', '202503', '202502', '202501'];
-            for (const m of months2025) {
+            const recentMonths = [
+              '202612', '202611', '202610', '202609', '202608', '202607', '202606', '202605', '202604', '202603', '202602', '202601',
+              '202512', '202511', '202510', '202509', '202508', '202507', '202506', '202505', '202504', '202503', '202502', '202501'
+            ];
+            for (const m of recentMonths) {
               if (team.monthly[m] && team.monthly[m] > 0) {
                 return team.monthly[m];
               }

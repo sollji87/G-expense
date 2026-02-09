@@ -167,12 +167,14 @@ def normalize_text(text, vendor):
 def extract_it_usage():
     output_data = {
         '2024': [],
-        '2025': []
+        '2025': [],
+        '2026': []
     }
     
     files = [
         ('24공통비.XLSX', '2024'),
-        ('25공통비.XLSX', '2025')
+        ('25공통비.XLSX', '2025'),
+        ('26공통비.XLSX', '2026')
     ]
     
     for filename, year in files:
@@ -269,6 +271,7 @@ def extract_it_usage():
     print(f"\n저장 완료: {output_path}")
     print(f"2024년: {len(output_data['2024'])}건")
     print(f"2025년: {len(output_data['2025'])}건")
+    print(f"2026년: {len(output_data['2026'])}건")
     
     # 정규화된 텍스트 통계
     text_counts = {}

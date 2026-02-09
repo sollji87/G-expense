@@ -119,12 +119,23 @@ export async function GET(request: Request) {
       }
     });
     
-    // 월별 데이터 생성
+    // 월별 데이터 생성 (최근 12개월)
     const months = [];
-    for (let m = 1; m <= monthNum; m++) {
+    const currentYear = parseInt(yearParam);
+    
+    for (let i = 11; i >= 0; i--) {
+      let targetMonth = monthNum - i;
+      let targetYear = currentYear;
+      
+      // 월이 0 이하면 전년도로
+      while (targetMonth <= 0) {
+        targetMonth += 12;
+        targetYear -= 1;
+      }
+      
       const monthData: any = {
-        month: `${m}월`,
-        monthNum: m,
+        month: `${targetYear.toString().slice(2)}년${targetMonth}월`,
+        monthNum: targetMonth,
       };
       
       const subcategoryMonthMap = new Map<string, number>();
@@ -142,17 +153,15 @@ export async function GET(request: Request) {
         let subcategory = '';
         
         if (isDrilldownToDetail && record['계정중분류'] === category) {
-          // 중분류 → 소분류
           shouldInclude = true;
           subcategory = record['G/L 계정 설명'];
         } else if (isDrilldownToMiddle && record['계정대분류'] === category) {
-          // 대분류 → 중분류
           shouldInclude = true;
           subcategory = record['계정중분류'];
         }
         
         if (shouldInclude && subcategory) {
-          const yearMonth = `${yearParam}${m.toString().padStart(2, '0')}`;
+          const yearMonth = `${targetYear}${targetMonth.toString().padStart(2, '0')}`;
           const amount = parseFloat(record[yearMonth] || '0');
           
           if (!subcategoryMonthMap.has(subcategory)) {
@@ -165,7 +174,7 @@ export async function GET(request: Request) {
       // 각 중분류 데이터 추가 (금액이 있는 것만)
       subcategoryMonthMap.forEach((amount, subcategory) => {
         const amountInMillion = amount / 1_000_000;
-        if (Math.abs(amountInMillion) >= 0.5) { // 0.5백만원 이상만 표시
+        if (Math.abs(amountInMillion) >= 0.5) {
           monthData[subcategory] = amountInMillion;
         }
       });
@@ -175,7 +184,6 @@ export async function GET(request: Request) {
       let totalPrevious = 0;
       
       records.forEach((record: any) => {
-        // 코스트센터 필터 적용
         if (costCenters.length > 0) {
           const recordCostCenter = record['코스트센터명'] || '';
           if (!costCenters.some(cc => recordCostCenter.includes(cc) || cc.includes(recordCostCenter))) {
@@ -192,8 +200,8 @@ export async function GET(request: Request) {
         }
         
         if (shouldInclude) {
-          const currentYM = `${yearParam}${m.toString().padStart(2, '0')}`;
-          const previousYM = `${String(parseInt(yearParam) - 1)}${m.toString().padStart(2, '0')}`;
+          const currentYM = `${targetYear}${targetMonth.toString().padStart(2, '0')}`;
+          const previousYM = `${targetYear - 1}${targetMonth.toString().padStart(2, '0')}`;
           totalCurrent += parseFloat(record[currentYM] || '0');
           totalPrevious += parseFloat(record[previousYM] || '0');
         }
@@ -204,10 +212,24 @@ export async function GET(request: Request) {
       months.push(monthData);
     }
     
-    // 중분류 목록 (금액이 있는 것만)
-    const subcategories = Array.from(subcategoryMap.keys()).filter(key => {
-      const data = subcategoryMap.get(key)!;
-      return Math.abs(data.current / 1_000_000) >= 0.5 || Math.abs(data.previous / 1_000_000) >= 0.5;
+    // 중분류 목록 (12개월 데이터에서 등장한 모든 subcategory + 선택월 기준 금액 있는 것만)
+    const allSubcategoriesFromMonths = new Set<string>();
+    months.forEach((m: any) => {
+      Object.keys(m).forEach(key => {
+        if (key !== 'month' && key !== 'monthNum' && key !== 'YOY') {
+          allSubcategoriesFromMonths.add(key);
+        }
+      });
+    });
+    
+    const subcategories = Array.from(allSubcategoriesFromMonths).filter(key => {
+      // subcategoryMap에 있는 경우 기존 로직 사용
+      if (subcategoryMap.has(key)) {
+        const data = subcategoryMap.get(key)!;
+        return Math.abs(data.current / 1_000_000) >= 0.5 || Math.abs(data.previous / 1_000_000) >= 0.5;
+      }
+      // 12개월 차트에만 등장하는 경우 포함
+      return true;
     });
     
     return NextResponse.json({

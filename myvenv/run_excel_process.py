@@ -13,7 +13,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 if __name__ == '__main__':
     # 파일 목록
-    files = ['24공통비.XLSX', '25공통비.XLSX']
+    files = ['24공통비.XLSX', '25공통비.XLSX', '26공통비.XLSX']
     
     # 출력 디렉토리
     output_dir = './out'

@@ -5,10 +5,19 @@ import os
 # 파일 경로
 file_24 = r'C:\Users\AC1162\ai_project\251106_G_expense\CAPEX\유무형자산_24년12월.XLSX'
 file_25 = r'C:\Users\AC1162\ai_project\251106_G_expense\CAPEX\유무형자산_25년12월.XLSX'
+file_26 = r'C:\Users\AC1162\ai_project\251106_G_expense\CAPEX\유무형자산_26년1월.XLSX'
 
 # 파일 읽기
 df_24 = pd.read_excel(file_24)
 df_25 = pd.read_excel(file_25)
+df_26 = pd.read_excel(file_26) if os.path.exists(file_26) else None
+
+# 26년 1월 데이터를 CSV로 저장 (프론트엔드용)
+if df_26 is not None:
+    df_26.columns = [str(c).replace('\xa0', ' ').strip() for c in df_26.columns]
+    csv_path_26 = r'C:\Users\AC1162\ai_project\251106_G_expense\CAPEX\assets_2026.csv'
+    df_26.to_csv(csv_path_26, index=False, encoding='utf-8-sig')
+    print(f'26년 1월 자산 CSV 저장 완료: {csv_path_26} ({len(df_26)}개 자산)')
 
 # 컬럼명 정리 (공백 제거)
 df_24.columns = [str(c).replace('\xa0', ' ').strip() for c in df_24.columns]

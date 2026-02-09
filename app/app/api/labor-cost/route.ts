@@ -132,6 +132,9 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month') || '12';
+    const yearParam = searchParams.get('year') || '2025';
+    const currentYear = parseInt(yearParam);
+    const prevYear = currentYear - 1;
     
     // 코스트센터별 인건비 CSV 로드
     let csvPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_cctr_yyyymm_combined.csv');
@@ -153,9 +156,9 @@ export async function GET(request: Request) {
     const monthNum = parseInt(monthStr);
     const prevMonthStr = (monthNum === 1 ? 12 : monthNum - 1).toString().padStart(2, '0');
     
-    const current2025 = `2025${monthStr}`;
-    const current2024 = `2024${monthStr}`;
-    const prev2025 = monthNum === 1 ? `2024${prevMonthStr}` : `2025${prevMonthStr}`; // 전월 (25년 11월 또는 24년 12월)
+    const current2025 = `${currentYear}${monthStr}`;
+    const current2024 = `${prevYear}${monthStr}`;
+    const prev2025 = monthNum === 1 ? `${prevYear}${prevMonthStr}` : `${currentYear}${prevMonthStr}`; // 전월
     
     // 대분류별 인건비 집계
     const categoryCosts: { [cat: string]: { cost2024: number; cost2025: number; costPrev: number } } = {

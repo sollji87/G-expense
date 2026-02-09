@@ -184,11 +184,11 @@ def create_detail_data_for_month(input_file, target_month, output_dir='./out/det
 def main():
     """메인 함수"""
     print("="*80)
-    print("공통부서비용 상세 데이터 생성 (24년 10월, 25년 10월)")
+    print("공통부서비용 상세 데이터 생성 (24년 10월, 25년 10월, 26년 1월)")
     print("="*80)
     
     # 24년 10월 처리
-    print("\n[1/2] 24년 10월 데이터 처리")
+    print("\n[1/3] 24년 10월 데이터 처리")
     df_2410 = create_detail_data_for_month(
         input_file='24공통비.XLSX',
         target_month='202410',
@@ -196,10 +196,18 @@ def main():
     )
     
     # 25년 10월 처리
-    print("\n[2/2] 25년 10월 데이터 처리")
+    print("\n[2/3] 25년 10월 데이터 처리")
     df_2510 = create_detail_data_for_month(
         input_file='25공통비.XLSX',
         target_month='202510',
+        output_dir='./out/details'
+    )
+    
+    # 26년 1월 처리
+    print("\n[3/3] 26년 1월 데이터 처리")
+    df_2601 = create_detail_data_for_month(
+        input_file='26공통비.XLSX',
+        target_month='202601',
         output_dir='./out/details'
     )
     
@@ -209,8 +217,10 @@ def main():
     print("\n생성된 파일:")
     print("  1. ./out/details/detail_202410_all.csv - 24년 10월 전체 상세 데이터")
     print("  2. ./out/details/detail_202510_all.csv - 25년 10월 전체 상세 데이터")
-    print("  3. ./out/details/202410/ - 24년 10월 계정별 파일들")
-    print("  4. ./out/details/202510/ - 25년 10월 계정별 파일들")
+    print("  3. ./out/details/detail_202601_all.csv - 26년 1월 전체 상세 데이터")
+    print("  4. ./out/details/202410/ - 24년 10월 계정별 파일들")
+    print("  5. ./out/details/202510/ - 25년 10월 계정별 파일들")
+    print("  6. ./out/details/202601/ - 26년 1월 계정별 파일들")
     print("\n이 데이터를 활용하여 AI가 비용 세부 분석을 수행할 수 있습니다.")
 
 

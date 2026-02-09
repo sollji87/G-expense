@@ -44,12 +44,14 @@ def normalize_text(text, vendor):
 def extract_commission():
     output_data = {
         '2024': [],
-        '2025': []
+        '2025': [],
+        '2026': []
     }
     
     files = [
         ('24공통비.XLSX', '2024'),
-        ('25공통비.XLSX', '2025')
+        ('25공통비.XLSX', '2025'),
+        ('26공통비.XLSX', '2026')
     ]
     
     # 지급수수료 관련 G/L 계정 설명 패턴 (IT수수료 제외)
@@ -164,6 +166,7 @@ def extract_commission():
     print(f"\n저장 완료: {output_path}")
     print(f"2024년: {len(output_data['2024'])}건")
     print(f"2025년: {len(output_data['2025'])}건")
+    print(f"2026년: {len(output_data['2026'])}건")
     
     # 계정별 통계
     account_stats = {}

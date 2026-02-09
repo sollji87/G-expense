@@ -109,8 +109,8 @@ export default function Dashboard() {
   const [kpiData, setKpiData] = useState<KpiData[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'monthly' | 'ytd'>('monthly');
-  const [selectedMonth, setSelectedMonth] = useState('12');
-  const [selectedYear, setSelectedYear] = useState('2025');
+  const [selectedMonth, setSelectedMonth] = useState('1');
+  const [selectedYear, setSelectedYear] = useState('2026');
   const [isEditMode, setIsEditMode] = useState(false);
   const [mainTab, setMainTab] = useState<'summary' | 'allocation' | 'labor' | 'it' | 'commission'>('summary'); // 메인 탭
   const [allocationCriteria, setAllocationCriteria] = useState<string[]>(['']); // 배부기준 입력 (불릿 배열)
@@ -228,7 +228,7 @@ export default function Dashboard() {
   const [capexLoading, setCapexLoading] = useState(false);
   const [capexYear, setCapexYear] = useState<'2024' | '2025' | '2026'>('2025');
   
-  const [laborYear, setLaborYear] = useState<'2024' | '2025' | '2026'>('2025');
+  const [laborYear, setLaborYear] = useState<'2025' | '2026'>('2026');
   const [laborMonthsExpanded, setLaborMonthsExpanded] = useState(false); // 과거 월 펼침/접힘
   const [laborDecemberExpanded, setLaborDecemberExpanded] = useState(true); // 12월 입사/퇴사/이동 상세 펼침 (디폴트 펼침)
   const [laborMovementData, setLaborMovementData] = useState<Record<string, { hire: string; resign: string; transfer: string }>>({}); // 입사/퇴사/이동 입력 데이터
@@ -310,7 +310,7 @@ export default function Dashboard() {
   const [hierarchyData, setHierarchyData] = useState<any[]>([]);
   
   // AI 인사이트
-  const defaultAiInsight = '총비용은 5,617백만원으로 전년 대비 39백만원(-0.7%) 감소했습니다. 전반적인 비용 수준은 안정적이지만, 일부 항목에서 구조적 변동이 발생했습니다.\n\n특히 직원경비는 -162백만원(-46.5%) 감소하며 전체 비용 감소의 주요 요인으로 작용했습니다. 복리후생비_기타(-57백만원), 총무지원(-30백만원), 차량유지비(-29백만원) 등에서 비용 절감이 이루어졌습니다.\n\n반면 인건비는 +186백만원(+8.6%) 증가했으며, 급료와임금(+50백만원)과 제수당(+112백만원) 증가가 주요 요인입니다. 지급수수료 내에서는 지급용역비(+44백만원), 인사채용(+39백만원)이 증가했으나, 법률자문료(-79백만원) 감소로 전체적으로는 소폭 감소했습니다.\n\nIT수수료는 소프트웨어 감가상각비 감소(-86백만원)로 -62백만원(-4.1%) 감소했습니다. 기타비용은 접대비 증가(+38백만원)로 인해 소폭 상승했습니다.\n\n결과적으로 인건비 증가에도 불구하고 직원경비 및 IT수수료 절감으로 전체 비용은 안정적으로 관리되고 있으며, 향후 인건비 및 지급용역비 관리가 주요 모니터링 포인트로 판단됩니다.';
+  const defaultAiInsight = '총비용은 5,652백만원으로 전년 동월(5,870백만원) 대비 218백만원(-3.7%) 감소했습니다. 전월(5,854백만원) 대비로도 3.4% 감소하여 비용 관리가 안정적으로 이루어지고 있습니다.\n\n직원경비는 280백만원으로 전년 대비 138백만원(-33.0%) 크게 감소했습니다. 복리후생비(안전보건)에서 건강검진 정산 종료(-190백만원)가 주요 원인이며, 복리후생비_사내행사(+51백만원, 추석선물/신년간담회) 증가가 일부 상쇄했습니다.\n\nIT수수료는 1,280백만원으로 전년 대비 73백만원(-5.4%) 감소했습니다. IT유지보수비(-44백만원)와 IT사용료(-40백만원)가 주요 감소 요인입니다.\n\n인건비는 2,419백만원으로 전년 대비 17백만원(+0.7%) 소폭 증가했습니다. 지급수수료는 1,096백만원으로 전년 대비 57백만원(+5.5%) 증가했으며, 인사채용비(+61백만원)와 사내행사비(+51백만원) 증가가 주요 요인입니다.\n\n기타비용은 457백만원으로 전년 대비 72백만원(-13.8%) 감소했으며, 세금과공과(-27백만원)와 광고선전비(-17백만원) 감소가 기여했습니다.\n\n전반적으로 건강검진 정산 종료 및 IT비용 절감으로 총비용이 감소 추세이며, 지급수수료 내 인사채용비 및 사내행사비 증가를 모니터링할 필요가 있습니다.';
   const [aiInsight, setAiInsight] = useState<string>(defaultAiInsight);
   const [editingAiInsight, setEditingAiInsight] = useState<boolean>(false);
   const [tempAiInsight, setTempAiInsight] = useState<string>('');
@@ -410,11 +410,25 @@ export default function Dashboard() {
         
         // 2026년 이상: 월별 AI 분석이 별도로 로드되므로, 
         // 계층 관련 descriptions는 setDescriptions에 적용하지 않음 (AI 인사이트만 적용)
+        // 연도-월별 AI 인사이트 키 확인
+        const monthlyInsightKey = `__AI_INSIGHT_${selectedYear}_${selectedMonth}__`;
+        
         if (parseInt(selectedYear) >= 2026) {
-          // AI 인사이트만 적용
-          if (result.data['__AI_INSIGHT__']) {
+          // 2026+: 계층 descriptions는 월별 AI 분석에서 별도 로드
+          // AI 인사이트: 연도-월별 키 → 기존 키 순으로 확인
+          if (result.data[monthlyInsightKey]) {
+            setAiInsight(result.data[monthlyInsightKey]);
+            console.log(`✅ AI 인사이트 로드 완료 (${monthlyInsightKey})`);
+          } else if (result.data['__AI_INSIGHT__']) {
+            // 기존 키에 저장된 내용을 새 키로 마이그레이션
             setAiInsight(result.data['__AI_INSIGHT__']);
-            console.log('✅ AI 인사이트 로드 완료 (2026+ 모드)');
+            console.log('✅ AI 인사이트 로드 완료 (기존 키 → 마이그레이션 예정)');
+            // 새 키로 자동 마이그레이션
+            fetch('/api/descriptions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ accountId: monthlyInsightKey, description: result.data['__AI_INSIGHT__'] })
+            }).then(() => console.log(`✅ AI 인사이트 마이그레이션 완료: __AI_INSIGHT__ → ${monthlyInsightKey}`));
           }
           console.log('⏭️ 2026+ 모드: 계층 descriptions는 월별 AI 분석에서 로드');
         } else {
@@ -425,10 +439,13 @@ export default function Dashboard() {
           }));
           console.log('✅ 서버에서 설명 로드 완료:', Object.keys(result.data).length, '개');
           
-          // AI 인사이트도 descriptions에서 불러오기 (특별 키 사용)
-          if (result.data['__AI_INSIGHT__']) {
+          // AI 인사이트: 연도-월별 키 → 기존 키 순으로 확인
+          if (result.data[monthlyInsightKey]) {
+            setAiInsight(result.data[monthlyInsightKey]);
+            console.log(`✅ AI 인사이트 로드 완료 (${monthlyInsightKey})`);
+          } else if (result.data['__AI_INSIGHT__']) {
             setAiInsight(result.data['__AI_INSIGHT__']);
-            console.log('✅ AI 인사이트 로드 완료');
+            console.log('✅ AI 인사이트 로드 완료 (기존 키)');
           }
         }
       }
@@ -437,16 +454,19 @@ export default function Dashboard() {
     }
   };
 
-  // AI 인사이트 저장
+  // AI 인사이트 저장 (연도-월별 키 사용)
+  const getAiInsightKey = () => `__AI_INSIGHT_${selectedYear}_${selectedMonth}__`;
+  
   const saveAiInsight = async () => {
     try {
+      const insightKey = getAiInsightKey();
       const response = await fetch('/api/descriptions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          accountId: '__AI_INSIGHT__',
+          accountId: insightKey,
           description: tempAiInsight
         })
       });
@@ -454,7 +474,7 @@ export default function Dashboard() {
       const result = await response.json();
       
       if (result.success) {
-        // 로컬 상태 즉시 업데이트 (기존 설명과 병합)
+        // 로컬 상태 즉시 업데이트
         setAiInsight(tempAiInsight);
         if (result.data) {
           setDescriptions(prev => ({
@@ -464,15 +484,12 @@ export default function Dashboard() {
         }
         setEditingAiInsight(false);
         setTempAiInsight('');
-        console.log('✅ AI 인사이트 저장 완료');
-        alert('AI 인사이트가 저장되었습니다!');
+        console.log(`✅ AI 인사이트 저장 완료 (${insightKey})`);
       } else {
         console.error('❌ AI 인사이트 저장 실패:', result.error);
-        alert('AI 인사이트 저장에 실패했습니다: ' + result.error);
       }
     } catch (error) {
       console.error('❌ AI 인사이트 저장 실패:', error);
-      alert('AI 인사이트 저장에 실패했습니다. 네트워크를 확인해주세요.');
     }
   };
 
@@ -527,13 +544,20 @@ export default function Dashboard() {
       
       if (result.success) {
         setAiInsight(result.data.insight);
-        // ref도 업데이트
-        serverDescriptionsRef.current['__AI_INSIGHT__'] = result.data.insight;
+        // 연도-월별 키로 저장
+        const insightKey = getAiInsightKey();
+        serverDescriptionsRef.current[insightKey] = result.data.insight;
         setDescriptions(prev => ({
           ...prev,
-          '__AI_INSIGHT__': result.data.insight
+          [insightKey]: result.data.insight
         }));
-        console.log('✅ AI 인사이트 자동 생성 완료:', result.data.accountCount, '개 코멘트 기반');
+        // Redis에도 연도-월별 키로 저장
+        fetch('/api/descriptions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accountId: insightKey, description: result.data.insight })
+        });
+        console.log(`✅ AI 인사이트 자동 생성 완료 (${insightKey}):`, result.data.accountCount, '개 코멘트 기반');
         alert(`AI 인사이트가 생성되었습니다! (${result.data.accountCount}개 코멘트 기반)`);
       } else {
         console.error('❌ AI 인사이트 생성 실패:', result.error);
@@ -976,6 +1000,10 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    // 연도/월 변경 시 AI 인사이트를 기본값으로 리셋 (2026+ 전환 시)
+    if (parseInt(selectedYear) >= 2026) {
+      setAiInsight(defaultAiInsight);
+    }
     loadDescriptions();
     loadFilterOptions();
   }, [selectedMonth, selectedYear]);
@@ -1052,39 +1080,55 @@ export default function Dashboard() {
     }
   }, [mainTab]);
 
-  // 인건비 탭에서 인건비 로드 (인당인건비 계산용)
+  // 인건비 탭에서 인건비 로드 (인당인건비 계산용) - 최근 12개월
   useEffect(() => {
     if (mainTab !== 'labor' || !laborData) return;
     const fetchLaborCostData = async () => {
       try {
-        // 12개월 인건비 병렬 로드
-        const promises = [];
-        for (let m = 1; m <= 12; m++) {
-          promises.push(fetch(`/api/kpi?month=${m.toString().padStart(2, '0')}&mode=monthly`).then(r => r.json()));
+        // laborYear 기준 최근 12개월 계산
+        const baseYear = parseInt(laborYear);
+        const latestMonthNum = laborYear === '2026' ? 1 : 12;
+        
+        // 최근 12개월 목록 생성 (과거 → 현재 순서)
+        const monthList: { year: number; month: number }[] = [];
+        for (let i = 11; i >= 0; i--) {
+          let targetMonth = latestMonthNum - i;
+          let targetYear = baseYear;
+          while (targetMonth <= 0) {
+            targetMonth += 12;
+            targetYear -= 1;
+          }
+          monthList.push({ year: targetYear, month: targetMonth });
         }
+        
+        // 12개월 인건비 병렬 로드
+        const promises = monthList.map(({ year, month }) => 
+          fetch(`/api/kpi?month=${month.toString().padStart(2, '0')}&year=${year}&mode=monthly`).then(r => r.json()).then(data => ({ year, month, data }))
+        );
         const results = await Promise.all(promises);
         
         const monthlyData: { month: string; cost2024: number; cost2025: number; headcount2024: number; headcount2025: number }[] = [];
-        results.forEach((result, idx) => {
-          const m = idx + 1;
-          const monthStr = m.toString().padStart(2, '0');
-          if (result.success && Array.isArray(result.data)) {
-            const laborCat = result.data.find((c: any) => c.category === '인건비');
+        results.forEach(({ year, month, data }) => {
+          const monthStr = month.toString().padStart(2, '0');
+          if (data.success && Array.isArray(data.data)) {
+            const laborCat = data.data.find((c: any) => c.category === '인건비');
             if (laborCat) {
+              const yrShort = year.toString().slice(2);
+              const prevYr = year - 1;
               monthlyData.push({
-                month: `${m}월`,
+                month: `${yrShort}년${month}월`,
                 cost2024: laborCat.previous,
                 cost2025: laborCat.current,
-                headcount2024: laborData.yearlyTotals['2024']?.[monthStr] || 0,
-                headcount2025: laborData.yearlyTotals['2025']?.[monthStr] || 0,
+                headcount2024: laborData.yearlyTotals[prevYr.toString()]?.[monthStr] || 0,
+                headcount2025: laborData.yearlyTotals[year.toString()]?.[monthStr] || 0,
               });
             }
           }
         });
         setLaborCostMonthly(monthlyData);
         
-        // 12월 기준 대분류별/중분류별 인건비 로드
-        const catRes = await fetch('/api/labor-cost?month=12');
+        // 최신월 기준 대분류별/중분류별 인건비 로드
+        const catRes = await fetch(`/api/labor-cost?month=${latestMonthNum}&year=${baseYear}`);
         const catResult = await catRes.json();
         if (catResult.success && catResult.categories) {
           setLaborCostByCategory(catResult.categories);
@@ -1097,7 +1141,7 @@ export default function Dashboard() {
       }
     };
     fetchLaborCostData();
-  }, [mainTab, laborData]);
+  }, [mainTab, laborData, laborYear]);
 
   // IT수수료 탭 진입 시 데이터 로드
   useEffect(() => {
@@ -3609,7 +3653,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-lg font-bold">
-                    {drilldownCategory} - {drilldownLevel === 'detail' ? '소분류' : '중분류'} 월별 추이 (2025년)
+                    {drilldownCategory} - {drilldownLevel === 'detail' ? '소분류' : '중분류'} 월별 추이 (최근 12개월)
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">
                     {drilldownLevel === 'detail' ? '계정 소분류별 상세 분석' : '계정 중분류별 상세 분석'}
@@ -3791,7 +3835,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-lg font-bold">
-                    {detailDrilldownCategory} - 소분류 월별 추이 (2025년)
+                    {detailDrilldownCategory} - 소분류 월별 추이 (최근 12개월)
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-1">계정 소분류별 상세 분석</p>
                 </div>
@@ -4702,9 +4746,9 @@ export default function Dashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {/* 24년 행 */}
+                      {/* 전년 행 */}
                       <tr className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="px-3 py-2.5 text-sm font-medium text-gray-700 whitespace-nowrap">24년</td>
+                        <td className="px-3 py-2.5 text-sm font-medium text-gray-700 whitespace-nowrap">{parseInt(selectedYear) - 1}년</td>
                         <td className="px-3 py-2.5 text-right text-base text-gray-900 font-semibold">
                           {allocationData.total.previous.toLocaleString()}
                         </td>
@@ -4720,9 +4764,9 @@ export default function Dashboard() {
                           </React.Fragment>
                         ))}
                       </tr>
-                      {/* 25년 행 */}
+                      {/* 당년 행 */}
                       <tr className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="px-3 py-2.5 text-sm font-medium text-gray-700 whitespace-nowrap">25년</td>
+                        <td className="px-3 py-2.5 text-sm font-medium text-gray-700 whitespace-nowrap">{selectedYear}년</td>
                         <td className="px-3 py-2.5 text-right text-base text-blue-600 font-bold">
                           {allocationData.total.current.toLocaleString()}
                         </td>
@@ -4904,16 +4948,6 @@ export default function Dashboard() {
                 <CardTitle className="text-lg font-bold">월별 인원 현황</CardTitle>
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => setLaborYear('2024')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      laborYear === '2024' 
-                        ? 'text-blue-600 bg-blue-50' 
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    2024년
-                  </button>
-                  <button 
                     onClick={() => setLaborYear('2025')}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       laborYear === '2025' 
@@ -4922,6 +4956,16 @@ export default function Dashboard() {
                     }`}
                   >
                     2025년
+                  </button>
+                  <button 
+                    onClick={() => setLaborYear('2026')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      laborYear === '2026' 
+                        ? 'text-blue-600 bg-blue-50' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    2026년
                   </button>
                 </div>
               </div>
@@ -4938,6 +4982,7 @@ export default function Dashboard() {
                 <>
                 {/* 과거 월 접기/펼치기 버튼 */}
                 <div className="mb-3 flex items-center gap-2">
+                  {laborYear !== '2026' && (
                   <button
                     onClick={() => setLaborMonthsExpanded(!laborMonthsExpanded)}
                     className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
@@ -4952,6 +4997,7 @@ export default function Dashboard() {
                     </svg>
                     {laborMonthsExpanded ? '과거 월 접기 (1~10월)' : '과거 월 펼치기 (1~10월)'}
                   </button>
+                  )}
                   <button
                     onClick={() => {
                       if (expandedDivisions.size > 0) {
@@ -4975,28 +5021,40 @@ export default function Dashboard() {
                     {expandedDivisions.size > 0 ? '전체 부문 접기' : '전체 부문 펼치기'}
                   </button>
                 </div>
+                {/* 동적 연도 계산 */}
+                {(() => {
+                  const prevYr = String(parseInt(laborYear) - 1);
+                  const latestMonth = laborYear === '2026' ? 1 : 12;
+                  const latestMonthKey = `${laborYear}${latestMonth.toString().padStart(2, '0')}`;
+                  const prevMonthKey = laborYear === '2026' ? `${prevYr}12` : `${laborYear}11`;
+                  const prevMonthNum = laborYear === '2026' ? 12 : 11;
+                  const prevYearSameMonthKey = `${prevYr}${latestMonth.toString().padStart(2, '0')}`;
+                  const prevYrDecKey = `${prevYr}12`;
+                  
+                  return (
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b-2 border-gray-200">
                         <th className="px-3 py-2 text-left text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap sticky left-0">부문/팀</th>
-                        {/* 25년 선택 시 24말 컬럼 */}
-                        {laborYear === '2025' && (
-                          <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
-                            24말
-                          </th>
-                        )}
-                        {/* 1~10월: 펼침 상태에 따라 표시 */}
-                        {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => (
-                          <th key={month} className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap min-w-[45px]">
-                            {parseInt(month)}월
-                          </th>
-                        ))}
-                        {/* 11월: 항상 표시 */}
+                        {/* 전년말 컬럼 */}
                         <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
-                          11월
+                          {parseInt(prevYr) % 100}말
                         </th>
-                        {/* 12월 입사/퇴사/이동 헤더 - 클릭하면 펼침 */}
+                        {/* 중간 월: 2025 이하에서만 */}
+                        {laborYear !== '2026' && (
+                          <>
+                            {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => (
+                              <th key={month} className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap min-w-[45px]">
+                                {parseInt(month)}월
+                              </th>
+                            ))}
+                            <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
+                              11월
+                            </th>
+                          </>
+                        )}
+                        {/* 입사/퇴사/이동 헤더 */}
                         {laborDecemberExpanded && (
                           <>
                             <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
@@ -5010,13 +5068,13 @@ export default function Dashboard() {
                             </th>
                           </>
                         )}
-                        {/* 12월: 클릭 가능 */}
+                        {/* 최신월: 클릭 가능 */}
                         <th 
                           className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px] cursor-pointer hover:bg-blue-100 transition-colors"
                           onClick={() => setLaborDecemberExpanded(!laborDecemberExpanded)}
                         >
                           <div className="flex items-center justify-center gap-1">
-                            12월
+                            {latestMonth}월
                             <svg 
                               className={`w-3 h-3 transition-transform ${laborDecemberExpanded ? 'rotate-180' : ''}`} 
                               fill="none" 
@@ -5027,40 +5085,38 @@ export default function Dashboard() {
                             </svg>
                           </div>
                         </th>
-                        {/* 전월비 컬럼 */}
                         <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
                           전월비
                         </th>
-                        {/* 전년비 컬럼 */}
                         <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap w-[45px]">
                           전년비
                         </th>
-                        {/* 비고 컬럼 */}
                         <th className="px-2 py-2 text-center text-xs font-bold text-gray-900 bg-gray-50 whitespace-nowrap min-w-[100px]">
                           비고 (전월대비)
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {/* 25년 전체 합계 행 */}
+                      {/* 당년 전체 합계 행 */}
                       <tr className="border-b border-gray-200 bg-blue-50 font-bold">
-                        <td className="px-3 py-2 text-sm text-blue-700 sticky left-0 bg-blue-50">2025년</td>
-                        {/* 25년 선택 시 24년 12월 값 */}
-                        {laborYear === '2025' && (
-                          <td className="px-2 py-2 text-center text-sm text-blue-700">
-                            {laborData.yearlyTotals['2024']?.['12'] || 0}
-                          </td>
-                        )}
-                        {/* 1~10월 */}
-                        {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => (
-                          <td key={month} className="px-2 py-2 text-center text-sm text-blue-700">
-                            {laborData.yearlyTotals['2025']?.[month] || 0}
-                          </td>
-                        ))}
-                        {/* 11월 */}
+                        <td className="px-3 py-2 text-sm text-blue-700 sticky left-0 bg-blue-50">{laborYear}년</td>
+                        {/* 전년말 값 */}
                         <td className="px-2 py-2 text-center text-sm text-blue-700">
-                          {laborData.yearlyTotals['2025']?.['11'] || 0}
+                          {laborData.yearlyTotals[prevYr]?.['12'] || 0}
                         </td>
+                        {/* 중간 월 (2025 이하) */}
+                        {laborYear !== '2026' && (
+                          <>
+                            {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => (
+                              <td key={month} className="px-2 py-2 text-center text-sm text-blue-700">
+                                {laborData.yearlyTotals[laborYear]?.[month] || 0}
+                              </td>
+                            ))}
+                            <td className="px-2 py-2 text-center text-sm text-blue-700">
+                              {laborData.yearlyTotals[laborYear]?.['11'] || 0}
+                            </td>
+                          </>
+                        )}
                         {/* 입사/퇴사/이동 - 자동 합계 */}
                         {laborDecemberExpanded && (() => {
                           const allKeys = getAllTeamKeys();
@@ -5069,73 +5125,60 @@ export default function Dashboard() {
                           const transferSum = calculateMovementSum(allKeys, 'transfer');
                           return (
                             <>
-                              <td className="px-2 py-2 text-center text-sm text-blue-700 font-bold">
-                                {hireSum || '-'}
-                              </td>
-                              <td className="px-2 py-2 text-center text-sm text-blue-700 font-bold">
-                                {resignSum || '-'}
-                              </td>
-                              <td className="px-2 py-2 text-center text-sm text-blue-700 font-bold">
-                                {transferSum || '-'}
-                              </td>
+                              <td className="px-2 py-2 text-center text-sm text-blue-700 font-bold">{hireSum || '-'}</td>
+                              <td className="px-2 py-2 text-center text-sm text-blue-700 font-bold">{resignSum || '-'}</td>
+                              <td className="px-2 py-2 text-center text-sm text-blue-700 font-bold">{transferSum || '-'}</td>
                             </>
                           );
                         })()}
-                        {/* 12월 */}
+                        {/* 최신월 */}
                         <td className="px-2 py-2 text-center text-sm text-blue-700">
-                          {laborData.yearlyTotals['2025']?.['12'] || 0}
+                          {laborData.yearlyTotals[laborYear]?.[latestMonth.toString().padStart(2, '0')] || 0}
                         </td>
-                        {/* 전월비 (12월 - 11월) */}
+                        {/* 전월비 */}
                         {(() => {
-                          const dec = laborData.yearlyTotals['2025']?.['12'] || 0;
-                          const nov = laborData.yearlyTotals['2025']?.['11'] || 0;
-                          const momDiff = dec - nov;
+                          const latestVal = laborData.yearlyTotals[laborYear]?.[latestMonth.toString().padStart(2, '0')] || 0;
+                          const prevMonthVal = laborYear === '2026' 
+                            ? (laborData.yearlyTotals[prevYr]?.['12'] || 0) 
+                            : (laborData.yearlyTotals[laborYear]?.['11'] || 0);
+                          const momDiff = latestVal - prevMonthVal;
                           return (
                             <td className={`px-2 py-2 text-center text-sm font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                               {momDiff > 0 ? `+${momDiff}` : momDiff}
                             </td>
                           );
                         })()}
-                        {/* 전년비 (25년 12월 - 24년 12월) */}
+                        {/* 전년비 */}
                         {(() => {
-                          const dec25 = laborData.yearlyTotals['2025']?.['12'] || 0;
-                          const dec24 = laborData.yearlyTotals['2024']?.['12'] || 0;
-                          const yoyDiff = dec25 - dec24;
+                          const currentVal = laborData.yearlyTotals[laborYear]?.[latestMonth.toString().padStart(2, '0')] || 0;
+                          const prevYearVal = laborData.yearlyTotals[prevYr]?.[latestMonth.toString().padStart(2, '0')] || 0;
+                          const yoyDiff = currentVal - prevYearVal;
                           return (
                             <td className={`px-2 py-2 text-center text-sm font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                               {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff}
                             </td>
                           );
                         })()}
-                        {/* 비고 */}
                         <td className="px-2 py-2 text-center text-sm text-blue-700">
-                          <input
-                            type="text"
-                            value={laborRemarkData['total'] || ''}
-                            onChange={(e) => setLaborRemarkData(prev => ({ ...prev, total: e.target.value }))}
-                            className="w-full text-left bg-transparent focus:outline-none text-xs text-blue-700"
-                            placeholder=""
-                          />
+                          <input type="text" value={laborRemarkData['total'] || ''} onChange={(e) => setLaborRemarkData(prev => ({ ...prev, total: e.target.value }))} className="w-full text-left bg-transparent focus:outline-none text-xs text-blue-700" placeholder="" />
                         </td>
                       </tr>
-                      {/* 24년 전체 합계 행 */}
+                      {/* 전년 전체 합계 행 */}
                       <tr className="border-b border-gray-200 bg-gray-50">
-                        <td className="px-3 py-2 text-sm text-gray-600 sticky left-0 bg-gray-50">2024년</td>
-                        {/* 25년 선택 시 빈 셀 */}
-                        {laborYear === '2025' && (
-                          <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        <td className="px-3 py-2 text-sm text-gray-600 sticky left-0 bg-gray-50">{prevYr}년</td>
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        {laborYear !== '2026' && (
+                          <>
+                            {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => (
+                              <td key={month} className="px-2 py-2 text-center text-sm text-gray-600">
+                                {laborData.yearlyTotals[prevYr]?.[month] || 0}
+                              </td>
+                            ))}
+                            <td className="px-2 py-2 text-center text-sm text-gray-600">
+                              {laborData.yearlyTotals[prevYr]?.['11'] || 0}
+                            </td>
+                          </>
                         )}
-                        {/* 1~10월 */}
-                        {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => (
-                          <td key={month} className="px-2 py-2 text-center text-sm text-gray-600">
-                            {laborData.yearlyTotals['2024']?.[month] || 0}
-                          </td>
-                        ))}
-                        {/* 11월 */}
-                        <td className="px-2 py-2 text-center text-sm text-gray-600">
-                          {laborData.yearlyTotals['2024']?.['11'] || 0}
-                        </td>
-                        {/* 입사/퇴사/이동 빈 셀 */}
                         {laborDecemberExpanded && (
                           <>
                             <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
@@ -5143,47 +5186,41 @@ export default function Dashboard() {
                             <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
                           </>
                         )}
-                        {/* 12월 */}
                         <td className="px-2 py-2 text-center text-sm text-gray-600">
-                          {laborData.yearlyTotals['2024']?.['12'] || 0}
+                          {laborData.yearlyTotals[prevYr]?.[latestMonth.toString().padStart(2, '0')] || 0}
                         </td>
-                        {/* 빈 전월비 셀 */}
                         <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
-                        {/* 빈 전년비 셀 */}
                         <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
-                        {/* 빈 비고 셀 */}
                         <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
                       </tr>
                       {/* YOY 증감 행 */}
                       <tr className="border-b-2 border-gray-300 bg-gray-100">
                         <td className="px-3 py-2 text-sm font-semibold text-gray-700 sticky left-0 bg-gray-100">YOY 증감</td>
-                        {/* 25년 선택 시 빈 셀 */}
-                        {laborYear === '2025' && (
-                          <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
+                        {laborYear !== '2026' && (
+                          <>
+                            {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
+                              const current = laborData.yearlyTotals[laborYear]?.[month] || 0;
+                              const previous = laborData.yearlyTotals[prevYr]?.[month] || 0;
+                              const diff = current - previous;
+                              return (
+                                <td key={month} className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                  {diff > 0 ? `+${diff}` : diff}
+                                </td>
+                              );
+                            })}
+                            {(() => {
+                              const current = laborData.yearlyTotals[laborYear]?.['11'] || 0;
+                              const previous = laborData.yearlyTotals[prevYr]?.['11'] || 0;
+                              const diff = current - previous;
+                              return (
+                                <td className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
+                                  {diff > 0 ? `+${diff}` : diff}
+                                </td>
+                              );
+                            })()}
+                          </>
                         )}
-                        {/* 1~10월 */}
-                        {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
-                          const current = laborData.yearlyTotals['2025']?.[month] || 0;
-                          const previous = laborData.yearlyTotals['2024']?.[month] || 0;
-                          const diff = current - previous;
-                          return (
-                            <td key={month} className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
-                              {diff > 0 ? `+${diff}` : diff}
-                            </td>
-                          );
-                        })}
-                        {/* 11월 */}
-                        {(() => {
-                          const current = laborData.yearlyTotals['2025']?.['11'] || 0;
-                          const previous = laborData.yearlyTotals['2024']?.['11'] || 0;
-                          const diff = current - previous;
-                          return (
-                            <td className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
-                              {diff > 0 ? `+${diff}` : diff}
-                            </td>
-                          );
-                        })()}
-                        {/* 입사/퇴사/이동 빈 셀 */}
                         {laborDecemberExpanded && (
                           <>
                             <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
@@ -5191,10 +5228,9 @@ export default function Dashboard() {
                             <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
                           </>
                         )}
-                        {/* 12월 */}
                         {(() => {
-                          const current = laborData.yearlyTotals['2025']?.['12'] || 0;
-                          const previous = laborData.yearlyTotals['2024']?.['12'] || 0;
+                          const current = laborData.yearlyTotals[laborYear]?.[latestMonth.toString().padStart(2, '0')] || 0;
+                          const previous = laborData.yearlyTotals[prevYr]?.[latestMonth.toString().padStart(2, '0')] || 0;
                           const diff = current - previous;
                           return (
                             <td className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -5202,11 +5238,8 @@ export default function Dashboard() {
                             </td>
                           );
                         })()}
-                        {/* 빈 전월비 셀 */}
                         <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
-                        {/* 빈 전년비 셀 */}
                         <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
-                        {/* 빈 비고 셀 */}
                         <td className="px-2 py-2 text-center text-sm text-gray-600">-</td>
                       </tr>
                       {/* 부문별 행 */}
@@ -5230,26 +5263,27 @@ export default function Dashboard() {
                                 {division.divisionName}
                               </div>
                             </td>
-                            {/* 25년 선택 시 24년 12월 값 */}
-                            {laborYear === '2025' && (
-                              <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
-                                {division.monthly['202412'] || '-'}
-                              </td>
-                            )}
-                            {/* 1~10월 */}
-                            {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
-                              const key = `${laborYear}${month}`;
-                              const value = division.monthly[key] || 0;
-                              return (
-                                <td key={month} className="px-2 py-2 text-center text-sm font-bold text-gray-800">
-                                  {value > 0 ? value : '-'}
-                                </td>
-                              );
-                            })}
-                            {/* 11월 */}
+                            {/* 전년말 값 */}
                             <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
-                              {division.monthly[`${laborYear}11`] || '-'}
+                              {division.monthly[prevYrDecKey] || '-'}
                             </td>
+                            {/* 중간 월 (2025 이하) */}
+                            {laborYear !== '2026' && (
+                              <>
+                                {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
+                                  const key = `${laborYear}${month}`;
+                                  const value = division.monthly[key] || 0;
+                                  return (
+                                    <td key={month} className="px-2 py-2 text-center text-sm font-bold text-gray-800">
+                                      {value > 0 ? value : '-'}
+                                    </td>
+                                  );
+                                })}
+                                <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
+                                  {division.monthly[`${laborYear}11`] || '-'}
+                                </td>
+                              </>
+                            )}
                             {/* 입사/퇴사/이동 입력 */}
                             {laborDecemberExpanded && (
                               <>
@@ -5275,26 +5309,26 @@ export default function Dashboard() {
                                 })()}
                               </>
                             )}
-                            {/* 12월 */}
+                            {/* 최신월 */}
                             <td className="px-2 py-2 text-center text-sm font-bold text-gray-800">
-                              {division.monthly[`${laborYear}12`] || '-'}
+                              {division.monthly[latestMonthKey] || '-'}
                             </td>
-                            {/* 전월비 (12월 - 11월) */}
+                            {/* 전월비 */}
                             {(() => {
-                              const dec = division.monthly[`${laborYear}12`] || 0;
-                              const nov = division.monthly[`${laborYear}11`] || 0;
-                              const momDiff = dec - nov;
+                              const latestVal = division.monthly[latestMonthKey] || 0;
+                              const prevMonthVal = division.monthly[prevMonthKey] || 0;
+                              const momDiff = latestVal - prevMonthVal;
                               return (
                                 <td className={`px-2 py-2 text-center text-sm font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                                   {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
                                 </td>
                               );
                             })()}
-                            {/* 전년비 (25년 12월 - 24년 12월) */}
+                            {/* 전년비 */}
                             {(() => {
-                              const dec25 = division.monthly['202512'] || 0;
-                              const dec24 = division.monthly['202412'] || 0;
-                              const yoyDiff = dec25 - dec24;
+                              const currentVal = division.monthly[latestMonthKey] || 0;
+                              const prevYearVal = division.monthly[prevYearSameMonthKey] || 0;
+                              const yoyDiff = currentVal - prevYearVal;
                               return (
                                 <td className={`px-2 py-2 text-center text-sm font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                                   {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
@@ -5324,26 +5358,27 @@ export default function Dashboard() {
                                   <td className="px-3 py-1.5 text-xs text-gray-600 sticky left-0 bg-white pl-8">
                                     {team.deptNm}
                                   </td>
-                                  {/* 25년 선택 시 24년 12월 값 */}
-                                  {laborYear === '2025' && (
-                                    <td className="px-2 py-1.5 text-center text-xs text-gray-600">
-                                      {team.monthly['202412'] || '-'}
-                                    </td>
-                                  )}
-                                  {/* 1~10월 */}
-                                  {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
-                                    const key = `${laborYear}${month}`;
-                                    const value = team.monthly[key] || 0;
-                                    return (
-                                      <td key={month} className="px-2 py-1.5 text-center text-xs text-gray-600">
-                                        {value > 0 ? value : '-'}
-                                      </td>
-                                    );
-                                  })}
-                                  {/* 11월 */}
+                                  {/* 전년말 값 */}
                                   <td className="px-2 py-1.5 text-center text-xs text-gray-600">
-                                    {team.monthly[`${laborYear}11`] || '-'}
+                                    {team.monthly[prevYrDecKey] || '-'}
                                   </td>
+                                  {/* 중간 월 (2025 이하) */}
+                                  {laborYear !== '2026' && (
+                                    <>
+                                      {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
+                                        const key = `${laborYear}${month}`;
+                                        const value = team.monthly[key] || 0;
+                                        return (
+                                          <td key={month} className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                            {value > 0 ? value : '-'}
+                                          </td>
+                                        );
+                                      })}
+                                      <td className="px-2 py-1.5 text-center text-xs text-gray-600">
+                                        {team.monthly[`${laborYear}11`] || '-'}
+                                      </td>
+                                    </>
+                                  )}
                                   {/* 입사/퇴사/이동 입력 */}
                                   {laborDecemberExpanded && (
                                     <>
@@ -5385,15 +5420,15 @@ export default function Dashboard() {
                                       </td>
                                     </>
                                   )}
-                                  {/* 12월 */}
+                                  {/* 최신월 */}
                                   <td className="px-2 py-1.5 text-center text-xs text-gray-600">
-                                    {team.monthly[`${laborYear}12`] || '-'}
+                                    {team.monthly[latestMonthKey] || '-'}
                                   </td>
-                                  {/* 전월비 (12월 - 11월) */}
+                                  {/* 전월비 */}
                                   {(() => {
-                                    const dec = team.monthly[`${laborYear}12`] || 0;
-                                    const nov = team.monthly[`${laborYear}11`] || 0;
-                                    const momDiff = dec - nov;
+                                    const latestVal = team.monthly[latestMonthKey] || 0;
+                                    const prevMonthVal = team.monthly[prevMonthKey] || 0;
+                                    const momDiff = latestVal - prevMonthVal;
                                     return (
                                       <td className={`px-2 py-1.5 text-center text-xs ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                                         {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
@@ -5402,9 +5437,9 @@ export default function Dashboard() {
                                   })()}
                                   {/* 전년비 */}
                                   {(() => {
-                                    const dec25 = team.monthly['202512'] || 0;
-                                    const dec24 = team.monthly['202412'] || 0;
-                                    const yoyDiff = dec25 - dec24;
+                                    const currentVal = team.monthly[latestMonthKey] || 0;
+                                    const prevYearVal = team.monthly[prevYearSameMonthKey] || 0;
+                                    const yoyDiff = currentVal - prevYearVal;
                                     return (
                                       <td className={`px-2 py-1.5 text-center text-xs ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                                         {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
@@ -5446,14 +5481,12 @@ export default function Dashboard() {
                                         {subDiv.name}
                                       </div>
                                     </td>
-                                    {/* 25년 선택 시 24년 12월 값 */}
-                                    {laborYear === '2025' && (
-                                      <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
-                                        {subDiv.monthly['202412'] || '-'}
-                                      </td>
-                                    )}
-                                    {/* 1~10월 */}
-                                    {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
+                                    {/* 전년말 값 */}
+                                    <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
+                                      {subDiv.monthly[prevYrDecKey] || '-'}
+                                    </td>
+                                    {/* 중간 월 (2025 이하) */}
+                                    {laborYear !== '2026' && laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
                                       const key = `${laborYear}${month}`;
                                       const value = subDiv.monthly[key] || 0;
                                       return (
@@ -5462,10 +5495,12 @@ export default function Dashboard() {
                                         </td>
                                       );
                                     })}
-                                    {/* 11월 */}
-                                    <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
-                                      {subDiv.monthly[`${laborYear}11`] || '-'}
-                                    </td>
+                                    {/* 11월 (2025 이하만) */}
+                                    {laborYear !== '2026' && (
+                                      <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
+                                        {subDiv.monthly[`${laborYear}11`] || '-'}
+                                      </td>
+                                    )}
                                     {/* 입사/퇴사/이동 - 하위 부문 자동 합계 */}
                                     {laborDecemberExpanded && (() => {
                                       const subDivKeys = getTeamKeysForSubDivision(subDiv);
@@ -5474,27 +5509,21 @@ export default function Dashboard() {
                                       const transferSum = calculateMovementSum(subDivKeys, 'transfer');
                                       return (
                                         <>
-                                          <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
-                                            {hireSum || '-'}
-                                          </td>
-                                          <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
-                                            {resignSum || '-'}
-                                          </td>
-                                          <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
-                                            {transferSum || '-'}
-                                          </td>
+                                          <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">{hireSum || '-'}</td>
+                                          <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">{resignSum || '-'}</td>
+                                          <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">{transferSum || '-'}</td>
                                         </>
                                       );
                                     })()}
-                                    {/* 12월 */}
+                                    {/* 최신월 */}
                                     <td className="px-2 py-1.5 text-center text-xs font-semibold text-gray-700">
-                                      {subDiv.monthly[`${laborYear}12`] || '-'}
+                                      {subDiv.monthly[latestMonthKey] || '-'}
                                     </td>
-                                    {/* 전월비 (12월 - 11월) */}
+                                    {/* 전월비 */}
                                     {(() => {
-                                      const dec = subDiv.monthly[`${laborYear}12`] || 0;
-                                      const nov = subDiv.monthly[`${laborYear}11`] || 0;
-                                      const momDiff = dec - nov;
+                                      const latestVal = subDiv.monthly[latestMonthKey] || 0;
+                                      const prevMonthVal = subDiv.monthly[prevMonthKey] || 0;
+                                      const momDiff = latestVal - prevMonthVal;
                                       return (
                                         <td className={`px-2 py-1.5 text-center text-xs font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                                           {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
@@ -5503,9 +5532,9 @@ export default function Dashboard() {
                                     })()}
                                     {/* 전년비 */}
                                     {(() => {
-                                      const dec25 = subDiv.monthly['202512'] || 0;
-                                      const dec24 = subDiv.monthly['202412'] || 0;
-                                      const yoyDiff = dec25 - dec24;
+                                      const currentVal = subDiv.monthly[latestMonthKey] || 0;
+                                      const prevYearVal = subDiv.monthly[prevYearSameMonthKey] || 0;
+                                      const yoyDiff = currentVal - prevYearVal;
                                       return (
                                         <td className={`px-2 py-1.5 text-center text-xs font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                                           {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
@@ -5532,26 +5561,27 @@ export default function Dashboard() {
                                       <td className="px-3 py-1.5 text-xs text-gray-500 sticky left-0 bg-white pl-12">
                                         {team.deptNm}
                                       </td>
-                                      {/* 25년 선택 시 24년 12월 값 */}
-                                      {laborYear === '2025' && (
-                                        <td className="px-2 py-1.5 text-center text-xs text-gray-500">
-                                          {team.monthly['202412'] || '-'}
-                                        </td>
-                                      )}
-                                      {/* 1~10월 */}
-                                      {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
-                                        const key = `${laborYear}${month}`;
-                                        const value = team.monthly[key] || 0;
-                                        return (
-                                          <td key={month} className="px-2 py-1.5 text-center text-xs text-gray-500">
-                                            {value > 0 ? value : '-'}
-                                          </td>
-                                        );
-                                      })}
-                                      {/* 11월 */}
+                                      {/* 전년말 값 */}
                                       <td className="px-2 py-1.5 text-center text-xs text-gray-500">
-                                        {team.monthly[`${laborYear}11`] || '-'}
+                                        {team.monthly[prevYrDecKey] || '-'}
                                       </td>
+                                      {/* 중간 월 (2025 이하) */}
+                                      {laborYear !== '2026' && (
+                                        <>
+                                          {laborMonthsExpanded && laborData.months.filter(m => parseInt(m) <= 10).map((month) => {
+                                            const key = `${laborYear}${month}`;
+                                            const value = team.monthly[key] || 0;
+                                            return (
+                                              <td key={month} className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                                {value > 0 ? value : '-'}
+                                              </td>
+                                            );
+                                          })}
+                                          <td className="px-2 py-1.5 text-center text-xs text-gray-500">
+                                            {team.monthly[`${laborYear}11`] || '-'}
+                                          </td>
+                                        </>
+                                      )}
                                       {/* 입사/퇴사/이동 입력 */}
                                       {laborDecemberExpanded && (
                                         <>
@@ -5593,15 +5623,15 @@ export default function Dashboard() {
                                           </td>
                                         </>
                                       )}
-                                      {/* 12월 */}
+                                      {/* 최신월 */}
                                       <td className="px-2 py-1.5 text-center text-xs text-gray-500">
-                                        {team.monthly[`${laborYear}12`] || '-'}
+                                        {team.monthly[latestMonthKey] || '-'}
                                       </td>
-                                      {/* 전월비 (12월 - 11월) */}
+                                      {/* 전월비 */}
                                       {(() => {
-                                        const dec = team.monthly[`${laborYear}12`] || 0;
-                                        const nov = team.monthly[`${laborYear}11`] || 0;
-                                        const momDiff = dec - nov;
+                                        const latestVal = team.monthly[latestMonthKey] || 0;
+                                        const prevMonthVal = team.monthly[prevMonthKey] || 0;
+                                        const momDiff = latestVal - prevMonthVal;
                                         return (
                                           <td className={`px-2 py-1.5 text-center text-xs ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                                             {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
@@ -5610,9 +5640,9 @@ export default function Dashboard() {
                                       })()}
                                       {/* 전년비 */}
                                       {(() => {
-                                        const dec25 = team.monthly['202512'] || 0;
-                                        const dec24 = team.monthly['202412'] || 0;
-                                        const yoyDiff = dec25 - dec24;
+                                        const currentVal = team.monthly[latestMonthKey] || 0;
+                                        const prevYearVal = team.monthly[prevYearSameMonthKey] || 0;
+                                        const yoyDiff = currentVal - prevYearVal;
                                         return (
                                           <td className={`px-2 py-1.5 text-center text-xs ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-blue-600' : 'text-gray-500'}`}>
                                             {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
@@ -5640,6 +5670,8 @@ export default function Dashboard() {
                     </tbody>
                   </table>
                 </div>
+                  );
+                })()}
                 
                 {/* 인원 현황 코멘트 */}
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -5651,15 +5683,22 @@ export default function Dashboard() {
                   </h4>
                   <div className="text-sm text-gray-700 space-y-2">
                     {(() => {
-                      const dec2024 = laborData.yearlyTotals['2024']?.['12'] || 0;
-                      const dec2025 = laborData.yearlyTotals['2025']?.['12'] || 0;
-                      const diff = dec2025 - dec2024;
-                      const diffPercent = dec2024 > 0 ? ((diff / dec2024) * 100).toFixed(1) : 0;
+                      const analysisCurrentYear = laborYear;
+                      const analysisPrevYear = String(parseInt(laborYear) - 1);
+                      const analysisLatestMonth = laborYear === '2026' ? 1 : 12;
+                      const analysisMonthStr = analysisLatestMonth.toString().padStart(2, '0');
+                      const analysisCurrKey = `${analysisCurrentYear}${analysisMonthStr}`;
+                      const analysisPrevKey = `${analysisPrevYear}${analysisMonthStr}`;
+                      
+                      const prevTotal = laborData.yearlyTotals[analysisPrevYear]?.[analysisMonthStr] || 0;
+                      const currTotal = laborData.yearlyTotals[analysisCurrentYear]?.[analysisMonthStr] || 0;
+                      const diff = currTotal - prevTotal;
+                      const diffPercent = prevTotal > 0 ? ((diff / prevTotal) * 100).toFixed(1) : 0;
                       
                       // 대분류별 증감 계산
                       const categoryChanges = laborData.divisions.map(div => {
-                        const prev = div.monthly['202412'] || 0;
-                        const curr = div.monthly['202512'] || 0;
+                        const prev = div.monthly[analysisPrevKey] || 0;
+                        const curr = div.monthly[analysisCurrKey] || 0;
                         return { name: div.divisionName, prev, curr, diff: curr - prev };
                       });
                       
@@ -5667,8 +5706,8 @@ export default function Dashboard() {
                       const subDivisionChanges: { name: string; prev: number; curr: number; diff: number; parent: string }[] = [];
                       laborData.divisions.forEach(div => {
                         div.subDivisions?.forEach(subDiv => {
-                          const prev = subDiv.monthly['202412'] || 0;
-                          const curr = subDiv.monthly['202512'] || 0;
+                          const prev = subDiv.monthly[analysisPrevKey] || 0;
+                          const curr = subDiv.monthly[analysisCurrKey] || 0;
                           if (prev > 0 || curr > 0) {
                             subDivisionChanges.push({ 
                               name: subDiv.name, 
@@ -5687,7 +5726,7 @@ export default function Dashboard() {
                       return (
                         <>
                           <div className="mb-3">
-                            <strong>📊 연간 비교:</strong> 2024년 12월({dec2024}명) 대비 2025년 12월({dec2025}명) 기준, 
+                            <strong>📊 {analysisPrevYear}년 {analysisLatestMonth}월 vs {analysisCurrentYear}년 {analysisLatestMonth}월:</strong> {analysisPrevYear}년 {analysisLatestMonth}월({prevTotal}명) 대비 {analysisCurrentYear}년 {analysisLatestMonth}월({currTotal}명) 기준, 
                             전체 인원이 <span className={diff >= 0 ? 'text-red-600 font-semibold' : 'text-blue-600 font-semibold'}>
                               {diff >= 0 ? `+${diff}명 (${diffPercent}% 증가)` : `${diff}명 (${Math.abs(Number(diffPercent))}% 감소)`}
                             </span> 했습니다.
@@ -5705,15 +5744,15 @@ export default function Dashboard() {
                                 const subDivChanges: { name: string; prev: number; curr: number; diff: number }[] = [];
                                 if (division) {
                                   division.teams?.forEach(team => {
-                                    const prev = team.monthly['202412'] || 0;
-                                    const curr = team.monthly['202512'] || 0;
+                                    const prev = team.monthly[analysisPrevKey] || 0;
+                                    const curr = team.monthly[analysisCurrKey] || 0;
                                     if (prev > 0 || curr > 0) {
                                       subDivChanges.push({ name: team.deptNm, prev, curr, diff: curr - prev });
                                     }
                                   });
                                   division.subDivisions?.forEach(subDiv => {
-                                    const subPrev = subDiv.monthly['202412'] || 0;
-                                    const subCurr = subDiv.monthly['202512'] || 0;
+                                    const subPrev = subDiv.monthly[analysisPrevKey] || 0;
+                                    const subCurr = subDiv.monthly[analysisCurrKey] || 0;
                                     if (subPrev > 0 || subCurr > 0) {
                                       subDivChanges.push({ name: subDiv.name, prev: subPrev, curr: subCurr, diff: subCurr - subPrev });
                                     }
@@ -5809,14 +5848,18 @@ export default function Dashboard() {
                             setLaborInsightLoading(true);
                             try {
                               // AI 분석을 위한 데이터 준비
+                              const aiPrevYear = String(parseInt(laborYear) - 1);
+                              const aiLatestMonth = laborYear === '2026' ? 1 : 12;
+                              const aiLatestKey = `${laborYear}${aiLatestMonth.toString().padStart(2, '0')}`;
+                              const aiPrevKey = `${aiPrevYear}${aiLatestMonth.toString().padStart(2, '0')}`;
                               const analysisData = {
-                                year2024: laborData.yearlyTotals['2024'],
-                                year2025: laborData.yearlyTotals['2025'],
+                                year2024: laborData.yearlyTotals[aiPrevYear],
+                                year2025: laborData.yearlyTotals[laborYear],
                                 divisions: laborData.divisions.map(div => ({
                                   name: div.divisionName,
-                                  prev: div.monthly['202412'] || 0,
-                                  curr: div.monthly['202512'] || 0,
-                                  diff: (div.monthly['202512'] || 0) - (div.monthly['202412'] || 0)
+                                  prev: div.monthly[aiPrevKey] || 0,
+                                  curr: div.monthly[aiLatestKey] || 0,
+                                  diff: (div.monthly[aiLatestKey] || 0) - (div.monthly[aiPrevKey] || 0)
                                 }))
                               };
                               
@@ -5948,66 +5991,79 @@ export default function Dashboard() {
                   {laborCostMonthly.length > 0 ? (() => {
                     const chartData = laborCostMonthly.map(d => ({
                       month: d.month,
-                      '24년': d.headcount2024 > 0 ? Math.round((d.cost2024 / d.headcount2024) * 10) / 10 : 0,
-                      '25년': d.headcount2025 > 0 ? Math.round((d.cost2025 / d.headcount2025) * 10) / 10 : 0,
+                      '인당인건비': d.headcount2025 > 0 ? Math.round((d.cost2025 / d.headcount2025) * 10) / 10 : 0,
                     }));
-                    const dec = laborCostMonthly.find(d => d.month === '12월');
-                    const perPerson24 = dec && dec.headcount2024 > 0 ? dec.cost2024 / dec.headcount2024 : 0;
-                    const perPerson25 = dec && dec.headcount2025 > 0 ? dec.cost2025 / dec.headcount2025 : 0;
-                    const diff = perPerson25 - perPerson24;
-                    const diffPct = perPerson24 > 0 ? (diff / perPerson24 * 100).toFixed(1) : '0';
+                    const latestData = laborCostMonthly[laborCostMonthly.length - 1];
+                    const prevData = laborCostMonthly.length >= 2 ? laborCostMonthly[laborCostMonthly.length - 2] : null;
+                    const latestPp = latestData && latestData.headcount2025 > 0 ? latestData.cost2025 / latestData.headcount2025 : 0;
+                    const prevPp = prevData && prevData.headcount2025 > 0 ? prevData.cost2025 / prevData.headcount2025 : 0;
+                    // 전년 동월 (12개월 전 = index 0)
+                    const yoyData = laborCostMonthly[0];
+                    const yoyPp = yoyData && yoyData.headcount2025 > 0 ? yoyData.cost2025 / yoyData.headcount2025 : 0;
+                    const momDiff = latestPp - prevPp;
+                    const yoyDiff = latestPp - yoyPp;
+                    const momPct = prevPp > 0 ? (momDiff / prevPp * 100).toFixed(1) : '0';
+                    const yoyPct = yoyPp > 0 ? (yoyDiff / yoyPp * 100).toFixed(1) : '0';
                     
                     return (
                       <>
-                        {/* 12월 기준 요약 */}
+                        {/* 최신월 기준 요약 */}
                         <div className="mb-3 text-sm text-gray-700">
-                          <span className="text-gray-500">12월 기준 전체:</span>{' '}
-                          <span className="text-gray-600">24년 <strong>{perPerson24.toFixed(1)}</strong></span>
-                          <span className="text-gray-400 mx-1">→</span>
-                          <span className="text-gray-600">25년 <strong>{perPerson25.toFixed(1)}</strong></span>
-                          <span className={`ml-2 font-semibold ${diff >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
-                            {diff >= 0 ? '+' : ''}{diff.toFixed(1)} ({diffPct}%)
-                          </span>
+                          <span className="text-gray-500">{latestData?.month || ''} 기준:</span>{' '}
+                          <strong>{latestPp.toFixed(1)}</strong>
                           <span className="text-gray-400 text-xs ml-1">백만원/명</span>
+                          <span className="text-gray-400 mx-2">|</span>
+                          <span className="text-gray-500">전월비 </span>
+                          <span className={`font-semibold ${momDiff >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                            {momDiff >= 0 ? '+' : ''}{momDiff.toFixed(1)} ({momPct}%)
+                          </span>
+                          <span className="text-gray-400 mx-2">|</span>
+                          <span className="text-gray-500">전년비 </span>
+                          <span className={`font-semibold ${yoyDiff >= 0 ? 'text-red-600' : 'text-blue-600'}`}>
+                            {yoyDiff >= 0 ? '+' : ''}{yoyDiff.toFixed(1)} ({yoyPct}%)
+                          </span>
                         </div>
                         
-                        {/* 그래프 */}
+                        {/* 그래프 - 최근 12개월 */}
                         <div className="h-36 bg-white rounded border p-2">
                           <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={chartData} margin={{ top: 5, right: 15, left: -10, bottom: 5 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                              <XAxis dataKey="month" tick={{ fontSize: 10 }} tickLine={false} axisLine={{ stroke: '#e5e7eb' }} />
+                              <XAxis dataKey="month" tick={{ fontSize: 9 }} tickLine={false} axisLine={{ stroke: '#e5e7eb' }} />
                               <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} domain={['dataMin - 0.5', 'dataMax + 0.5']} width={35} />
                               <Tooltip 
                                 contentStyle={{ fontSize: 11, padding: '6px 10px', border: '1px solid #e5e7eb', borderRadius: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}
-                                formatter={(value: number, name: string) => [`${value.toFixed(1)} 백만원/명`, name]}
+                                formatter={(value: number) => [`${value.toFixed(1)} 백만원/명`, '인당인건비']}
                               />
-                              <Line type="monotone" dataKey="24년" stroke="#9ca3af" strokeWidth={1.5} dot={{ r: 2, fill: '#9ca3af' }} activeDot={{ r: 3 }} />
-                              <Line type="monotone" dataKey="25년" stroke="#2563eb" strokeWidth={2} dot={{ r: 2, fill: '#2563eb' }} activeDot={{ r: 4 }} />
+                              <Line type="monotone" dataKey="인당인건비" stroke="#2563eb" strokeWidth={2} dot={{ r: 2, fill: '#2563eb' }} activeDot={{ r: 4 }} />
                             </LineChart>
                           </ResponsiveContainer>
                         </div>
                         
                         {/* 범례 */}
                         <div className="mt-1.5 flex justify-center gap-6 text-xs text-gray-500">
-                          <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-gray-400 inline-block"></span> 24년</span>
-                          <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-blue-600 inline-block"></span> 25년</span>
+                          <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-blue-600 inline-block"></span> 인당인건비 (최근 12개월)</span>
                         </div>
                         
-                        {/* 부문별 인당인건비 (12월 기준) - 클릭하여 펼치기 */}
+                        {/* 부문별 인당인건비 (최신월 기준) - 클릭하여 펼치기 */}
                         {laborCostByCategory.length > 0 && (
                           <div className="mt-4 pt-3 border-t border-blue-200">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-medium text-gray-600">부문별 인당인건비 (12월 기준)</span>
+                              <span className="text-xs font-medium text-gray-600">부문별 인당인건비 ({latestData?.month || '최신월'} 기준)</span>
                               <span className="text-[10px] text-gray-400">전월비 / 전년비</span>
                             </div>
                             <div className="p-2 bg-white rounded border space-y-1">
                               {laborCostByCategory.map(cat => {
+                                const costLatestMonth = laborYear === '2026' ? 1 : 12;
+                                const costLatestKey = `${laborYear}${costLatestMonth.toString().padStart(2, '0')}`;
+                                const costPrevYr = String(parseInt(laborYear) - 1);
+                                const costPrevYrSameKey = `${costPrevYr}${costLatestMonth.toString().padStart(2, '0')}`;
+                                const costPrevMonthKey = laborYear === '2026' ? `${costPrevYr}12` : `${laborYear}11`;
                                 // 해당 부문의 인원수 찾기
                                 const divData = laborData.divisions.find(d => d.divisionName === cat.name);
-                                const hc24 = divData?.monthly['202412'] || 0;
-                                const hc25 = divData?.monthly['202512'] || 0;
-                                const hcPrev = divData?.monthly['202511'] || 0; // 전월 인원수
+                                const hc24 = divData?.monthly[costPrevYrSameKey] || 0;
+                                const hc25 = divData?.monthly[costLatestKey] || 0;
+                                const hcPrev = divData?.monthly[costPrevMonthKey] || 0; // 전월 인원수
                                 const pp24 = hc24 > 0 ? cat.cost2024 / hc24 : 0;
                                 const pp25 = hc25 > 0 ? cat.cost2025 / hc25 : 0;
                                 const ppPrev = hcPrev > 0 ? (cat.costPrev || 0) / hcPrev : 0; // 전월 인당인건비
@@ -6041,9 +6097,9 @@ export default function Dashboard() {
                                     {isExpanded && divData?.subDivisions && (
                                       <div className="ml-6 pl-2 border-l border-gray-200 mt-1 space-y-0.5">
                                         {divData.subDivisions.map(subDiv => {
-                                          const subHc24 = subDiv.monthly['202412'] || 0;
-                                          const subHc25 = subDiv.monthly['202512'] || 0;
-                                          const subHcPrev = subDiv.monthly['202511'] || 0; // 전월 인원수
+                                          const subHc24 = subDiv.monthly[costPrevYrSameKey] || 0;
+                                          const subHc25 = subDiv.monthly[costLatestKey] || 0;
+                                          const subHcPrev = subDiv.monthly[costPrevMonthKey] || 0; // 전월 인원수
                                           // 실제 중분류 인건비 데이터 사용 (대분류+중분류로 매칭)
                                           const actualSubCost = laborCostBySubDiv.find(s => s.name === subDiv.name && s.category === cat.name);
                                           const subCost24 = actualSubCost?.cost2024 || 0;
@@ -6092,8 +6148,8 @@ export default function Dashboard() {
                                               {isSubExpanded && hasTeams && (
                                                 <div className="ml-4 pl-2 border-l border-gray-100 mt-0.5 space-y-0.5">
                                                   {subDiv.teams.map((team: any) => {
-                                                    const teamHc24 = team.monthly?.['202412'] || 0;
-                                                    const teamHc25 = team.monthly?.['202512'] || 0;
+                                                    const teamHc24 = team.monthly?.[costPrevYrSameKey] || 0;
+                                                    const teamHc25 = team.monthly?.[costLatestKey] || 0;
                                                     const teamHcChange = teamHc25 - teamHc24;
                                                     // 팀 레벨 인당인건비는 중분류 인당인건비와 동일하게 표시 (개별 팀 인건비 데이터 없음)
                                                     return (
