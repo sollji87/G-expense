@@ -53,6 +53,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month') || '12';
+    const yearParam = searchParams.get('year') || '2025';
     
     // 1. 매핑 파일 로드
     const mappingData = loadCostCenterMapping();
@@ -74,7 +75,7 @@ export async function GET(request: Request) {
     const costRecords = parseCSV(costContent);
     
     // 코스트센터별 비용 합계 계산 (표시명 기준으로 그룹핑)
-    const currentYearMonth = `2025${month.padStart(2, '0')}`;
+    const currentYearMonth = `${yearParam}${month.padStart(2, '0')}`;
     const displayNameCostMap = new Map<string, { cost: number; hasHeadcount: boolean; originalNames: Set<string> }>();
     
     costRecords.forEach((record: any) => {
@@ -112,7 +113,7 @@ export async function GET(request: Request) {
       const headcountContent = fs.readFileSync(headcountPath, 'utf-8');
       const headcountRecords = parseCSV(headcountContent);
       
-      const headcountMonth = `2025${month.padStart(2, '0')}`;
+      const headcountMonth = `${yearParam}${month.padStart(2, '0')}`;
       
       headcountRecords.forEach((record: any) => {
         const dept = record['코스트센터명'] || '';

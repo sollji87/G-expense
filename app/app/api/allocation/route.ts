@@ -12,6 +12,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month') || '12';
     const mode = searchParams.get('mode') || 'monthly'; // monthly or ytd
+    const year = searchParams.get('year') || '2025';
+    const prevYear = String(parseInt(year) - 1);
     
     const monthNum = parseInt(month);
     
@@ -20,17 +22,17 @@ export async function GET(request: Request) {
     if (mode === 'ytd') {
       // YTD 모드: 1월부터 선택 월까지 누적
       const currentYearMonths = Array.from({ length: monthNum }, (_, i) => 
-        `'2025${(i + 1).toString().padStart(2, '0')}'`
+        `'${year}${(i + 1).toString().padStart(2, '0')}'`
       ).join(',');
       const previousYearMonths = Array.from({ length: monthNum }, (_, i) => 
-        `'2024${(i + 1).toString().padStart(2, '0')}'`
+        `'${prevYear}${(i + 1).toString().padStart(2, '0')}'`
       ).join(',');
       
       sql = `
         SELECT 
           CASE 
-            WHEN SUBSTR(PST_YYYYMM, 1, 4) = '2025' THEN '2025YTD'
-            ELSE '2024YTD'
+            WHEN SUBSTR(PST_YYYYMM, 1, 4) = '${year}' THEN '${year}YTD'
+            ELSE '${prevYear}YTD'
           END AS PST_YYYYMM,
           BRD_NM,
           SUM("TTL_USE_AMT") AS TTL_USE_AMT
@@ -40,8 +42,8 @@ export async function GET(request: Request) {
           AND CTGR1 = '공통비'
         GROUP BY
           CASE 
-            WHEN SUBSTR(PST_YYYYMM, 1, 4) = '2025' THEN '2025YTD'
-            ELSE '2024YTD'
+            WHEN SUBSTR(PST_YYYYMM, 1, 4) = '${year}' THEN '${year}YTD'
+            ELSE '${prevYear}YTD'
           END,
           BRD_NM
         ORDER BY
@@ -49,8 +51,8 @@ export async function GET(request: Request) {
       `;
     } else {
       // Monthly 모드: 선택 월만
-      const currentYearMonth = `2025${month.padStart(2, '0')}`;
-      const previousYearMonth = `2024${month.padStart(2, '0')}`;
+      const currentYearMonth = `${year}${month.padStart(2, '0')}`;
+      const previousYearMonth = `${prevYear}${month.padStart(2, '0')}`;
       
       sql = `
         SELECT 
@@ -73,8 +75,8 @@ export async function GET(request: Request) {
     // 브랜드별 데이터 정리
     const brandMap = new Map<string, { current: number; previous: number }>();
     
-    const currentKey = mode === 'ytd' ? '2025YTD' : `2025${month.padStart(2, '0')}`;
-    const previousKey = mode === 'ytd' ? '2024YTD' : `2024${month.padStart(2, '0')}`;
+    const currentKey = mode === 'ytd' ? `${year}YTD` : `${year}${month.padStart(2, '0')}`;
+    const previousKey = mode === 'ytd' ? `${prevYear}YTD` : `${prevYear}${month.padStart(2, '0')}`;
     
     rows.forEach((row) => {
       const brandName = row.BRD_NM || '미분류';
@@ -123,8 +125,8 @@ export async function GET(request: Request) {
       success: true,
       month,
       mode,
-      currentYear: '2025',
-      previousYear: '2024',
+      currentYear: year,
+      previousYear: prevYear,
       total: {
         current: Math.round(totalCurrent / 1_000_000),
         previous: Math.round(totalPrevious / 1_000_000),

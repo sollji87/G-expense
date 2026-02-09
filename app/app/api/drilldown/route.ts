@@ -28,6 +28,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const month = searchParams.get('month') || '12';
+    const yearParam = searchParams.get('year') || '2025';
     const level = searchParams.get('level') || 'auto'; // major, middle, detail, auto
     
     // 필터 파라미터
@@ -102,8 +103,8 @@ export async function GET(request: Request) {
       }
       
       if (shouldInclude && subcategory) {
-        const currentMonth = `2025${month.padStart(2, '0')}`;
-        const previousMonth = `2024${month.padStart(2, '0')}`;
+        const currentMonth = `${yearParam}${month.padStart(2, '0')}`;
+        const previousMonth = `${String(parseInt(yearParam) - 1)}${month.padStart(2, '0')}`;
         
         const currentAmount = parseFloat(record[currentMonth] || '0');
         const previousAmount = parseFloat(record[previousMonth] || '0');
@@ -151,7 +152,7 @@ export async function GET(request: Request) {
         }
         
         if (shouldInclude && subcategory) {
-          const yearMonth = `2025${m.toString().padStart(2, '0')}`;
+          const yearMonth = `${yearParam}${m.toString().padStart(2, '0')}`;
           const amount = parseFloat(record[yearMonth] || '0');
           
           if (!subcategoryMonthMap.has(subcategory)) {
@@ -191,8 +192,8 @@ export async function GET(request: Request) {
         }
         
         if (shouldInclude) {
-          const currentYM = `2025${m.toString().padStart(2, '0')}`;
-          const previousYM = `2024${m.toString().padStart(2, '0')}`;
+          const currentYM = `${yearParam}${m.toString().padStart(2, '0')}`;
+          const previousYM = `${String(parseInt(yearParam) - 1)}${m.toString().padStart(2, '0')}`;
           totalCurrent += parseFloat(record[currentYM] || '0');
           totalPrevious += parseFloat(record[previousYM] || '0');
         }

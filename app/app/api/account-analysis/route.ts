@@ -28,6 +28,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('mode') || 'monthly'; // monthly or ytd
     const month = searchParams.get('month') || '12';
+    const yearParam = searchParams.get('year') || '2025';
     const level = searchParams.get('level') || 'major'; // major, middle, detail
     const category = searchParams.get('category'); // 선택한 상위 카테고리
     const majorCategory = searchParams.get('majorCategory'); // 대분류 카테고리 (detail에서 대분류로 바로 접근 시)
@@ -57,8 +58,9 @@ export async function GET(request: Request) {
     const records = parseCSV(fileContent);
     
     const monthNum = parseInt(month);
-    const currentYearMonth = `2025${month.padStart(2, '0')}`;
-    const previousYearMonth = `2024${month.padStart(2, '0')}`;
+    const previousYear = String(parseInt(yearParam) - 1);
+    const currentYearMonth = `${yearParam}${month.padStart(2, '0')}`;
+    const previousYearMonth = `${previousYear}${month.padStart(2, '0')}`;
     
     // 레벨에 따라 집계
     const accountMap = new Map<string, { current: number; previous: number; detail?: any }>();
@@ -121,8 +123,8 @@ export async function GET(request: Request) {
         let previousTotal = 0;
         
         for (let m = 1; m <= monthNum; m++) {
-          const currentYM = `2025${m.toString().padStart(2, '0')}`;
-          const previousYM = `2024${m.toString().padStart(2, '0')}`;
+          const currentYM = `${yearParam}${m.toString().padStart(2, '0')}`;
+          const previousYM = `${previousYear}${m.toString().padStart(2, '0')}`;
           currentTotal += parseFloat(record[currentYM] || '0');
           previousTotal += parseFloat(record[previousYM] || '0');
         }

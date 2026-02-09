@@ -27,6 +27,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('mode') || 'monthly';
     const month = searchParams.get('month') || '12';
+    const yearParam = searchParams.get('year') || '2025';
     
     // 필터 파라미터
     const costCentersParam = searchParams.get('costCenters') || '';
@@ -64,8 +65,8 @@ export async function GET(request: Request) {
     const fileContent = fs.readFileSync(csvPath, 'utf-8');
     const records = parseCSV(fileContent);
     
-    const currentYear = '2025';
-    const previousYear = '2024';
+    const currentYear = yearParam;
+    const previousYear = String(parseInt(yearParam) - 1);
     const monthNum = parseInt(month);
     
     // 계층 구조: 대분류 -> 중분류 -> 소분류

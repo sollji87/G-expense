@@ -311,5 +311,76 @@ export async function saveLaborRemark(data: LaborRemarkData): Promise<LaborRemar
   }
 }
 
+// === Monthly Analysis (월별 계정 분석) 관련 함수 ===
+
+export type MonthlyAnalysis = {
+  descriptions: Record<string, string>;  // accountId -> AI 분석 설명
+  generatedAt: string;                    // 생성 시간
+  year: string;
+  month: string;
+};
+
+/**
+ * 월별 분석 키 생성
+ */
+function getMonthlyAnalysisKey(year: string, month: string): string {
+  return `monthly_analysis:${year}:${month.padStart(2, '0')}`;
+}
+
+/**
+ * 월별 분석 결과 조회
+ */
+export async function getMonthlyAnalysis(year: string, month: string): Promise<MonthlyAnalysis | null> {
+  try {
+    const key = getMonthlyAnalysisKey(year, month);
+    const jsonString = await kv.get<string>(key);
+    if (!jsonString) return null;
+    
+    if (typeof jsonString === 'object') {
+      return jsonString as MonthlyAnalysis;
+    }
+    
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error('Redis getMonthlyAnalysis 오류:', error);
+    return null;
+  }
+}
+
+/**
+ * 월별 분석 결과 저장
+ */
+export async function saveMonthlyAnalysis(year: string, month: string, descriptions: Record<string, string>): Promise<MonthlyAnalysis> {
+  try {
+    const key = getMonthlyAnalysisKey(year, month);
+    const data: MonthlyAnalysis = {
+      descriptions,
+      generatedAt: new Date().toISOString(),
+      year,
+      month,
+    };
+    await kv.set(key, JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error('Redis saveMonthlyAnalysis 오류:', error);
+    throw error;
+  }
+}
+
+/**
+ * 월별 분석 결과 개별 항목 업데이트
+ */
+export async function updateMonthlyAnalysisItem(year: string, month: string, accountId: string, description: string): Promise<MonthlyAnalysis> {
+  try {
+    const existing = await getMonthlyAnalysis(year, month);
+    const descriptions = existing?.descriptions || {};
+    descriptions[accountId] = description;
+    return await saveMonthlyAnalysis(year, month, descriptions);
+  } catch (error) {
+    console.error('Redis updateMonthlyAnalysisItem 오류:', error);
+    throw error;
+  }
+}
+
 // Vercel KV 인스턴스 직접 export (필요시 사용)
 export { kv };

@@ -110,6 +110,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'monthly' | 'ytd'>('monthly');
   const [selectedMonth, setSelectedMonth] = useState('12');
+  const [selectedYear, setSelectedYear] = useState('2025');
   const [isEditMode, setIsEditMode] = useState(false);
   const [mainTab, setMainTab] = useState<'summary' | 'allocation' | 'labor' | 'it' | 'commission'>('summary'); // 메인 탭
   const [allocationCriteria, setAllocationCriteria] = useState<string[]>(['']); // 배부기준 입력 (불릿 배열)
@@ -152,7 +153,7 @@ export default function Dashboard() {
     };
   } | null>(null);
   const [itExpenseLoading, setItExpenseLoading] = useState(false);
-  const [itExpenseYear, setItExpenseYear] = useState<'2024' | '2025'>('2025');
+  const [itExpenseYear, setItExpenseYear] = useState<'2024' | '2025' | '2026'>('2025');
   const [expandedItCategories, setExpandedItCategories] = useState<Set<string>>(new Set());
   const [swCapexExpanded, setSwCapexExpanded] = useState(false); // SW상각비 클릭 시 유무형자산 섹션 펼침
   const [itMaintenanceExpanded, setItMaintenanceExpanded] = useState(false); // IT유지보수비 클릭 시 상세 섹션 펼침
@@ -199,7 +200,7 @@ export default function Dashboard() {
     months: string[];
   } | null>(null);
   const [commissionLoading, setCommissionLoading] = useState(false);
-  const [commissionYear, setCommissionYear] = useState<'2024' | '2025'>('2025');
+  const [commissionYear, setCommissionYear] = useState<'2024' | '2025' | '2026'>('2025');
   const [expandedCommissionCategories, setExpandedCommissionCategories] = useState<Set<string>>(new Set());
   const [expandedCommissionAccount, setExpandedCommissionAccount] = useState<string | null>(null);
   const [commissionAccountDetails, setCommissionAccountDetails] = useState<{
@@ -225,9 +226,9 @@ export default function Dashboard() {
     totals: { acquisitions: number; transfers: number; disposals: number };
   } | null>(null);
   const [capexLoading, setCapexLoading] = useState(false);
-  const [capexYear, setCapexYear] = useState<'2024' | '2025'>('2025');
+  const [capexYear, setCapexYear] = useState<'2024' | '2025' | '2026'>('2025');
   
-  const [laborYear, setLaborYear] = useState<'2024' | '2025'>('2025');
+  const [laborYear, setLaborYear] = useState<'2024' | '2025' | '2026'>('2025');
   const [laborMonthsExpanded, setLaborMonthsExpanded] = useState(false); // 과거 월 펼침/접힘
   const [laborDecemberExpanded, setLaborDecemberExpanded] = useState(true); // 12월 입사/퇴사/이동 상세 펼침 (디폴트 펼침)
   const [laborMovementData, setLaborMovementData] = useState<Record<string, { hire: string; resign: string; transfer: string }>>({}); // 입사/퇴사/이동 입력 데이터
@@ -369,6 +370,9 @@ export default function Dashboard() {
   const [tempDescription, setTempDescription] = useState<string>('');
   const [isGeneratingAI, setIsGeneratingAI] = useState<string | null>(null);
   const [isGeneratingInsight, setIsGeneratingInsight] = useState<boolean>(false);
+  const [isRunningMonthlyAnalysis, setIsRunningMonthlyAnalysis] = useState<boolean>(false);
+  const [monthlyAnalysisProgress, setMonthlyAnalysisProgress] = useState<string>('');
+  const [monthlyAnalysisExists, setMonthlyAnalysisExists] = useState<boolean>(false);
   
   // 서버에서 저장된 설명을 저장하는 ref (state보다 먼저 접근 가능)
   const serverDescriptionsRef = useRef<Record<string, string>>({});
@@ -404,18 +408,28 @@ export default function Dashboard() {
         // ref에 먼저 저장 (즉시 접근 가능)
         serverDescriptionsRef.current = result.data;
         
-        // 기존 자동 생성된 설명과 병합 (서버 데이터 우선)
-        setDescriptions(prev => ({
-          ...prev,
-          ...result.data
-        }));
-        console.log('✅ 서버에서 설명 로드 완료:', Object.keys(result.data).length, '개');
-        console.log('✅ 저장된 키 목록:', Object.keys(result.data));
-        
-        // AI 인사이트도 descriptions에서 불러오기 (특별 키 사용)
-        if (result.data['__AI_INSIGHT__']) {
-          setAiInsight(result.data['__AI_INSIGHT__']);
-          console.log('✅ AI 인사이트 로드 완료');
+        // 2026년 이상: 월별 AI 분석이 별도로 로드되므로, 
+        // 계층 관련 descriptions는 setDescriptions에 적용하지 않음 (AI 인사이트만 적용)
+        if (parseInt(selectedYear) >= 2026) {
+          // AI 인사이트만 적용
+          if (result.data['__AI_INSIGHT__']) {
+            setAiInsight(result.data['__AI_INSIGHT__']);
+            console.log('✅ AI 인사이트 로드 완료 (2026+ 모드)');
+          }
+          console.log('⏭️ 2026+ 모드: 계층 descriptions는 월별 AI 분석에서 로드');
+        } else {
+          // 2025년 이하: 기존 방식 (서버 데이터 우선 병합)
+          setDescriptions(prev => ({
+            ...prev,
+            ...result.data
+          }));
+          console.log('✅ 서버에서 설명 로드 완료:', Object.keys(result.data).length, '개');
+          
+          // AI 인사이트도 descriptions에서 불러오기 (특별 키 사용)
+          if (result.data['__AI_INSIGHT__']) {
+            setAiInsight(result.data['__AI_INSIGHT__']);
+            console.log('✅ AI 인사이트 로드 완료');
+          }
         }
       }
     } catch (error) {
@@ -537,7 +551,7 @@ export default function Dashboard() {
   const loadAllocationData = async () => {
     setAllocationLoading(true);
     try {
-      const response = await fetch(`/api/allocation?month=${selectedMonth}&mode=${viewMode}`);
+      const response = await fetch(`/api/allocation?month=${selectedMonth}&mode=${viewMode}&year=${selectedYear}`);
       const result = await response.json();
       
       if (result.success) {
@@ -586,10 +600,11 @@ export default function Dashboard() {
   };
 
   // IT수수료 데이터 로드
-  const loadItExpenseData = async () => {
+  const loadItExpenseData = async (year?: string) => {
     setItExpenseLoading(true);
     try {
-      const response = await fetch('/api/it-expense');
+      const targetYear = year || itExpenseYear;
+      const response = await fetch(`/api/it-expense?year=${targetYear}`);
       const result = await response.json();
       
       if (result.success) {
@@ -839,7 +854,7 @@ export default function Dashboard() {
   const loadFilterOptions = async () => {
     try {
       // 비용 데이터 기준으로 필터 옵션 가져오기
-      const response = await fetch(`/api/filter-options?month=${selectedMonth}`);
+      const response = await fetch(`/api/filter-options?month=${selectedMonth}&year=${selectedYear}`);
       const result = await response.json();
       
       if (result.success) {
@@ -963,12 +978,12 @@ export default function Dashboard() {
   useEffect(() => {
     loadDescriptions();
     loadFilterOptions();
-  }, [selectedMonth]);
+  }, [selectedMonth, selectedYear]);
 
   useEffect(() => {
     loadData();
     loadChartData();
-  }, [viewMode, selectedMonth, selectedCostCenters, selectedMajorCategories]);
+  }, [viewMode, selectedMonth, selectedYear, selectedCostCenters, selectedMajorCategories]);
   
   // 필터 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
@@ -996,7 +1011,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadAccountData();
-  }, [accountViewMode, selectedMonth, accountLevel, selectedMajorCategory]);
+  }, [accountViewMode, selectedMonth, selectedYear, accountLevel, selectedMajorCategory]);
   
   // selectedAccount가 변경되고 accountLevel이 detail이 아닐 때만 코스트센터 로드
   useEffect(() => {
@@ -1007,7 +1022,7 @@ export default function Dashboard() {
   
   useEffect(() => {
     loadHierarchyData();
-  }, [tableViewMode, selectedMonth]);
+  }, [tableViewMode, selectedMonth, selectedYear]);
   
   // descriptions가 변경되면 구조화된 인사이트 업데이트
   useEffect(() => {
@@ -1028,7 +1043,7 @@ export default function Dashboard() {
     if (mainTab === 'allocation') {
       loadAllocationData();
     }
-  }, [selectedMonth, viewMode]);
+  }, [selectedMonth, selectedYear, viewMode]);
 
   // 인건비 탭 진입 시 데이터 로드
   useEffect(() => {
@@ -1162,6 +1177,7 @@ export default function Dashboard() {
       const params = new URLSearchParams({
         mode: accountViewMode,
         month: selectedMonth,
+        year: selectedYear,
         level: accountLevel,
       });
       
@@ -1208,6 +1224,7 @@ export default function Dashboard() {
       const params = new URLSearchParams({
         mode: accountViewMode,
         month: selectedMonth,
+        year: selectedYear,
         account: selectedAccount,
       });
       if (selectedCostCenters.length > 0) {
@@ -1230,6 +1247,7 @@ export default function Dashboard() {
       const params = new URLSearchParams({
         mode: accountViewMode,
         month: selectedMonth,
+        year: selectedYear,
         account: accountName,
       });
       if (selectedCostCenters.length > 0) {
@@ -1285,6 +1303,7 @@ export default function Dashboard() {
       const params = new URLSearchParams({
         mode: tableViewMode,
         month: selectedMonth,
+        year: selectedYear,
       });
       if (selectedCostCenters.length > 0) {
         params.append('costCenters', selectedCostCenters.join(','));
@@ -1448,7 +1467,93 @@ export default function Dashboard() {
   
   const loadGLAnalysisData = async (hierarchyData: any[]) => {
     try {
-      // OpenAI로 생성한 GL 분석 데이터 가져오기
+      // 2026년 이상: Redis 월별 분석 데이터 조회
+      if (parseInt(selectedYear) >= 2026) {
+        console.log(`📡 ${selectedYear}년 ${selectedMonth}월 Redis 월별 분석 조회...`);
+        const monthlyRes = await fetch(`/api/insights/monthly-analysis?year=${selectedYear}&month=${selectedMonth}`);
+        const monthlyResult = await monthlyRes.json();
+        
+        if (monthlyResult.success && monthlyResult.exists && monthlyResult.data) {
+          const monthlyDescriptions = monthlyResult.data.descriptions;
+          console.log(`✅ Redis 월별 분석 로드 완료: ${Object.keys(monthlyDescriptions).length}개`);
+          setMonthlyAnalysisExists(true);
+          
+          // 소분류(GL계정명) 기반 분석 결과를 계층 구조에 매핑
+          const glAnalysisMap: Record<string, any> = {};
+          for (const [accountName, description] of Object.entries(monthlyDescriptions)) {
+            glAnalysisMap[accountName] = { description };
+          }
+          
+          // 월별 AI 분석 결과를 직접 descriptions에 설정 (serverDescriptionsRef 우선 무시)
+          const directDescriptions: Record<string, string> = {};
+          
+          const applyMonthlyDescriptions = (items: any[]) => {
+            items.forEach((item: any) => {
+              const accountName = item.name;
+              const accountId = item.id;
+              
+              if (glAnalysisMap[accountName]) {
+                directDescriptions[accountId] = glAnalysisMap[accountName].description;
+              }
+              
+              if (item.children) {
+                applyMonthlyDescriptions(item.children);
+              }
+            });
+          };
+          
+          applyMonthlyDescriptions(hierarchyData);
+          
+          // 먼저 직접 매핑된 설명 적용
+          setDescriptions(prev => ({
+            ...prev,
+            ...directDescriptions
+          }));
+          
+          // 매핑되지 않은 항목(대분류, 중분류 등)은 자동 생성 (이전 저장 데이터 무시)
+          hierarchyData.forEach((major: any) => {
+            if (!directDescriptions[major.id]) {
+              generateDescriptionForLevel(major, glAnalysisMap, true);
+            }
+            if (major.children) {
+              major.children.forEach((middle: any) => {
+                if (!directDescriptions[middle.id]) {
+                  generateDescriptionForLevel(middle, glAnalysisMap, true);
+                }
+                if (middle.children) {
+                  middle.children.forEach((detail: any) => {
+                    if (!directDescriptions[detail.id]) {
+                      generateDescriptionForLevel(detail, glAnalysisMap, true);
+                    }
+                  });
+                }
+              });
+            }
+          });
+          return;
+        } else {
+          console.log(`⚠️ ${selectedYear}년 ${selectedMonth}월 Redis 분석 데이터 없음 - AI 분석 실행 필요`);
+          setMonthlyAnalysisExists(false);
+          
+          // 기본 설명 생성 (AI 분석 전)
+          hierarchyData.forEach((major: any) => {
+            generateDescriptionForLevel(major, {});
+            if (major.children) {
+              major.children.forEach((middle: any) => {
+                generateDescriptionForLevel(middle, {});
+                if (middle.children) {
+                  middle.children.forEach((detail: any) => {
+                    generateDescriptionForLevel(detail, {});
+                  });
+                }
+              });
+            }
+          });
+          return;
+        }
+      }
+      
+      // 2025년 이하: 기존 CSV 기반 GL 분석 데이터 사용
       const response = await fetch('/api/gl-analysis');
       const result = await response.json();
       
@@ -1458,15 +1563,10 @@ export default function Dashboard() {
         
         // 모든 계층(대분류, 중분류, 소분류)에 대해 설명 생성
         hierarchyData.forEach((major: any) => {
-          // 대분류 설명 생성
           generateDescriptionForLevel(major, glAnalysisMap);
-          
-          // 중분류 설명 생성
           if (major.children) {
             major.children.forEach((middle: any) => {
               generateDescriptionForLevel(middle, glAnalysisMap);
-              
-              // 소분류 설명 생성
               if (middle.children) {
                 middle.children.forEach((detail: any) => {
                   generateDescriptionForLevel(detail, glAnalysisMap);
@@ -1483,20 +1583,84 @@ export default function Dashboard() {
     }
   };
   
-  const generateDescriptionForLevel = (data: any, glAnalysisMap: Record<string, any>) => {
+  // 월별 AI 분석 실행 (2026년 이상)
+  const runMonthlyAIAnalysis = async () => {
+    if (isRunningMonthlyAnalysis) return;
+    
+    setIsRunningMonthlyAnalysis(true);
+    setMonthlyAnalysisProgress('AI 분석을 시작합니다...');
+    
+    try {
+      const response = await fetch('/api/insights/monthly-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          year: selectedYear,
+          month: selectedMonth,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setMonthlyAnalysisProgress(`✅ ${result.stats.analyzedAccounts}개 계정 분석 완료!`);
+        setMonthlyAnalysisExists(true);
+        
+        // 분석 결과를 설명에 반영
+        if (result.data?.descriptions) {
+          const monthlyDescriptions = result.data.descriptions;
+          const glAnalysisMap: Record<string, any> = {};
+          for (const [accountName, description] of Object.entries(monthlyDescriptions)) {
+            glAnalysisMap[accountName] = { description };
+          }
+          
+          hierarchyData.forEach((major: any) => {
+            generateDescriptionForLevel(major, glAnalysisMap);
+            if (major.children) {
+              major.children.forEach((middle: any) => {
+                generateDescriptionForLevel(middle, glAnalysisMap);
+                if (middle.children) {
+                  middle.children.forEach((detail: any) => {
+                    generateDescriptionForLevel(detail, glAnalysisMap);
+                  });
+                }
+              });
+            }
+          });
+        }
+        
+        alert(`AI 분석이 완료되었습니다! (${result.stats.analyzedAccounts}개 계정)`);
+      } else {
+        setMonthlyAnalysisProgress(`❌ 분석 실패: ${result.error}`);
+        alert(`AI 분석 실패: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('월별 AI 분석 실행 오류:', error);
+      setMonthlyAnalysisProgress('❌ 분석 실행 중 오류가 발생했습니다.');
+      alert('AI 분석 실행 중 오류가 발생했습니다.');
+    } finally {
+      setIsRunningMonthlyAnalysis(false);
+      setTimeout(() => setMonthlyAnalysisProgress(''), 5000);
+    }
+  };
+  
+  const generateDescriptionForLevel = (data: any, glAnalysisMap: Record<string, any>, skipServerDescriptions = false) => {
     const accountName = data.name;
     const accountId = data.id; // 고유 ID 사용 (대분류와 중분류 구분)
     
     // 사용자가 편집한 설명이 있으면 그대로 유지 (ref를 사용하여 최신 서버 데이터 확인)
-    const savedDescription = serverDescriptionsRef.current[accountId];
-    if (savedDescription) {
-      console.log('📝 저장된 설명 사용:', accountName, '→', savedDescription.substring(0, 30) + '...');
-      // 서버에서 가져온 설명을 state에도 반영
-      setDescriptions(prev => ({
-        ...prev,
-        [accountId]: savedDescription
-      }));
-      return; // 저장된 설명이 있으면 자동 생성하지 않음
+    // 단, 2026년 이상에서 월별 AI 분석을 사용할 때는 이전 저장 데이터 무시
+    if (!skipServerDescriptions) {
+      const savedDescription = serverDescriptionsRef.current[accountId];
+      if (savedDescription) {
+        console.log('📝 저장된 설명 사용:', accountName, '→', savedDescription.substring(0, 30) + '...');
+        // 서버에서 가져온 설명을 state에도 반영
+        setDescriptions(prev => ({
+          ...prev,
+          [accountId]: savedDescription
+        }));
+        return; // 저장된 설명이 있으면 자동 생성하지 않음
+      }
     }
     
     // OpenAI 분석 결과가 있으면 직접 사용 (소분류)
@@ -1556,8 +1720,8 @@ export default function Dashboard() {
       } else {
         // 하드코딩된 데이터가 없는 경우 API 호출
         try {
-          const currentYearMonth = `2025${selectedMonth.padStart(2, '0')}`;
-          const previousYearMonth = `2024${selectedMonth.padStart(2, '0')}`;
+          const currentYearMonth = `${selectedYear}${selectedMonth.padStart(2, '0')}`;
+          const previousYearMonth = `${parseInt(selectedYear) - 1}${selectedMonth.padStart(2, '0')}`;
           
           const response = await fetch(`/api/headcount-comparison?currentMonth=${currentYearMonth}&previousMonth=${previousYearMonth}`);
           const result = await response.json();
@@ -1683,6 +1847,7 @@ export default function Dashboard() {
   const saveDescription = async (accountId: string) => {
     // 서버에 저장 - 개별 항목만 전송
     try {
+      // 기존 descriptions Redis에 저장
       const response = await fetch('/api/descriptions', {
         method: 'POST',
         headers: {
@@ -1704,15 +1869,31 @@ export default function Dashboard() {
           ...(result.data || {})
         }));
         
+        // 2026년 이상이면 월별 Redis에도 저장
+        if (parseInt(selectedYear) >= 2026) {
+          try {
+            await fetch('/api/insights/monthly-analysis', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                year: selectedYear,
+                month: selectedMonth,
+                accountId: accountId,
+                description: tempDescription,
+              }),
+            });
+            console.log('✅ 월별 Redis에도 설명 저장 완료:', accountId);
+          } catch (e) {
+            console.error('월별 Redis 저장 실패 (비차단):', e);
+          }
+        }
+        
         console.log('✅ 서버에 설명 저장 완료:', accountId);
-        alert('설명이 저장되었습니다!');
       } else {
         console.error('❌ 서버 저장 실패:', result.error);
-        alert('설명 저장에 실패했습니다: ' + result.error);
       }
     } catch (error) {
       console.error('❌ 설명 저장 실패:', error);
-      alert('설명 저장에 실패했습니다. 네트워크를 확인해주세요.');
     }
     
     setEditingDescription(null);
@@ -1724,11 +1905,58 @@ export default function Dashboard() {
     setTempDescription('');
   };
 
+  // 인라인 편집 저장 (contentEditable에서 blur 시 호출)
+  const inlineSaveDescription = async (accountId: string, accountName: string, newText: string) => {
+    try {
+      // descriptions 상태 즉시 업데이트 (UI 반응성)
+      setDescriptions(prev => ({
+        ...prev,
+        [accountId]: newText,
+      }));
+
+      // 서버에 저장 (기본 descriptions Redis)
+      const response = await fetch('/api/descriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accountId, description: newText })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // 2026년 이상이면 월별 Redis에도 저장
+        // ⚠️ 월별 Redis는 계정명(accountName)을 키로 사용해야 AI 분석과 일치
+        if (parseInt(selectedYear) >= 2026) {
+          try {
+            await fetch('/api/insights/monthly-analysis', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                year: selectedYear,
+                month: selectedMonth,
+                accountId: accountName,  // 계정명으로 저장 (AI 분석 키와 일치)
+                description: newText,
+              }),
+            });
+          } catch (e) {
+            console.error('월별 Redis 저장 실패 (비차단):', e);
+          }
+        }
+        console.log('✅ 인라인 편집 저장 완료:', accountId, '→', accountName);
+      } else {
+        console.error('❌ 인라인 편집 저장 실패:', result.error);
+      }
+    } catch (error) {
+      console.error('❌ 인라인 편집 저장 실패:', error);
+    }
+  };
+
   const handleDrilldown = async (category: string, fromLevel: 'major' | 'middle' = 'major') => {
     try {
       const params = new URLSearchParams({
         category,
         month: selectedMonth,
+        year: selectedYear,
         level: fromLevel,
       });
       if (selectedCostCenters.length > 0) {
@@ -1755,6 +1983,7 @@ export default function Dashboard() {
       const params = new URLSearchParams({
         category,
         month: selectedMonth,
+        year: selectedYear,
         level: 'middle',
       });
       if (selectedCostCenters.length > 0) {
@@ -1776,7 +2005,7 @@ export default function Dashboard() {
     try {
       // 6개월 이동평균 계산을 위해 17개월 데이터 로드 (12개월 + 이전 5개월)
       const selectedMonthNum = parseInt(selectedMonth);
-      const selectedYearNum = 2025; // 현재 기준 연도
+      const selectedYearNum = parseInt(selectedYear);
       const allMonths: any[] = [];
       
       // 17개월 계산 (선택한 월 포함하여 과거 17개월)
@@ -1873,6 +2102,7 @@ export default function Dashboard() {
       const params = new URLSearchParams({
         mode: viewMode,
         month: selectedMonth,
+        year: selectedYear,
       });
       
       if (selectedCostCenters.length > 0) {
@@ -2347,7 +2577,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-gray-900">공통부서 비용 분석</h1>
-              <p className="text-xs md:text-sm text-gray-600">2025년 {selectedMonth}월 기준</p>
+              <p className="text-xs md:text-sm text-gray-600">{selectedYear}년 {selectedMonth}월 기준</p>
             </div>
           </div>
           
@@ -2356,22 +2586,27 @@ export default function Dashboard() {
             {/* 월 선택 버튼 */}
             <div className="relative">
               <select 
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
+                value={`${selectedYear}-${selectedMonth}`}
+                onChange={(e) => {
+                  const [year, month] = e.target.value.split('-');
+                  setSelectedYear(year);
+                  setSelectedMonth(month);
+                }}
                 className="appearance-none pl-10 pr-10 py-2.5 border-2 border-blue-500 rounded-lg bg-white text-sm font-medium text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer hover:bg-blue-50 transition-colors"
               >
-                <option value="1">2025년 1월</option>
-                <option value="2">2025년 2월</option>
-                <option value="3">2025년 3월</option>
-                <option value="4">2025년 4월</option>
-                <option value="5">2025년 5월</option>
-                <option value="6">2025년 6월</option>
-                <option value="7">2025년 7월</option>
-                <option value="8">2025년 8월</option>
-                <option value="9">2025년 9월</option>
-                <option value="10">2025년 10월</option>
-                <option value="11">2025년 11월</option>
-                <option value="12">2025년 12월</option>
+                <option value="2025-1">2025년 1월</option>
+                <option value="2025-2">2025년 2월</option>
+                <option value="2025-3">2025년 3월</option>
+                <option value="2025-4">2025년 4월</option>
+                <option value="2025-5">2025년 5월</option>
+                <option value="2025-6">2025년 6월</option>
+                <option value="2025-7">2025년 7월</option>
+                <option value="2025-8">2025년 8월</option>
+                <option value="2025-9">2025년 9월</option>
+                <option value="2025-10">2025년 10월</option>
+                <option value="2025-11">2025년 11월</option>
+                <option value="2025-12">2025년 12월</option>
+                <option value="2026-1">2026년 1월</option>
               </select>
               <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 pointer-events-none" />
               <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4257,6 +4492,35 @@ export default function Dashboard() {
                   </button>
                 </div>
                 
+                {/* AI 분석 실행 (2026년 이상) */}
+                {parseInt(selectedYear) >= 2026 && (
+                  <button
+                    onClick={runMonthlyAIAnalysis}
+                    disabled={isRunningMonthlyAnalysis}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors flex items-center gap-1.5 ${
+                      isRunningMonthlyAnalysis
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : monthlyAnalysisExists
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-300'
+                          : 'bg-blue-600 text-white hover:bg-blue-700 animate-pulse'
+                    }`}
+                  >
+                    {isRunningMonthlyAnalysis ? (
+                      <>
+                        <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        AI 분석 중...
+                      </>
+                    ) : monthlyAnalysisExists ? (
+                      <>🔄 AI 재분석</>
+                    ) : (
+                      <>🤖 AI 분석 실행</>
+                    )}
+                  </button>
+                )}
+                
                 {/* 모두 접기/펼치기 */}
                 <button
                   onClick={() => {
@@ -4293,6 +4557,18 @@ export default function Dashboard() {
           
           {isTableExpanded && (
             <CardContent className="p-6">
+              {/* AI 분석 진행 상태 */}
+              {monthlyAnalysisProgress && (
+                <div className={`mb-4 p-3 rounded-lg text-sm ${
+                  monthlyAnalysisProgress.startsWith('✅') 
+                    ? 'bg-green-50 text-green-700 border border-green-200' 
+                    : monthlyAnalysisProgress.startsWith('❌')
+                      ? 'bg-red-50 text-red-700 border border-red-200'
+                      : 'bg-blue-50 text-blue-700 border border-blue-200'
+                }`}>
+                  {monthlyAnalysisProgress}
+                </div>
+              )}
               {/* 데이터 테이블 */}
               <div className="overflow-x-auto">
                 <table className="w-full text-sm table-fixed">
@@ -4331,6 +4607,7 @@ export default function Dashboard() {
                         onStartEdit={startEditDescription}
                         onSaveEdit={saveDescription}
                         onCancelEdit={cancelEditDescription}
+                        onInlineSave={inlineSaveDescription}
                       />
                     ))}
                   </tbody>
@@ -5884,7 +6161,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => { setItExpenseYear('2024'); if (itMaintenanceExpanded) loadItMaintenanceData('2024'); }}
+                    onClick={() => { setItExpenseYear('2024'); loadItExpenseData('2024'); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2024'
                         ? 'bg-blue-600 text-white'
@@ -5894,7 +6171,7 @@ export default function Dashboard() {
                     2024년
                   </button>
                   <button
-                    onClick={() => { setItExpenseYear('2025'); if (itMaintenanceExpanded) loadItMaintenanceData('2025'); }}
+                    onClick={() => { setItExpenseYear('2025'); loadItExpenseData('2025'); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2025'
                         ? 'bg-blue-600 text-white'
@@ -5902,6 +6179,16 @@ export default function Dashboard() {
                     }`}
                   >
                     2025년
+                  </button>
+                  <button
+                    onClick={() => { setItExpenseYear('2026'); loadItExpenseData('2026'); }}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      itExpenseYear === '2026'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    2026년
                   </button>
                 </div>
               </div>
@@ -6560,6 +6847,16 @@ export default function Dashboard() {
                   >
                     2025년
                   </button>
+                  <button
+                    onClick={() => setCapexYear('2026')}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      capexYear === '2026'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    2026년
+                  </button>
                 </div>
               </div>
             </CardHeader>
@@ -6786,6 +7083,16 @@ export default function Dashboard() {
                     }`}
                   >
                     2025년
+                  </button>
+                  <button
+                    onClick={() => { setCommissionYear('2026'); if (commissionData) loadCommissionData('2026'); }}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      commissionYear === '2026'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    2026년
                   </button>
                 </div>
               </div>
@@ -7173,6 +7480,7 @@ interface HierarchyRowProps {
   onStartEdit: (id: string, currentDesc: string) => void;
   onSaveEdit: (id: string) => void;
   onCancelEdit: () => void;
+  onInlineSave: (id: string, name: string, text: string) => void;
 }
 
 function HierarchyRow({ 
@@ -7188,7 +7496,8 @@ function HierarchyRow({
   setTempDescription,
   onStartEdit,
   onSaveEdit,
-  onCancelEdit
+  onCancelEdit,
+  onInlineSave
 }: HierarchyRowProps) {
   const isExpanded = expandedRows.has(data.id);
   const hasChildren = data.children && data.children.length > 0;
@@ -7250,56 +7559,43 @@ function HierarchyRow({
           {formatNumber(data.yoy)}%
         </td>
         <td className="px-4 py-3">
-          {isEditing ? (
-            <div className="flex items-center gap-2">
-              <textarea
-                value={tempDescription}
-                onChange={(e) => setTempDescription(e.target.value)}
-                className="flex-1 text-xs p-2 border border-blue-300 rounded resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                rows={2}
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    onSaveEdit(data.id);
-                  } else if (e.key === 'Escape') {
-                    onCancelEdit();
-                  }
-                }}
-              />
-              <div className="flex flex-col gap-1">
-                <button
-                  onClick={() => onSaveEdit(data.id)}
-                  className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                >
-                  저장
-                </button>
-                <button
-                  onClick={onCancelEdit}
-                  className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
-                >
-                  취소
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 group">
-              <span 
-                className={`text-xs flex-1 cursor-pointer hover:text-blue-600 ${isTotal ? 'text-purple-700 font-semibold' : 'text-gray-600'}`}
-                onClick={() => onStartEdit(data.id, descriptions[data.id] || '')}
-                title="클릭하여 편집"
-              >
-                {descriptions[data.id] || (isTotal ? '공통비 합계 설명을 입력하세요...' : '설명을 불러오는 중...')}
-              </span>
-              <button
-                onClick={() => onStartEdit(data.id, descriptions[data.id] || '')}
-                className={`p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100 ${isTotal ? 'text-purple-600' : 'text-blue-600'}`}
-                title="편집"
-              >
-                <PencilIcon className="w-3 h-3" />
-              </button>
-            </div>
-          )}
+          <div
+            contentEditable
+            suppressContentEditableWarning
+            className={`text-xs outline-none rounded px-1 py-0.5 transition-colors cursor-text focus:bg-blue-50 focus:ring-1 focus:ring-blue-300 hover:bg-gray-100 ${
+              descriptions[data.id] 
+                ? (isTotal ? 'text-purple-700 font-semibold' : 'text-gray-600') 
+                : 'text-gray-400 italic'
+            }`}
+            onFocus={(e) => {
+              // 플레이스홀더 상태면 텍스트 비우기
+              if (!descriptions[data.id]) {
+                e.currentTarget.textContent = '';
+                e.currentTarget.className = e.currentTarget.className.replace('text-gray-400 italic', isTotal ? 'text-purple-700 font-semibold' : 'text-gray-600');
+              }
+            }}
+            onBlur={(e) => {
+              const newText = e.currentTarget.textContent?.trim() || '';
+              const oldText = descriptions[data.id] || '';
+              if (newText && newText !== oldText) {
+                onInlineSave(data.id, data.name, newText);
+              } else if (!newText) {
+                // 빈 텍스트면 플레이스홀더 복원
+                e.currentTarget.textContent = descriptions[data.id] || (isTotal ? '설명을 입력하세요...' : '분석 중...');
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                (e.target as HTMLElement).blur();
+              } else if (e.key === 'Escape') {
+                (e.target as HTMLElement).textContent = descriptions[data.id] || '';
+                (e.target as HTMLElement).blur();
+              }
+            }}
+          >
+            {descriptions[data.id] || (isTotal ? '설명을 입력하세요...' : '분석 중...')}
+          </div>
         </td>
       </tr>
       
@@ -7319,6 +7615,7 @@ function HierarchyRow({
           onStartEdit={onStartEdit}
           onSaveEdit={onSaveEdit}
           onCancelEdit={onCancelEdit}
+          onInlineSave={onInlineSave}
         />
       ))}
     </>
