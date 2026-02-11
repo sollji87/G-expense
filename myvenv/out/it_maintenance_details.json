@@ -5200,227 +5200,227 @@
   "2026": [
     {
       "month": "01",
-      "text": "26.01월_Github SW 라이센스 유지보수비",
+      "text": "IT담당 DevOps 엔지니어 외주 26.01",
       "vendor": "",
       "cctr": "IT팀",
-      "amount": 0
-    },
-    {
-      "month": "01",
-      "text": "26.01월_오라클DB 라이선스 갱신(DBMS 시간제 유지보수)",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 0
-    },
-    {
-      "month": "01",
-      "text": "26.01월_네트워크 접근제어 솔루션 유지보수",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 2
-    },
-    {
-      "month": "01",
-      "text": "26.01월_WMS 라이선스 유지보수",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 1
-    },
-    {
-      "month": "01",
-      "text": "26.01월_Github SW 라이선스 유지보수비",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 0
-    },
-    {
-      "month": "01",
-      "text": "26.01월_OZ Report 유지보수",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 0
-    },
-    {
-      "month": "01",
-      "text": "26.01월_[MERP / CN_OMS / GOMS] 시스템 유지보수",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 3
-    },
-    {
-      "month": "01",
-      "text": "26.01월_SAP DB암호화 솔루션 MA비용",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 1
+      "amount": 27600000.0
     },
     {
       "month": "01",
       "text": "AWS MSP 비용 25.12",
       "vendor": "",
       "cctr": "IT팀",
-      "amount": 19
-    },
-    {
-      "month": "01",
-      "text": "메가존 운영상주 단기 인력 용역 계약",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 8
-    },
-    {
-      "month": "01",
-      "text": "26.01 본사 유무선 네트워크 유지보수 비용",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 2
-    },
-    {
-      "month": "01",
-      "text": "26.01 개인정보 검색 솔루션 유지보수 비용",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 1
-    },
-    {
-      "month": "01",
-      "text": "26.01 스토리지 장비 유지보수료",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 1
-    },
-    {
-      "month": "01",
-      "text": "26.01 데이터관리시스템 유지보수(엔코아)",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 1
-    },
-    {
-      "month": "01",
-      "text": "26.01 ERP 웹방화벽 임대유지보수비용",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 1
-    },
-    {
-      "month": "01",
-      "text": "26.01 IDC 방화벽 보안 관제 서비스",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 0
-    },
-    {
-      "month": "01",
-      "text": "26.01 망연계솔루션 유지보수 비용",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 0
+      "amount": 18959875.0
     },
     {
       "month": "01",
       "text": "26년 01월 웹플랫폼팀 FE 개발 및 운영",
       "vendor": "",
       "cctr": "IT팀",
-      "amount": 12
+      "amount": 12000000.0
     },
     {
       "month": "01",
-      "text": "26.01 방화벽 유지보수 비용",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 1
-    },
-    {
-      "month": "01",
-      "text": "26.01 무선인증솔루션 유지보수 비용",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 0
-    },
-    {
-      "month": "01",
-      "text": "26.01 접근제어 솔루션 유지보수 비용",
-      "vendor": "",
-      "cctr": "정보보안팀",
-      "amount": 1
-    },
-    {
-      "month": "01",
-      "text": "IT담당 DevOps 엔지니어 외주 26.01",
+      "text": "메가존 운영상주 단기 인력 용역 계약",
       "vendor": "",
       "cctr": "IT팀",
-      "amount": 28
-    },
-    {
-      "month": "01",
-      "text": "PLM 유지보수비",
-      "vendor": "",
-      "cctr": "AX팀",
-      "amount": 4
-    },
-    {
-      "month": "01",
-      "text": "26년 01월 RFID S/W 유지보수비",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 3
-    },
-    {
-      "month": "01",
-      "text": "26년 01월 물류RFID S/W 유지보수비",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 1
+      "amount": 8500000.0
     },
     {
       "month": "01",
       "text": "26년 1월 리틀플래닛 크롤링 유지보수 비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
-      "amount": 7
-    },
-    {
-      "month": "01",
-      "text": "IFS 카카오톡 알림톡 서비스_2025.12",
-      "vendor": "",
-      "cctr": "마케팅본부",
-      "amount": 0
+      "amount": 6970000.0
     },
     {
       "month": "01",
       "text": "인플루언서시스템 유지보수비 (26.01)",
       "vendor": "",
       "cctr": "마케팅본부",
-      "amount": 5
+      "amount": 4700000.0
     },
     {
       "month": "01",
-      "text": "26.01 연결솔루션 유지보수비용",
+      "text": "PLM 유지보수비",
       "vendor": "",
-      "cctr": "회계팀",
-      "amount": 2
-    },
-    {
-      "month": "01",
-      "text": "2026.01월 HR대시보드 유지보수 비용 정",
-      "vendor": "",
-      "cctr": "HR팀",
-      "amount": 2
-    },
-    {
-      "month": "01",
-      "text": "26.01 POS 결제 솔루션 (브이디크럭스)",
-      "vendor": "",
-      "cctr": "IT팀",
-      "amount": 2
+      "cctr": "AX팀",
+      "amount": 4450000.0
     },
     {
       "month": "01",
       "text": "2026.01월 평가시스템 유지보수 비용 정산",
       "vendor": "",
       "cctr": "HR팀",
-      "amount": 3
+      "amount": 3000000.0
+    },
+    {
+      "month": "01",
+      "text": "26년 01월 RFID S/W 유지보수비",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 2625000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01월_[MERP / CN_OMS / GOMS] 시스템 유지보수",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 2530959.0
+    },
+    {
+      "month": "01",
+      "text": "2026.01월 HR대시보드 유지보수 비용 정",
+      "vendor": "",
+      "cctr": "HR팀",
+      "amount": 2500000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 POS 결제 솔루션 (브이디크럭스)",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 2500000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 본사 유무선 네트워크 유지보수 비용",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 2176000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 연결솔루션 유지보수비용",
+      "vendor": "",
+      "cctr": "회계팀",
+      "amount": 1666667.0
+    },
+    {
+      "month": "01",
+      "text": "26.01월_네트워크 접근제어 솔루션 유지보수",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 1578707.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 접근제어 솔루션 유지보수 비용",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 1300000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 스토리지 장비 유지보수료",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 1300000.0
+    },
+    {
+      "month": "01",
+      "text": "26년 01월 물류RFID S/W 유지보수비",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 1300000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 개인정보 검색 솔루션 유지보수 비용",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 1050000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01월_SAP DB암호화 솔루션 MA비용",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 1031918.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 방화벽 유지보수 비용",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 1010066.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 ERP 웹방화벽 임대유지보수비용",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 880000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 데이터관리시스템 유지보수(엔코아)",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 824667.0
+    },
+    {
+      "month": "01",
+      "text": "26.01월_WMS 라이선스 유지보수",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 817890.0
+    },
+    {
+      "month": "01",
+      "text": "26.01월_OZ Report 유지보수",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 359362.0
+    },
+    {
+      "month": "01",
+      "text": "26.01월_오라클DB 라이선스 갱신(DBMS 시간제 유지보수)",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 356712.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 망연계솔루션 유지보수 비용",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 280000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 IDC 방화벽 보안 관제 서비스",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 250000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01 무선인증솔루션 유지보수 비용",
+      "vendor": "",
+      "cctr": "정보보안팀",
+      "amount": 192000.0
+    },
+    {
+      "month": "01",
+      "text": "IFS 카카오톡 알림톡 서비스_2025.12",
+      "vendor": "",
+      "cctr": "마케팅본부",
+      "amount": 30000.0
+    },
+    {
+      "month": "01",
+      "text": "26.01월_Github SW 라이센스 유지보수비",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 15408.0
+    },
+    {
+      "month": "01",
+      "text": "26.01월_Github SW 라이선스 유지보수비",
+      "vendor": "",
+      "cctr": "IT팀",
+      "amount": 1924.0
     }
   ]
 }

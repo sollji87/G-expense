@@ -252,6 +252,7 @@ export async function GET(request: Request) {
     const team = searchParams.get('team');
     
     const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+    const prevYear = String(parseInt(year) - 1);
     
     if (team) {
       return getTeamDetails(year, team, months);
@@ -261,17 +262,17 @@ export async function GET(request: Request) {
     const detailData = loadDetailJson();
     
     const monthlyTotals: { [m: string]: number } = {};
-    const monthlyTotals2024: { [m: string]: number } = {};
+    const monthlyTotalsPrev: { [m: string]: number } = {};
     const aiUsageData: { monthly: { [m: string]: number }; total: number } = { monthly: {}, total: 0 };
     const teamData: { [teamName: string]: { monthly: { [m: string]: number }; total: number } } = {};
     
     months.forEach(m => { 
       monthlyTotals[m] = 0; 
-      monthlyTotals2024[m] = 0;
+      monthlyTotalsPrev[m] = 0;
       aiUsageData.monthly[m] = 0;
     });
     
-    // pivot_by_gl_yyyymm_combined.csv에서 24년 월별 합계 로드
+    // pivot_by_gl_yyyymm_combined.csv에서 전년도 월별 합계 로드
     let pivotPath = path.join(process.cwd(), '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
     if (!fs.existsSync(pivotPath)) {
       pivotPath = path.join(process.cwd(), '..', '..', 'out', 'pivot_by_gl_yyyymm_combined.csv');
@@ -287,9 +288,9 @@ export async function GET(request: Request) {
       
       if (usageRecord) {
         for (const m of months) {
-          const key2024 = `2024${m}`;
-          const val2024 = parseFloat(usageRecord[key2024] || '0') / 1_000_000;
-          monthlyTotals2024[m] = Math.round(val2024);
+          const keyPrev = `${prevYear}${m}`;
+          const valPrev = parseFloat(usageRecord[keyPrev] || '0') / 1_000_000;
+          monthlyTotalsPrev[m] = Math.round(valPrev);
         }
       }
     }
@@ -363,7 +364,8 @@ export async function GET(request: Request) {
       year,
       items,
       monthlyTotals: roundedTotals,
-      monthlyTotals2024,
+      monthlyTotalsPrev,
+      prevYear,
       monthlyHeadcount,
       months,
     });

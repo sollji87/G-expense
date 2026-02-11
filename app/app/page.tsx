@@ -153,14 +153,15 @@ export default function Dashboard() {
     };
   } | null>(null);
   const [itExpenseLoading, setItExpenseLoading] = useState(false);
-  const [itExpenseYear, setItExpenseYear] = useState<'2024' | '2025' | '2026'>('2025');
+  const [itExpenseYear, setItExpenseYear] = useState<'2024' | '2025' | '2026'>('2026');
   const [expandedItCategories, setExpandedItCategories] = useState<Set<string>>(new Set());
   const [swCapexExpanded, setSwCapexExpanded] = useState(false); // SW상각비 클릭 시 유무형자산 섹션 펼침
   const [itMaintenanceExpanded, setItMaintenanceExpanded] = useState(false); // IT유지보수비 클릭 시 상세 섹션 펼침
   const [itMaintenanceData, setItMaintenanceData] = useState<{
     items: { text: string; cctrCode: string; total: number; monthly: { [m: string]: number } }[];
     monthlyTotals: { [m: string]: number };
-    monthlyTotals2024: { [m: string]: number };
+    monthlyTotalsPrev: { [m: string]: number };
+    prevYear: string;
     months: string[];
   } | null>(null);
   const [itMaintenanceLoading, setItMaintenanceLoading] = useState(false);
@@ -177,7 +178,8 @@ export default function Dashboard() {
   const [itUsageData, setItUsageData] = useState<{
     items: { text: string; total: number; monthly: { [m: string]: number } }[];
     monthlyTotals: { [m: string]: number };
-    monthlyTotals2024: { [m: string]: number };
+    monthlyTotalsPrev: { [m: string]: number };
+    prevYear: string;
     monthlyHeadcount: { [m: string]: number };
     months: string[];
   } | null>(null);
@@ -200,7 +202,7 @@ export default function Dashboard() {
     months: string[];
   } | null>(null);
   const [commissionLoading, setCommissionLoading] = useState(false);
-  const [commissionYear, setCommissionYear] = useState<'2024' | '2025' | '2026'>('2025');
+  const [commissionYear, setCommissionYear] = useState<'2024' | '2025' | '2026'>('2026');
   const [expandedCommissionCategories, setExpandedCommissionCategories] = useState<Set<string>>(new Set());
   const [expandedCommissionAccount, setExpandedCommissionAccount] = useState<string | null>(null);
   const [commissionAccountDetails, setCommissionAccountDetails] = useState<{
@@ -6217,7 +6219,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => { setItExpenseYear('2024'); loadItExpenseData('2024'); }}
+                    onClick={() => { setItExpenseYear('2024'); loadItExpenseData('2024'); setItMaintenanceData(null); setItUsageData(null); setItMaintenanceExpanded(false); setItUsageExpanded(false); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2024'
                         ? 'bg-blue-600 text-white'
@@ -6227,7 +6229,7 @@ export default function Dashboard() {
                     2024년
                   </button>
                   <button
-                    onClick={() => { setItExpenseYear('2025'); loadItExpenseData('2025'); }}
+                    onClick={() => { setItExpenseYear('2025'); loadItExpenseData('2025'); setItMaintenanceData(null); setItUsageData(null); setItMaintenanceExpanded(false); setItUsageExpanded(false); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2025'
                         ? 'bg-blue-600 text-white'
@@ -6237,7 +6239,7 @@ export default function Dashboard() {
                     2025년
                   </button>
                   <button
-                    onClick={() => { setItExpenseYear('2026'); loadItExpenseData('2026'); }}
+                    onClick={() => { setItExpenseYear('2026'); loadItExpenseData('2026'); setItMaintenanceData(null); setItUsageData(null); setItMaintenanceExpanded(false); setItUsageExpanded(false); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2026'
                         ? 'bg-blue-600 text-white'
@@ -6274,7 +6276,7 @@ export default function Dashboard() {
                     <tbody>
                       {/* 전체 합계 - 25년 */}
                       <tr className="border-b border-gray-200 bg-blue-50 font-bold">
-                        <td className="px-2 py-2 text-sm font-bold text-gray-900 sticky left-0 bg-blue-50">IT수수료 합계 (25년)</td>
+                        <td className="px-2 py-2 text-sm font-bold text-gray-900 sticky left-0 bg-blue-50">IT수수료 합계 ({parseInt(itExpenseYear) % 100}년)</td>
                         {itExpenseData.months.map(month => {
                           const val = itExpenseData.totals.monthly2025[month] || 0;
                           return (
@@ -6290,7 +6292,7 @@ export default function Dashboard() {
                       
                       {/* 전체 합계 - 24년 */}
                       <tr className="border-b border-gray-200 bg-gray-50">
-                        <td className="px-2 py-2 text-sm font-medium text-gray-600 sticky left-0 bg-gray-50">IT수수료 합계 (24년)</td>
+                        <td className="px-2 py-2 text-sm font-medium text-gray-600 sticky left-0 bg-gray-50">IT수수료 합계 ({(parseInt(itExpenseYear) - 1) % 100}년)</td>
                         {itExpenseData.months.map(month => {
                           const val = itExpenseData.totals.monthly2024[month] || 0;
                           return (
@@ -6499,7 +6501,7 @@ export default function Dashboard() {
                       {/* 25년 합계 */}
                       <tr className="border-b border-gray-200 bg-blue-50 font-bold">
                         <td className="px-2 py-2 text-xs font-bold text-blue-700 sticky left-0 bg-blue-50">
-                          IT사용료 합계 (25년)
+                          IT사용료 합계 ({parseInt(itExpenseYear) % 100}년)
                         </td>
                         {itUsageData.months.map(m => (
                           <td key={m} className="px-2 py-2 text-right text-xs font-bold text-blue-700">
@@ -6513,15 +6515,15 @@ export default function Dashboard() {
                       {/* 24년 합계 */}
                       <tr className="border-b border-gray-200 bg-gray-50">
                         <td className="px-2 py-2 text-xs font-medium text-gray-600 sticky left-0 bg-gray-50">
-                          IT사용료 합계 (24년)
+                          IT사용료 합계 ({(parseInt(itExpenseYear) - 1) % 100}년)
                         </td>
                         {itUsageData.months.map(m => (
                           <td key={m} className="px-2 py-2 text-right text-xs text-gray-600">
-                            {(itUsageData.monthlyTotals2024?.[m] || 0).toLocaleString()}
+                            {(itUsageData.monthlyTotalsPrev?.[m] || 0).toLocaleString()}
                           </td>
                         ))}
                         <td className="px-2 py-2 text-right text-xs font-medium text-gray-600">
-                          {Object.values(itUsageData.monthlyTotals2024 || {}).reduce((a, b) => a + b, 0).toLocaleString()}
+                          {Object.values(itUsageData.monthlyTotalsPrev || {}).reduce((a, b) => a + b, 0).toLocaleString()}
                         </td>
                       </tr>
                       {/* YOY */}
@@ -6531,7 +6533,7 @@ export default function Dashboard() {
                         </td>
                         {itUsageData.months.map(m => {
                           const val25 = itUsageData.monthlyTotals[m] || 0;
-                          const val24 = itUsageData.monthlyTotals2024?.[m] || 0;
+                          const val24 = itUsageData.monthlyTotalsPrev?.[m] || 0;
                           const yoy = val24 > 0 ? (val25 / val24 * 100) : 0;
                           const isOver100 = yoy > 100;
                           return (
@@ -6543,7 +6545,7 @@ export default function Dashboard() {
                         <td className="px-2 py-2 text-right text-xs font-medium text-gray-600">
                           {(() => {
                             const total25 = Object.values(itUsageData.monthlyTotals).reduce((a, b) => a + b, 0);
-                            const total24 = Object.values(itUsageData.monthlyTotals2024 || {}).reduce((a, b) => a + b, 0);
+                            const total24 = Object.values(itUsageData.monthlyTotalsPrev || {}).reduce((a, b) => a + b, 0);
                             const yoy = total24 > 0 ? (total25 / total24 * 100) : 0;
                             return total24 > 0 ? `${yoy.toFixed(1)}%` : '-';
                           })()}
@@ -6753,7 +6755,7 @@ export default function Dashboard() {
                       {/* 25년 합계 */}
                       <tr className="border-b border-gray-200 bg-blue-50 font-bold">
                         <td className="px-2 py-2 text-xs font-bold text-blue-700 sticky left-0 bg-blue-50">
-                          IT유지보수비 합계 (25년)
+                          IT유지보수비 합계 ({parseInt(itExpenseYear) % 100}년)
                         </td>
                         {itMaintenanceData.months.map(m => (
                           <td key={m} className="px-2 py-2 text-right text-xs font-bold text-blue-700">
@@ -6767,15 +6769,15 @@ export default function Dashboard() {
                       {/* 24년 합계 */}
                       <tr className="border-b border-gray-200 bg-gray-50">
                         <td className="px-2 py-2 text-xs font-medium text-gray-600 sticky left-0 bg-gray-50">
-                          IT유지보수비 합계 (24년)
+                          IT유지보수비 합계 ({(parseInt(itExpenseYear) - 1) % 100}년)
                         </td>
                         {itMaintenanceData.months.map(m => (
                           <td key={m} className="px-2 py-2 text-right text-xs text-gray-600">
-                            {(itMaintenanceData.monthlyTotals2024?.[m] || 0).toLocaleString()}
+                            {(itMaintenanceData.monthlyTotalsPrev?.[m] || 0).toLocaleString()}
                           </td>
                         ))}
                         <td className="px-2 py-2 text-right text-xs font-medium text-gray-600">
-                          {Object.values(itMaintenanceData.monthlyTotals2024 || {}).reduce((a, b) => a + b, 0).toLocaleString()}
+                          {Object.values(itMaintenanceData.monthlyTotalsPrev || {}).reduce((a, b) => a + b, 0).toLocaleString()}
                         </td>
                       </tr>
                       {/* YOY */}
@@ -6785,7 +6787,7 @@ export default function Dashboard() {
                         </td>
                         {itMaintenanceData.months.map(m => {
                           const val25 = itMaintenanceData.monthlyTotals[m] || 0;
-                          const val24 = itMaintenanceData.monthlyTotals2024?.[m] || 0;
+                          const val24 = itMaintenanceData.monthlyTotalsPrev?.[m] || 0;
                           const yoy = val24 > 0 ? (val25 / val24 * 100) : 0;
                           const isOver100 = yoy > 100;
                           return (
@@ -6797,7 +6799,7 @@ export default function Dashboard() {
                         <td className="px-2 py-2 text-right text-xs font-medium text-gray-600">
                           {(() => {
                             const total25 = Object.values(itMaintenanceData.monthlyTotals).reduce((a, b) => a + b, 0);
-                            const total24 = Object.values(itMaintenanceData.monthlyTotals2024 || {}).reduce((a, b) => a + b, 0);
+                            const total24 = Object.values(itMaintenanceData.monthlyTotalsPrev || {}).reduce((a, b) => a + b, 0);
                             const yoy = total24 > 0 ? (total25 / total24 * 100) : 0;
                             return total24 > 0 ? `${yoy.toFixed(1)}%` : '-';
                           })()}
@@ -7258,7 +7260,7 @@ export default function Dashboard() {
                       <tbody>
                         {/* 전체 합계 - 25년 */}
                         <tr className="border-b border-gray-200 bg-blue-50 font-bold">
-                          <td className="px-2 py-2 text-sm font-bold text-gray-900 sticky left-0 bg-blue-50">지급수수료 합계 (25년)</td>
+                          <td className="px-2 py-2 text-sm font-bold text-gray-900 sticky left-0 bg-blue-50">지급수수료 합계 ({parseInt(commissionYear) % 100}년)</td>
                           {commissionData.months.map(month => {
                             const val = commissionData.totalMonthly[month] || 0;
                             return (
@@ -7274,7 +7276,7 @@ export default function Dashboard() {
                         
                         {/* 전체 합계 - 24년 */}
                         <tr className="border-b border-gray-200 bg-gray-50">
-                          <td className="px-2 py-2 text-sm font-medium text-gray-600 sticky left-0 bg-gray-50">지급수수료 합계 (24년)</td>
+                          <td className="px-2 py-2 text-sm font-medium text-gray-600 sticky left-0 bg-gray-50">지급수수료 합계 ({(parseInt(commissionYear) - 1) % 100}년)</td>
                           {commissionData.months.map(month => {
                             const val = commissionData.totalMonthly2024[month] || 0;
                             return (
