@@ -2427,7 +2427,7 @@ export default function Dashboard() {
 
   const getChangeColor = (change: number) => {
     if (change > 0) return 'text-red-600';
-    if (change < 0) return 'text-indigo-600';
+    if (change < 0) return 'text-indigo-900';
     return 'text-gray-600';
   };
 
@@ -2638,7 +2638,7 @@ export default function Dashboard() {
   return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-900 mx-auto mb-4"></div>
           <p className="text-gray-600">데이터를 불러오는 중...</p>
         </div>
       </div>
@@ -2671,7 +2671,7 @@ export default function Dashboard() {
                   setSelectedYear(year);
                   setSelectedMonth(month);
                 }}
-                className="appearance-none pl-10 pr-10 py-2.5 border-2 border-indigo-500 rounded-lg bg-white text-sm font-medium text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer hover:bg-indigo-50 transition-colors"
+                className="appearance-none pl-10 pr-10 py-2.5 border-2 border-indigo-900 rounded-lg bg-white text-sm font-medium text-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-700 cursor-pointer hover:bg-indigo-50 transition-colors"
               >
                 <option value="2025-1">2025년 1월</option>
                 <option value="2025-2">2025년 2월</option>
@@ -2687,8 +2687,8 @@ export default function Dashboard() {
                 <option value="2025-12">2025년 12월</option>
                 <option value="2026-1">2026년 1월</option>
               </select>
-              <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-600 pointer-events-none" />
-              <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-900 pointer-events-none" />
+              <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-900 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -2739,7 +2739,6 @@ export default function Dashboard() {
                           {/* 인원이 있는 코스트센터 */}
                           {costCenterOptions.filter(cc => cc.hasHeadcount).length > 0 && (
                             <div className="mb-2">
-                              <div className="text-xs text-gray-500 font-medium mb-1 px-1">인원 있음</div>
                               {costCenterOptions.filter(cc => cc.hasHeadcount).map((cc) => (
                                 <label key={cc.name} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
                                   <input
@@ -2752,10 +2751,9 @@ export default function Dashboard() {
                                         setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc.name));
                                       }
                                     }}
-                                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    className="w-4 h-4 text-indigo-900 border-gray-300 rounded focus:ring-indigo-700"
                                   />
-                                  <span className="text-sm text-gray-700">{cc.name}</span>
-                                  <span className="text-xs text-gray-400">({cc.headcount}명)</span>
+                                  <span className="text-sm text-gray-700">{cc.name} <span className="text-gray-400">({cc.headcount}명)</span></span>
                                 </label>
                               ))}
                             </div>
@@ -2790,7 +2788,7 @@ export default function Dashboard() {
                                         setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc.name));
                                       }
                                     }}
-                                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    className="w-4 h-4 text-indigo-900 border-gray-300 rounded focus:ring-indigo-700"
                                   />
                                   <span className="text-sm text-gray-500">{cc.name}</span>
                                 </label>
@@ -2821,7 +2819,7 @@ export default function Dashboard() {
                                   setSelectedMajorCategories(selectedMajorCategories.filter(c => c !== category));
                                 }
                               }}
-                              className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                              className="w-4 h-4 text-indigo-900 border-gray-300 rounded focus:ring-indigo-700"
                             />
                             <span className="text-sm text-gray-700">{category}</span>
                           </label>
@@ -2843,19 +2841,6 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* 인원수 표시 */}
-            {laborData && (() => {
-              const monthKey = selectedMonth.padStart(2, '0');
-              const headcount = laborData.yearlyTotals?.[selectedYear]?.[monthKey] || 0;
-              return headcount > 0 ? (
-                <div className="px-3 py-2 bg-indigo-50 border border-indigo-200 rounded-lg text-xs font-medium text-indigo-700 flex items-center gap-1.5">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  공통부서 {headcount}명
-                </div>
-              ) : null;
-            })()}
             
             {/* 내보내기 버튼 */}
             <div className="relative">
@@ -2915,7 +2900,7 @@ export default function Dashboard() {
               }}
               className={`flex items-center gap-2 px-4 py-2.5 border-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 ${
                 isEditMode 
-                  ? 'border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600 focus:ring-indigo-400' 
+                  ? 'border-indigo-700 bg-indigo-700 text-white hover:bg-indigo-900 focus:ring-indigo-400' 
                   : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-gray-400'
               }`}
             >
@@ -2994,7 +2979,7 @@ export default function Dashboard() {
               onClick={() => setViewMode('monthly')}
               className={`flex-1 md:flex-none px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                 viewMode === 'monthly' 
-                  ? 'text-indigo-600 bg-indigo-50' 
+                  ? 'text-indigo-900 bg-indigo-50' 
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -3004,7 +2989,7 @@ export default function Dashboard() {
               onClick={() => setViewMode('ytd')}
               className={`flex-1 md:flex-none px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                 viewMode === 'ytd' 
-                  ? 'text-indigo-600 bg-indigo-50' 
+                  ? 'text-indigo-900 bg-indigo-50' 
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -3054,7 +3039,7 @@ export default function Dashboard() {
                           }
                         });
                       }}
-                      className="w-full px-2 py-1 border-2 border-indigo-500 rounded text-2xl md:text-3xl font-bold focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      className="w-full px-2 py-1 border-2 border-indigo-700 rounded text-2xl md:text-3xl font-bold focus:outline-none focus:ring-2 focus:ring-indigo-400"
                     />
                   ) : (
                     <>
@@ -3110,7 +3095,7 @@ export default function Dashboard() {
                       <span className="text-sm md:text-base font-bold text-foreground">{formatNumber(kpi.previous)}</span>
                     </div>
                     <span className={`text-sm md:text-base font-bold whitespace-nowrap ${
-                      kpi.change > 0 ? 'text-red-600' : 'text-indigo-600'
+                      kpi.change > 0 ? 'text-red-600' : 'text-indigo-900'
                     }`}>
                       {kpi.change > 0 ? '+' : ''}{formatNumber(kpi.change)}
                     </span>
@@ -3132,7 +3117,7 @@ export default function Dashboard() {
                           }
                         });
                       }}
-                      className="w-full px-3 py-2 border-2 border-indigo-500 rounded-lg text-xs resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      className="w-full px-3 py-2 border-2 border-indigo-700 rounded-lg text-xs resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"
                       rows={2}
                     />
                   </div>
@@ -3232,7 +3217,7 @@ export default function Dashboard() {
                                   {item.level === 'major' ? '대분류' : item.level === 'middle' ? '중분류' : '소분류'}
                                 </span>
                               </div>
-                              <div className={`text-lg font-bold ${item.changePercent >= 0 ? 'text-red-600' : 'text-indigo-600'}`}>
+                              <div className={`text-lg font-bold ${item.changePercent >= 0 ? 'text-red-600' : 'text-indigo-900'}`}>
                                 {item.changePercent >= 0 ? '+' : ''}{item.changePercent.toFixed(1)}%
                               </div>
                               <div className="text-xs text-gray-500">
@@ -3379,13 +3364,13 @@ export default function Dashboard() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <div className="text-xs text-gray-500 mb-1">YOY 변동률</div>
-                    <div className={`text-2xl font-bold ${selectedInsightItem.changePercent >= 0 ? 'text-red-600' : 'text-indigo-600'}`}>
+                    <div className={`text-2xl font-bold ${selectedInsightItem.changePercent >= 0 ? 'text-red-600' : 'text-indigo-900'}`}>
                       {selectedInsightItem.changePercent >= 0 ? '+' : ''}{selectedInsightItem.changePercent.toFixed(1)}%
                     </div>
                   </div>
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <div className="text-xs text-gray-500 mb-1">금액 변화</div>
-                    <div className={`text-2xl font-bold ${selectedInsightItem.change >= 0 ? 'text-red-600' : 'text-indigo-600'}`}>
+                    <div className={`text-2xl font-bold ${selectedInsightItem.change >= 0 ? 'text-red-600' : 'text-indigo-900'}`}>
                       {selectedInsightItem.change >= 0 ? '+' : ''}{Math.round(selectedInsightItem.change)}백만원
                     </div>
                   </div>
@@ -3408,7 +3393,7 @@ export default function Dashboard() {
                 </div>
                 {selectedInsightItem.description && (
                   <div className="p-3 bg-indigo-50 rounded-lg">
-                    <div className="text-xs text-indigo-600 mb-1 font-semibold">원인 분석</div>
+                    <div className="text-xs text-indigo-900 mb-1 font-semibold">원인 분석</div>
                     <div className="text-sm text-gray-700">{selectedInsightItem.description}</div>
                   </div>
                 )}
@@ -3498,7 +3483,7 @@ export default function Dashboard() {
                   <div className="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
                     <p className="text-sm text-gray-700">
                       <span className="font-semibold">{monthLabel}</span> 비용은 
-                      <span className="font-bold text-indigo-600"> {Math.round(total).toLocaleString()}백만원</span>으로, 
+                      <span className="font-bold text-indigo-900"> {Math.round(total).toLocaleString()}백만원</span>으로, 
                       6개월 평균(<span className="font-semibold">{Math.round(ma6).toLocaleString()}백만원</span>) 대비 
                       <span className={`font-bold ${deviationColor}`}> {Math.abs(deviation).toFixed(1)}% {deviationText}</span> 수준입니다.
                       {latestMonth.isOutlier && (
@@ -3563,7 +3548,7 @@ export default function Dashboard() {
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">총비용:</span>
-                                  <span className="text-sm font-bold text-indigo-600">{Math.round(data?.총비용 || 0).toLocaleString()}백만원</span>
+                                  <span className="text-sm font-bold text-indigo-900">{Math.round(data?.총비용 || 0).toLocaleString()}백만원</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">6개월 평균:</span>
@@ -3767,7 +3752,7 @@ export default function Dashboard() {
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">총비용:</span>
-                                  <span className="text-sm font-bold text-indigo-600">{Math.round(totalCost).toLocaleString()}백만원</span>
+                                  <span className="text-sm font-bold text-indigo-900">{Math.round(totalCost).toLocaleString()}백만원</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">전년:</span>
@@ -3947,7 +3932,7 @@ export default function Dashboard() {
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm text-gray-600">총비용:</span>
-                                  <span className="text-sm font-bold text-indigo-600">
+                                  <span className="text-sm font-bold text-indigo-900">
                                     {Math.round(totalCost).toLocaleString()}백만원
                                   </span>
                                 </div>
@@ -4047,7 +4032,7 @@ export default function Dashboard() {
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <button 
                     onClick={handleBackToMajor}
-                    className="hover:text-indigo-600 hover:underline"
+                    className="hover:text-indigo-900 hover:underline"
                   >
                     계정대분류
                   </button>
@@ -4057,7 +4042,7 @@ export default function Dashboard() {
                       {accountLevel === 'detail' ? (
                         <button 
                           onClick={handleBackToMiddle}
-                          className="hover:text-indigo-600 hover:underline"
+                          className="hover:text-indigo-900 hover:underline"
                         >
                           계정중분류
                         </button>
@@ -4083,7 +4068,7 @@ export default function Dashboard() {
                   onClick={() => setAccountViewMode('monthly')}
                   className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     accountViewMode === 'monthly'
-                      ? 'bg-indigo-600 text-white font-semibold'
+                      ? 'bg-indigo-900 text-white font-semibold'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
@@ -4093,7 +4078,7 @@ export default function Dashboard() {
                   onClick={() => setAccountViewMode('ytd')}
                   className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     accountViewMode === 'ytd'
-                      ? 'bg-indigo-600 text-white font-semibold'
+                      ? 'bg-indigo-900 text-white font-semibold'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
@@ -4155,7 +4140,7 @@ export default function Dashboard() {
                                   <p className="font-bold text-sm mb-2">{data.name}</p>
                                   <div className="space-y-1 text-xs">
                                     <div className="flex justify-between">
-                                      <span className="text-indigo-600 font-semibold">당년:</span>
+                                      <span className="text-indigo-900 font-semibold">당년:</span>
                                       <span className="font-bold">{formatNumber(data.current)}백만원</span>
                                     </div>
                                     <div className="flex justify-between">
@@ -4215,7 +4200,7 @@ export default function Dashboard() {
                     <>
                       <div className="mb-3 p-3 bg-indigo-50 rounded-lg">
                         <p className="text-xs text-gray-600">선택된 계정</p>
-                        <p className="text-sm font-bold text-indigo-600">{selectedAccount}</p>
+                        <p className="text-sm font-bold text-indigo-900">{selectedAccount}</p>
                       </div>
                       
                       {costCenterData.length > 0 ? (
@@ -4419,7 +4404,7 @@ export default function Dashboard() {
                                 <div 
                                   key={cc.code}
                                   className={`p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${
-                                    selectedCostCenterDetail && selectedCostCenterDetail.code === cc.code ? 'ring-2 ring-indigo-500 bg-indigo-50' : ''
+                                    selectedCostCenterDetail && selectedCostCenterDetail.code === cc.code ? 'ring-2 ring-indigo-700 bg-indigo-50' : ''
                                   }`}
                                   onClick={() => {
                                     const bubbleData = bubbleChartData.data.find(d => d.code === cc.code);
@@ -4437,7 +4422,7 @@ export default function Dashboard() {
                                     </span>
                                     <div className="flex items-center gap-3 flex-shrink-0">
                                       <span className="w-14 text-right font-bold text-gray-900">{formatNumber(cc.current)}</span>
-                                      <span className="w-14 text-right font-medium text-indigo-600">{formatNumber(cc.previous)}</span>
+                                      <span className="w-14 text-right font-medium text-indigo-900">{formatNumber(cc.previous)}</span>
                                       <span className={`w-14 text-right font-bold ${cc.yoy >= 100 ? 'text-red-600' : 'text-green-600'}`}>
                                         {formatNumber(cc.yoy)}%
                                       </span>
@@ -4508,7 +4493,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">전년 총 비용</p>
-                    <p className="text-sm font-semibold text-indigo-600">
+                    <p className="text-sm font-semibold text-indigo-900">
                       {selectedCostCenterDetail.previous.toFixed(1)}백만원
                     </p>
                   </div>
@@ -4544,7 +4529,7 @@ export default function Dashboard() {
                       📊 인원수는 평균보다 많지만, 인당 비용은 평균 수준
                     </p>
                   ) : (
-                    <p className="text-xs text-indigo-600">
+                    <p className="text-xs text-indigo-900">
                       📊 인원수는 평균보다 적지만, 인당 비용은 평균보다 높음
                     </p>
                   )}
@@ -4595,7 +4580,7 @@ export default function Dashboard() {
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         : monthlyAnalysisExists
                           ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-300'
-                          : 'bg-indigo-600 text-white hover:bg-indigo-700 animate-pulse'
+                          : 'bg-indigo-900 text-white hover:bg-indigo-700 animate-pulse'
                     }`}
                   >
                     {isRunningMonthlyAnalysis ? (
@@ -4730,7 +4715,7 @@ export default function Dashboard() {
                     onClick={() => setViewMode('monthly')}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       viewMode === 'monthly' 
-                        ? 'text-indigo-600 bg-indigo-50' 
+                        ? 'text-indigo-900 bg-indigo-50' 
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -4740,7 +4725,7 @@ export default function Dashboard() {
                     onClick={() => setViewMode('ytd')}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       viewMode === 'ytd' 
-                        ? 'text-indigo-600 bg-indigo-50' 
+                        ? 'text-indigo-900 bg-indigo-50' 
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -4752,7 +4737,7 @@ export default function Dashboard() {
             <CardContent>
               {allocationLoading ? (
                 <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <p className="text-sm font-medium">데이터를 불러오는 중...</p>
@@ -4816,13 +4801,13 @@ export default function Dashboard() {
                       {/* 당년 행 */}
                       <tr className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="px-3 py-2.5 text-sm font-medium text-gray-700 whitespace-nowrap">{selectedYear}년</td>
-                        <td className="px-3 py-2.5 text-right text-base text-indigo-600 font-bold">
+                        <td className="px-3 py-2.5 text-right text-base text-indigo-900 font-bold">
                           {allocationData.total.current.toLocaleString()}
                         </td>
                         <td className="px-3 py-2.5 text-right text-sm text-gray-500">100%</td>
                         {visibleBrands.map((brand) => (
                           <React.Fragment key={`cur-${brand.name}`}>
-                            <td className="px-3 py-2.5 text-right text-base text-indigo-600 font-semibold">
+                            <td className="px-3 py-2.5 text-right text-base text-indigo-900 font-semibold">
                               {brand.current.toLocaleString()}
                             </td>
                             <td className="px-3 py-2.5 text-right text-sm text-gray-500">
@@ -4834,18 +4819,18 @@ export default function Dashboard() {
                       {/* 차이 행 */}
                       <tr className="bg-gray-50 border-t-2 border-gray-200">
                         <td className="px-3 py-2.5 text-sm font-bold text-gray-900 whitespace-nowrap">차이</td>
-                        <td className={`px-3 py-2.5 text-right text-base font-bold ${allocationData.total.change >= 0 ? 'text-red-600' : 'text-indigo-600'}`}>
+                        <td className={`px-3 py-2.5 text-right text-base font-bold ${allocationData.total.change >= 0 ? 'text-red-600' : 'text-indigo-900'}`}>
                           {allocationData.total.change >= 0 ? '+' : ''}{allocationData.total.change.toLocaleString()}
                         </td>
-                        <td className={`px-3 py-2.5 text-right text-sm font-semibold ${allocationData.total.changePercent >= 100 ? 'text-red-600' : 'text-indigo-600'}`}>
+                        <td className={`px-3 py-2.5 text-right text-sm font-semibold ${allocationData.total.changePercent >= 100 ? 'text-red-600' : 'text-indigo-900'}`}>
                           {allocationData.total.changePercent.toFixed(1)}%
                         </td>
                         {visibleBrands.map((brand) => (
                           <React.Fragment key={`diff-${brand.name}`}>
-                            <td className={`px-3 py-2.5 text-right text-base font-semibold ${brand.change >= 0 ? 'text-red-600' : 'text-indigo-600'}`}>
+                            <td className={`px-3 py-2.5 text-right text-base font-semibold ${brand.change >= 0 ? 'text-red-600' : 'text-indigo-900'}`}>
                               {brand.change >= 0 ? '+' : ''}{brand.change.toLocaleString()}
                             </td>
-                            <td className={`px-3 py-2.5 text-right text-sm font-semibold ${brand.changePercent >= 100 ? 'text-red-600' : 'text-indigo-600'}`}>
+                            <td className={`px-3 py-2.5 text-right text-sm font-semibold ${brand.changePercent >= 100 ? 'text-red-600' : 'text-indigo-900'}`}>
                               {brand.changePercent.toFixed(1)}%
                             </td>
                           </React.Fragment>
@@ -4861,7 +4846,7 @@ export default function Dashboard() {
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <h4 
                     onClick={() => setCriteriaEditMode(!criteriaEditMode)}
-                    className="text-base font-bold text-gray-700 flex items-center gap-2 cursor-pointer hover:text-indigo-600 transition-colors"
+                    className="text-base font-bold text-gray-700 flex items-center gap-2 cursor-pointer hover:text-indigo-900 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -4874,10 +4859,10 @@ export default function Dashboard() {
                     <div className="space-y-2 mt-3">
                       {allocationCriteria.map((item, index) => (
                         <div key={index} className="flex items-center gap-2">
-                          <span className="text-indigo-600 font-bold">•</span>
+                          <span className="text-indigo-900 font-bold">•</span>
                           <input
                             type="text"
-                            className="flex-1 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            className="flex-1 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-700 focus:border-indigo-700"
                             placeholder="배부기준 입력 (**굵게**)"
                             value={item}
                             onChange={(e) => {
@@ -4916,7 +4901,7 @@ export default function Dashboard() {
                       <div className="flex items-center gap-2 mt-3">
                         <button
                           onClick={() => setAllocationCriteria([...allocationCriteria, ''])}
-                          className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                          className="flex items-center gap-1 text-xs text-indigo-900 hover:text-indigo-700 font-medium"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -4944,7 +4929,7 @@ export default function Dashboard() {
                               alert('저장 중 오류가 발생했습니다.');
                             }
                           }}
-                          className="ml-auto px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                          className="ml-auto px-3 py-1.5 text-xs font-medium bg-indigo-900 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                         >
                           저장
                         </button>
@@ -4956,7 +4941,7 @@ export default function Dashboard() {
                       {allocationCriteria.filter(c => c.trim() !== '').length > 0 ? (
                         allocationCriteria.filter(c => c.trim() !== '').map((item, index) => (
                           <div key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                            <span className="text-indigo-600 font-bold">•</span>
+                            <span className="text-indigo-900 font-bold">•</span>
                             <span dangerouslySetInnerHTML={{ 
                               __html: item.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') 
                             }} />
@@ -4977,7 +4962,7 @@ export default function Dashboard() {
                   <p className="text-lg font-medium mb-2">데이터를 불러올 수 없습니다</p>
                   <button
                     onClick={loadAllocationData}
-                    className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    className="mt-2 px-4 py-2 bg-indigo-900 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                   >
                     다시 시도
                   </button>
@@ -5000,7 +4985,7 @@ export default function Dashboard() {
                     onClick={() => setLaborYear('2025')}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       laborYear === '2025' 
-                        ? 'text-indigo-600 bg-indigo-50' 
+                        ? 'text-indigo-900 bg-indigo-50' 
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -5010,7 +4995,7 @@ export default function Dashboard() {
                     onClick={() => setLaborYear('2026')}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       laborYear === '2026' 
-                        ? 'text-indigo-600 bg-indigo-50' 
+                        ? 'text-indigo-900 bg-indigo-50' 
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -5022,7 +5007,7 @@ export default function Dashboard() {
             <CardContent>
               {laborLoading ? (
                 <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <p className="text-sm font-medium">데이터를 불러오는 중...</p>
@@ -5192,7 +5177,7 @@ export default function Dashboard() {
                             : (laborData.yearlyTotals[laborYear]?.['11'] || 0);
                           const momDiff = latestVal - prevMonthVal;
                           return (
-                            <td className={`px-2 py-2 text-center text-sm font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                            <td className={`px-2 py-2 text-center text-sm font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                               {momDiff > 0 ? `+${momDiff}` : momDiff}
                             </td>
                           );
@@ -5203,7 +5188,7 @@ export default function Dashboard() {
                           const prevYearVal = laborData.yearlyTotals[prevYr]?.[latestMonth.toString().padStart(2, '0')] || 0;
                           const yoyDiff = currentVal - prevYearVal;
                           return (
-                            <td className={`px-2 py-2 text-center text-sm font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                            <td className={`px-2 py-2 text-center text-sm font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                               {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff}
                             </td>
                           );
@@ -5253,7 +5238,7 @@ export default function Dashboard() {
                               const previous = laborData.yearlyTotals[prevYr]?.[month] || 0;
                               const diff = current - previous;
                               return (
-                                <td key={month} className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                <td key={month} className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                   {diff > 0 ? `+${diff}` : diff}
                                 </td>
                               );
@@ -5263,7 +5248,7 @@ export default function Dashboard() {
                               const previous = laborData.yearlyTotals[prevYr]?.['11'] || 0;
                               const diff = current - previous;
                               return (
-                                <td className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                <td className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                   {diff > 0 ? `+${diff}` : diff}
                                 </td>
                               );
@@ -5282,7 +5267,7 @@ export default function Dashboard() {
                           const previous = laborData.yearlyTotals[prevYr]?.[latestMonth.toString().padStart(2, '0')] || 0;
                           const diff = current - previous;
                           return (
-                            <td className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                            <td className={`px-2 py-2 text-center text-sm font-semibold ${diff > 0 ? 'text-red-600' : diff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                               {diff > 0 ? `+${diff}` : diff}
                             </td>
                           );
@@ -5368,7 +5353,7 @@ export default function Dashboard() {
                               const prevMonthVal = division.monthly[prevMonthKey] || 0;
                               const momDiff = latestVal - prevMonthVal;
                               return (
-                                <td className={`px-2 py-2 text-center text-sm font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                <td className={`px-2 py-2 text-center text-sm font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                   {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
                                 </td>
                               );
@@ -5379,7 +5364,7 @@ export default function Dashboard() {
                               const prevYearVal = division.monthly[prevYearSameMonthKey] || 0;
                               const yoyDiff = currentVal - prevYearVal;
                               return (
-                                <td className={`px-2 py-2 text-center text-sm font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                <td className={`px-2 py-2 text-center text-sm font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                   {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
                                 </td>
                               );
@@ -5479,7 +5464,7 @@ export default function Dashboard() {
                                     const prevMonthVal = team.monthly[prevMonthKey] || 0;
                                     const momDiff = latestVal - prevMonthVal;
                                     return (
-                                      <td className={`px-2 py-1.5 text-center text-xs ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                      <td className={`px-2 py-1.5 text-center text-xs ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                         {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
                                       </td>
                                     );
@@ -5490,7 +5475,7 @@ export default function Dashboard() {
                                     const prevYearVal = team.monthly[prevYearSameMonthKey] || 0;
                                     const yoyDiff = currentVal - prevYearVal;
                                     return (
-                                      <td className={`px-2 py-1.5 text-center text-xs ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                      <td className={`px-2 py-1.5 text-center text-xs ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                         {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
                                       </td>
                                     );
@@ -5574,7 +5559,7 @@ export default function Dashboard() {
                                       const prevMonthVal = subDiv.monthly[prevMonthKey] || 0;
                                       const momDiff = latestVal - prevMonthVal;
                                       return (
-                                        <td className={`px-2 py-1.5 text-center text-xs font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                        <td className={`px-2 py-1.5 text-center text-xs font-semibold ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                           {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
                                         </td>
                                       );
@@ -5585,7 +5570,7 @@ export default function Dashboard() {
                                       const prevYearVal = subDiv.monthly[prevYearSameMonthKey] || 0;
                                       const yoyDiff = currentVal - prevYearVal;
                                       return (
-                                        <td className={`px-2 py-1.5 text-center text-xs font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                        <td className={`px-2 py-1.5 text-center text-xs font-semibold ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                           {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
                                         </td>
                                       );
@@ -5682,7 +5667,7 @@ export default function Dashboard() {
                                         const prevMonthVal = team.monthly[prevMonthKey] || 0;
                                         const momDiff = latestVal - prevMonthVal;
                                         return (
-                                          <td className={`px-2 py-1.5 text-center text-xs ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                          <td className={`px-2 py-1.5 text-center text-xs ${momDiff > 0 ? 'text-red-600' : momDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                             {momDiff > 0 ? `+${momDiff}` : momDiff === 0 ? '0' : momDiff}
                                           </td>
                                         );
@@ -5693,7 +5678,7 @@ export default function Dashboard() {
                                         const prevYearVal = team.monthly[prevYearSameMonthKey] || 0;
                                         const yoyDiff = currentVal - prevYearVal;
                                         return (
-                                          <td className={`px-2 py-1.5 text-center text-xs ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                          <td className={`px-2 py-1.5 text-center text-xs ${yoyDiff > 0 ? 'text-red-600' : yoyDiff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                             {yoyDiff > 0 ? `+${yoyDiff}` : yoyDiff === 0 ? '0' : yoyDiff}
                                           </td>
                                         );
@@ -5776,7 +5761,7 @@ export default function Dashboard() {
                         <>
                           <div className="mb-3">
                             <strong>📊 {analysisPrevYear}년 {analysisLatestMonth}월 vs {analysisCurrentYear}년 {analysisLatestMonth}월:</strong> {analysisPrevYear}년 {analysisLatestMonth}월({prevTotal}명) 대비 {analysisCurrentYear}년 {analysisLatestMonth}월({currTotal}명) 기준, 
-                            전체 인원이 <span className={diff >= 0 ? 'text-red-600 font-semibold' : 'text-indigo-600 font-semibold'}>
+                            전체 인원이 <span className={diff >= 0 ? 'text-red-600 font-semibold' : 'text-indigo-900 font-semibold'}>
                               {diff >= 0 ? `+${diff}명 (${diffPercent}% 증가)` : `${diff}명 (${Math.abs(Number(diffPercent))}% 감소)`}
                             </span> 했습니다.
                           </div>
@@ -5830,7 +5815,7 @@ export default function Dashboard() {
                                         <span className="font-medium text-gray-800">{d.name}</span>
                                         <span className="text-xs text-gray-500">{d.prev}명 → {d.curr}명</span>
                                       </div>
-                                      <span className={`text-sm font-bold ${d.diff > 0 ? 'text-red-600' : d.diff < 0 ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                      <span className={`text-sm font-bold ${d.diff > 0 ? 'text-red-600' : d.diff < 0 ? 'text-indigo-900' : 'text-gray-500'}`}>
                                         {d.diff > 0 ? `+${d.diff}` : d.diff === 0 ? '±0' : d.diff}
                                       </span>
                                     </div>
@@ -5844,7 +5829,7 @@ export default function Dashboard() {
                                           </div>
                                         ))}
                                         {decreased.map((t, i) => (
-                                          <div key={`dec-${i}`} className="text-indigo-600">
+                                          <div key={`dec-${i}`} className="text-indigo-900">
                                             • {t.name}: {t.prev}명 → {t.curr}명 <strong>({t.diff})</strong>
                                           </div>
                                         ))}
@@ -5868,7 +5853,7 @@ export default function Dashboard() {
                   <div className="mt-4 pt-4 border-t border-indigo-200">
                     <div className="flex items-center justify-between mb-2">
                       <h5 
-                        className={`text-sm font-bold cursor-pointer transition-colors ${laborInsightEditMode ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'}`}
+                        className={`text-sm font-bold cursor-pointer transition-colors ${laborInsightEditMode ? 'text-indigo-900' : 'text-gray-700 hover:text-indigo-900'}`}
                         onClick={async () => {
                           if (laborInsightEditMode) {
                             // 저장 모드 - Redis에 저장
@@ -5968,7 +5953,7 @@ export default function Dashboard() {
                           value={laborInsight}
                           onChange={(e) => setLaborInsight(e.target.value)}
                           placeholder="주요 시사점을 작성하세요...&#10;&#10;예시:&#10;• 마케팅본부 인원 증가는 신규 브랜드 런칭 대응&#10;• 해외사업 확대에 따른 인력 충원&#10;• 경영지원 부문은 업무 효율화로 인력 최적화 진행 중"
-                          className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-indigo-700 focus:border-indigo-700"
                           rows={6}
                         />
                         <div className="flex justify-end gap-2">
@@ -6003,7 +5988,7 @@ export default function Dashboard() {
                                 console.error('시사점 저장 실패:', error);
                               }
                             }}
-                            className="px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                            className="px-3 py-1.5 text-xs font-medium bg-indigo-900 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                           >
                             저장
                           </button>
@@ -6063,12 +6048,12 @@ export default function Dashboard() {
                           <span className="text-gray-400 text-xs ml-1">백만원/명</span>
                           <span className="text-gray-400 mx-2">|</span>
                           <span className="text-gray-500">전월비 </span>
-                          <span className={`font-semibold ${momDiff >= 0 ? 'text-red-600' : 'text-indigo-600'}`}>
+                          <span className={`font-semibold ${momDiff >= 0 ? 'text-red-600' : 'text-indigo-900'}`}>
                             {momDiff >= 0 ? '+' : ''}{momDiff.toFixed(1)} ({momPct}%)
                           </span>
                           <span className="text-gray-400 mx-2">|</span>
                           <span className="text-gray-500">전년비 </span>
-                          <span className={`font-semibold ${yoyDiff >= 0 ? 'text-red-600' : 'text-indigo-600'}`}>
+                          <span className={`font-semibold ${yoyDiff >= 0 ? 'text-red-600' : 'text-indigo-900'}`}>
                             {yoyDiff >= 0 ? '+' : ''}{yoyDiff.toFixed(1)} ({yoyPct}%)
                           </span>
                         </div>
@@ -6091,7 +6076,7 @@ export default function Dashboard() {
                         
                         {/* 범례 */}
                         <div className="mt-1.5 flex justify-center gap-6 text-xs text-gray-500">
-                          <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-indigo-600 inline-block"></span> 인당인건비 (최근 12개월)</span>
+                          <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-indigo-900 inline-block"></span> 인당인건비 (최근 12개월)</span>
                         </div>
                         
                         {/* 부문별 인당인건비 (최신월 기준) - 클릭하여 펼치기 */}
@@ -6133,11 +6118,11 @@ export default function Dashboard() {
                                       </div>
                                       <div className="flex items-center gap-2 text-xs">
                                         <span className="text-gray-500">{pp24.toFixed(1)} → {pp25.toFixed(1)}</span>
-                                        <span className={`font-semibold ${momDiff >= 0 ? 'text-red-500' : 'text-indigo-500'}`} title="전월비">
+                                        <span className={`font-semibold ${momDiff >= 0 ? 'text-red-500' : 'text-indigo-700'}`} title="전월비">
                                           {momDiff >= 0 ? '+' : ''}{momDiff.toFixed(1)}
                                         </span>
                                         <span className="text-gray-300">/</span>
-                                        <span className={`font-semibold ${yoyDiff >= 0 ? 'text-red-500' : 'text-indigo-500'}`} title="전년비">
+                                        <span className={`font-semibold ${yoyDiff >= 0 ? 'text-red-500' : 'text-indigo-700'}`} title="전년비">
                                           {yoyDiff >= 0 ? '+' : ''}{yoyDiff.toFixed(1)}
                                         </span>
                                       </div>
@@ -6177,18 +6162,18 @@ export default function Dashboard() {
                                                   <span className="text-gray-600">{subDiv.name}</span>
                                                   <span className="text-gray-400">{subHc24}명 → {subHc25}명</span>
                                                   {hcChange !== 0 && (
-                                                    <span className={`${hcChange > 0 ? 'text-red-500' : 'text-indigo-500'}`}>
+                                                    <span className={`${hcChange > 0 ? 'text-red-500' : 'text-indigo-700'}`}>
                                                       ({hcChange > 0 ? '+' : ''}{hcChange})
                                                     </span>
                                                   )}
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                   <span className="text-gray-500">{subPp24.toFixed(1)} → {subPp25.toFixed(1)}</span>
-                                                  <span className={`font-medium ${momDiff >= 0 ? 'text-red-500' : 'text-indigo-500'}`} title="전월비">
+                                                  <span className={`font-medium ${momDiff >= 0 ? 'text-red-500' : 'text-indigo-700'}`} title="전월비">
                                                     {momDiff >= 0 ? '+' : ''}{momDiff.toFixed(1)}
                                                   </span>
                                                   <span className="text-gray-300">/</span>
-                                                  <span className={`font-medium ${yoyDiff >= 0 ? 'text-red-500' : 'text-indigo-500'}`} title="전년비">
+                                                  <span className={`font-medium ${yoyDiff >= 0 ? 'text-red-500' : 'text-indigo-700'}`} title="전년비">
                                                     {yoyDiff >= 0 ? '+' : ''}{yoyDiff.toFixed(1)}
                                                   </span>
                                                 </div>
@@ -6207,7 +6192,7 @@ export default function Dashboard() {
                                                           <span className="text-gray-500">{team.deptNm}</span>
                                                           <span className="text-gray-400">{teamHc24}명 → {teamHc25}명</span>
                                                           {teamHcChange !== 0 && (
-                                                            <span className={`${teamHcChange > 0 ? 'text-red-500' : 'text-indigo-500'}`}>
+                                                            <span className={`${teamHcChange > 0 ? 'text-red-500' : 'text-indigo-700'}`}>
                                                               ({teamHcChange > 0 ? '+' : ''}{teamHcChange})
                                                             </span>
                                                           )}
@@ -6243,7 +6228,7 @@ export default function Dashboard() {
                   <p className="text-lg font-medium mb-2">데이터를 불러올 수 없습니다</p>
                   <button
                     onClick={loadLaborData}
-                    className="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    className="mt-2 px-4 py-2 bg-indigo-900 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                   >
                     다시 시도
                   </button>
@@ -6269,7 +6254,7 @@ export default function Dashboard() {
                     onClick={() => { setItExpenseYear('2024'); loadItExpenseData('2024'); setItMaintenanceData(null); setItUsageData(null); setItMaintenanceExpanded(false); setItUsageExpanded(false); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2024'
-                        ? 'bg-indigo-600 text-white'
+                        ? 'bg-indigo-900 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -6279,7 +6264,7 @@ export default function Dashboard() {
                     onClick={() => { setItExpenseYear('2025'); loadItExpenseData('2025'); setItMaintenanceData(null); setItUsageData(null); setItMaintenanceExpanded(false); setItUsageExpanded(false); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2025'
-                        ? 'bg-indigo-600 text-white'
+                        ? 'bg-indigo-900 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -6289,7 +6274,7 @@ export default function Dashboard() {
                     onClick={() => { setItExpenseYear('2026'); loadItExpenseData('2026'); setItMaintenanceData(null); setItUsageData(null); setItMaintenanceExpanded(false); setItUsageExpanded(false); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       itExpenseYear === '2026'
-                        ? 'bg-indigo-600 text-white'
+                        ? 'bg-indigo-900 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -6301,7 +6286,7 @@ export default function Dashboard() {
             <CardContent>
               {itExpenseLoading ? (
                 <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <p className="text-sm font-medium">데이터를 불러오는 중...</p>
@@ -6327,12 +6312,12 @@ export default function Dashboard() {
                         {itExpenseData.months.map(month => {
                           const val = itExpenseData.totals.monthly2025[month] || 0;
                           return (
-                            <td key={month} className="px-2 py-2 text-right text-sm font-bold text-indigo-600">
+                            <td key={month} className="px-2 py-2 text-right text-sm font-bold text-indigo-900">
                               {val.toLocaleString()}
                             </td>
                           );
                         })}
-                        <td className="px-2 py-2 text-right text-sm font-bold text-indigo-600">
+                        <td className="px-2 py-2 text-right text-sm font-bold text-indigo-900">
                           {Object.values(itExpenseData.totals.monthly2025).reduce((a, b) => a + b, 0).toLocaleString()}
                         </td>
                       </tr>
@@ -6362,7 +6347,7 @@ export default function Dashboard() {
                           const yoy = val2024 > 0 ? (val2025 / val2024 * 100) : 0;
                           return (
                             <td key={month} className="px-2 py-2 text-right text-sm font-bold">
-                              <span className={yoy >= 100 ? 'text-red-600' : 'text-indigo-600'}>
+                              <span className={yoy >= 100 ? 'text-red-600' : 'text-indigo-900'}>
                                 {yoy.toFixed(1)}%
                               </span>
                             </td>
@@ -6374,7 +6359,7 @@ export default function Dashboard() {
                             const total2025 = Object.values(itExpenseData.totals.monthly2025).reduce((a, b) => a + b, 0);
                             const yoy = total2024 > 0 ? (total2025 / total2024 * 100) : 0;
                             return (
-                              <span className={yoy >= 100 ? 'text-red-600' : 'text-indigo-600'}>
+                              <span className={yoy >= 100 ? 'text-red-600' : 'text-indigo-900'}>
                                 {yoy.toFixed(1)}%
                               </span>
                             );
@@ -6422,7 +6407,7 @@ export default function Dashboard() {
                                 </td>
                               );
                             })}
-                            <td className="px-2 py-2 text-right text-sm font-semibold text-indigo-600">
+                            <td className="px-2 py-2 text-right text-sm font-semibold text-indigo-900">
                               {Object.values(itExpenseYear === '2024' ? category.monthly2024 : category.monthly2025)
                                 .reduce((a, b) => a + b, 0).toLocaleString()}
                             </td>
@@ -6471,7 +6456,7 @@ export default function Dashboard() {
                                     </td>
                                   );
                                 })}
-                                <td className="px-2 py-1.5 text-right text-xs font-medium text-indigo-600">
+                                <td className="px-2 py-1.5 text-right text-xs font-medium text-indigo-900">
                                   {Object.values(itExpenseYear === '2024' ? account.monthly2024 : account.monthly2025)
                                     .reduce((a, b) => a + b, 0).toLocaleString()}
                                 </td>
@@ -6504,14 +6489,14 @@ export default function Dashboard() {
                   {allUsageExpanded ? (
                     <button
                       onClick={collapseAllUsageTeams}
-                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-900 hover:bg-indigo-200"
                     >
                       모두접기
                     </button>
                   ) : (
                     <button
                       onClick={expandAllUsageTeams}
-                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-900 hover:bg-indigo-200"
                     >
                       모두펼치기
                     </button>
@@ -6528,7 +6513,7 @@ export default function Dashboard() {
             <CardContent>
               {itUsageLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-900"></div>
                 </div>
               ) : itUsageData ? (
                 <div className="overflow-x-auto">
@@ -6541,7 +6526,7 @@ export default function Dashboard() {
                             {parseInt(m)}월
                           </th>
                         ))}
-                        <th className="px-2 py-2 text-right text-xs font-bold text-indigo-600 bg-gray-50 min-w-[60px]">연합계</th>
+                        <th className="px-2 py-2 text-right text-xs font-bold text-indigo-900 bg-gray-50 min-w-[60px]">연합계</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -6584,7 +6569,7 @@ export default function Dashboard() {
                           const yoy = val24 > 0 ? (val25 / val24 * 100) : 0;
                           const isOver100 = yoy > 100;
                           return (
-                            <td key={m} className={`px-2 py-2 text-right text-xs font-medium ${isOver100 ? 'text-red-500' : 'text-indigo-500'}`}>
+                            <td key={m} className={`px-2 py-2 text-right text-xs font-medium ${isOver100 ? 'text-red-500' : 'text-indigo-700'}`}>
                               {val24 > 0 ? `${yoy.toFixed(1)}%` : '-'}
                             </td>
                           );
@@ -6699,7 +6684,7 @@ export default function Dashboard() {
                                 {item.monthly[m] && item.monthly[m] > 0 ? item.monthly[m].toLocaleString() : '-'}
                               </td>
                             ))}
-                            <td className="px-2 py-1.5 text-right text-xs font-medium text-indigo-600">
+                            <td className="px-2 py-1.5 text-right text-xs font-medium text-indigo-900">
                               {item.total.toLocaleString()}
                             </td>
                           </tr>
@@ -6709,7 +6694,7 @@ export default function Dashboard() {
                             (expandedUsageTeam === item.text && teamUsageDetailsLoading) ? (
                               <tr>
                                 <td colSpan={14} className="bg-gray-50 py-3 text-center">
-                                  <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
+                                  <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-900"></div>
                                 </td>
                               </tr>
                             ) : (
@@ -6724,7 +6709,7 @@ export default function Dashboard() {
                                         {detail.monthly && detail.monthly[m] && detail.monthly[m] > 0 ? detail.monthly[m].toLocaleString() : '-'}
                                       </td>
                                     ))}
-                                    <td className="px-2 py-1 text-right text-xs text-indigo-500 font-medium">
+                                    <td className="px-2 py-1 text-right text-xs text-indigo-700 font-medium">
                                       {detail.total.toLocaleString()}
                                     </td>
                                   </tr>
@@ -6760,14 +6745,14 @@ export default function Dashboard() {
                   {allMaintenanceExpanded ? (
                     <button
                       onClick={collapseAllMaintenanceTeams}
-                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-900 hover:bg-indigo-200"
                     >
                       모두접기
                     </button>
                   ) : (
                     <button
                       onClick={expandAllMaintenanceTeams}
-                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                      className="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-100 text-indigo-900 hover:bg-indigo-200"
                     >
                       모두펼치기
                     </button>
@@ -6784,7 +6769,7 @@ export default function Dashboard() {
             <CardContent>
               {itMaintenanceLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-900"></div>
                 </div>
               ) : itMaintenanceData ? (
                 <div className="overflow-x-auto">
@@ -6797,7 +6782,7 @@ export default function Dashboard() {
                             {parseInt(m)}월
                           </th>
                         ))}
-                        <th className="px-2 py-2 text-right text-xs font-bold text-indigo-600 bg-gray-50 min-w-[60px]">연합계</th>
+                        <th className="px-2 py-2 text-right text-xs font-bold text-indigo-900 bg-gray-50 min-w-[60px]">연합계</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -6840,7 +6825,7 @@ export default function Dashboard() {
                           const yoy = val24 > 0 ? (val25 / val24 * 100) : 0;
                           const isOver100 = yoy > 100;
                           return (
-                            <td key={m} className={`px-2 py-2 text-right text-xs font-medium ${isOver100 ? 'text-red-500' : 'text-indigo-500'}`}>
+                            <td key={m} className={`px-2 py-2 text-right text-xs font-medium ${isOver100 ? 'text-red-500' : 'text-indigo-700'}`}>
                               {val24 > 0 ? `${yoy.toFixed(1)}%` : '-'}
                             </td>
                           );
@@ -6878,7 +6863,7 @@ export default function Dashboard() {
                                 {item.monthly[m] && item.monthly[m] > 0 ? item.monthly[m].toLocaleString() : '-'}
                               </td>
                             ))}
-                            <td className="px-2 py-1.5 text-right text-xs font-medium text-indigo-600">
+                            <td className="px-2 py-1.5 text-right text-xs font-medium text-indigo-900">
                               {item.total.toLocaleString()}
                             </td>
                           </tr>
@@ -6887,7 +6872,7 @@ export default function Dashboard() {
                             (expandedMaintenanceTeam === item.text && teamDetailsLoading) ? (
                               <tr>
                                 <td colSpan={14} className="bg-gray-50 py-3 text-center">
-                                  <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
+                                  <div className="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-900"></div>
                                 </td>
                               </tr>
                             ) : (
@@ -6902,7 +6887,7 @@ export default function Dashboard() {
                                         {detail.monthly && detail.monthly[m] && detail.monthly[m] > 0 ? detail.monthly[m].toLocaleString() : '-'}
                                       </td>
                                     ))}
-                                    <td className="px-2 py-1 text-right text-xs text-indigo-500 font-medium">
+                                    <td className="px-2 py-1 text-right text-xs text-indigo-700 font-medium">
                                       {detail.total.toLocaleString()}
                                     </td>
                                   </tr>
@@ -7087,7 +7072,7 @@ export default function Dashboard() {
                   {capexData.transfers.length > 0 && (
                     <div>
                       <h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                        <span className="w-3 h-3 bg-indigo-500 rounded-full"></span>
+                        <span className="w-3 h-3 bg-indigo-700 rounded-full"></span>
                         이관 자산 ({capexData.transfers.length}건)
                       </h4>
                       <div className="bg-indigo-50 rounded-lg p-3">
@@ -7175,7 +7160,7 @@ export default function Dashboard() {
                     onClick={() => { setCommissionYear('2024'); if (commissionData) loadCommissionData('2024'); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       commissionYear === '2024'
-                        ? 'bg-indigo-600 text-white'
+                        ? 'bg-indigo-900 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -7185,7 +7170,7 @@ export default function Dashboard() {
                     onClick={() => { setCommissionYear('2025'); if (commissionData) loadCommissionData('2025'); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       commissionYear === '2025'
-                        ? 'bg-indigo-600 text-white'
+                        ? 'bg-indigo-900 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -7195,7 +7180,7 @@ export default function Dashboard() {
                     onClick={() => { setCommissionYear('2026'); if (commissionData) loadCommissionData('2026'); }}
                     className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                       commissionYear === '2026'
-                        ? 'bg-indigo-600 text-white'
+                        ? 'bg-indigo-900 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -7207,7 +7192,7 @@ export default function Dashboard() {
             <CardContent>
               {!commissionData || commissionLoading ? (
                 <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 animate-spin mb-3 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   <p className="text-sm font-medium">데이터를 불러오는 중...</p>
@@ -7313,12 +7298,12 @@ export default function Dashboard() {
                           {commissionData.months.map(month => {
                             const val = commissionData.totalMonthly[month] || 0;
                             return (
-                              <td key={month} className="px-2 py-2 text-right text-sm font-bold text-indigo-600">
+                              <td key={month} className="px-2 py-2 text-right text-sm font-bold text-indigo-900">
                                 {val.toLocaleString()}
                               </td>
                             );
                           })}
-                          <td className="px-2 py-2 text-right text-sm font-bold text-indigo-600">
+                          <td className="px-2 py-2 text-right text-sm font-bold text-indigo-900">
                             {commissionData.grandTotal.toLocaleString()}
                           </td>
                         </tr>
@@ -7348,7 +7333,7 @@ export default function Dashboard() {
                             const yoy = val2024 > 0 ? (val2025 / val2024 * 100) : 0;
                             return (
                               <td key={month} className="px-2 py-2 text-right text-sm font-bold">
-                                <span className={yoy >= 100 ? 'text-red-600' : 'text-indigo-600'}>
+                                <span className={yoy >= 100 ? 'text-red-600' : 'text-indigo-900'}>
                                   {yoy.toFixed(1)}%
                                 </span>
                               </td>
@@ -7360,7 +7345,7 @@ export default function Dashboard() {
                               const total2025 = commissionData.grandTotal;
                               const yoy = total2024 > 0 ? (total2025 / total2024 * 100) : 0;
                               return (
-                                <span className={yoy >= 100 ? 'text-red-600' : 'text-indigo-600'}>
+                                <span className={yoy >= 100 ? 'text-red-600' : 'text-indigo-900'}>
                                   {yoy.toFixed(1)}%
                                 </span>
                               );
@@ -7402,7 +7387,7 @@ export default function Dashboard() {
                                   </td>
                                 );
                               })}
-                              <td className="px-2 py-2 text-right text-sm font-semibold text-indigo-600">
+                              <td className="px-2 py-2 text-right text-sm font-semibold text-indigo-900">
                                 {(commissionYear === '2024' ? category.total2024 : category.total2025).toLocaleString()}
                               </td>
                             </tr>
@@ -7596,7 +7581,7 @@ export default function Dashboard() {
           </DialogHeader>
           {miscDetailPopup.loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-700"></div>
               <span className="ml-3 text-sm text-gray-500">로딩 중...</span>
             </div>
           ) : (
@@ -7718,7 +7703,7 @@ function HierarchyRow({
             </span>
           </div>
         </td>
-        <td className={`px-4 py-3 text-right ${isTotal ? 'text-purple-700 font-bold' : 'text-indigo-600 font-medium'}`}>
+        <td className={`px-4 py-3 text-right ${isTotal ? 'text-purple-700 font-bold' : 'text-indigo-900 font-medium'}`}>
           {formatNumber(data.previous)}
         </td>
         <td className={`px-4 py-3 text-right font-bold ${isTotal ? 'text-purple-900' : 'text-gray-900'}`}>
