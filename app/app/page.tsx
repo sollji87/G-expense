@@ -2797,9 +2797,14 @@ export default function Dashboard() {
                                 }
                               }
                             });
-                            // 복합 이름 매핑 (총무/비서팀 = 총무팀 + 비서팀 등)
+                            // 복합 이름 매핑 (여러 팀의 인원을 합산)
                             const compositeMap: { [key: string]: string[] } = {
-                              '총무/비서팀': ['총무팀', '비서팀'],
+                              '총무/비서팀': ['총무팀', '비서팀', 'HR총무담당'],
+                              'IT부문': ['Web Platform팀', 'Enterprise Solution팀', 'Enterprise Architecture팀', 'IT담당', '디지털본부담당', '디지털전략팀'],
+                              'Process부문': ['AX팀', 'AI Engineering팀', 'Process담당', 'PI팀', '데이터팀', '데이터기획팀', '데이터엔지니어링팀', '프로세스팀'],
+                              '마케팅본부': ['마케팅본부담당', '온라인마케팅팀', '인플루언서마케팅팀', 'DV/ST마케팅팀', 'DX마케팅팀', 'MK마케팅팀', 'MLB마케팅팀'],
+                              '해외사업팀': ['해외사업담당', '글로벌마케팅팀', 'Commercial팀', 'Operation팀'],
+                              '경영기획팀': ['경영기획'],
                             };
                             Object.entries(compositeMap).forEach(([composite, parts]) => {
                               const total = parts.reduce((sum, p) => sum + (teamHeadcountMap[p] || 0), 0);
