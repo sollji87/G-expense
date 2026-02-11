@@ -61,8 +61,14 @@ export async function GET(request: Request) {
     const prevYear = String(parseInt(year) - 1); // 전년도 동적 계산
     const account = searchParams.get('account');  // 계정 필터 (예: 지급수수료_법률자문료)
     const team = searchParams.get('team');  // 팀 필터 (특정 계정 내 팀별 상세)
+    const detail = searchParams.get('detail');  // 'all' - 전체 텍스트별 상세 (팝업용)
     
     const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+    
+    // 계정 전체 텍스트별 상세 (팝업용)
+    if (account && detail === 'all') {
+      return getAccountAllDetails(year, account, months);
+    }
     
     // 계정 + 팀 지정 시: 해당 계정의 해당 팀 텍스트별 상세
     if (account && team) {
@@ -461,6 +467,60 @@ async function getTeamAccountDetails(year: string, account: string, team: string
     accountShort: simplifyAccountName(account),
     team,
     items,
+    months,
+  });
+}
+
+// 특정 계정의 전체 텍스트별 상세 (팝업용) - 부서 정보 포함
+async function getAccountAllDetails(year: string, account: string, months: string[]) {
+  const detailData = loadCommissionJson();
+  
+  if (!detailData) {
+    return NextResponse.json({ success: true, year, account, items: [] });
+  }
+  
+  // 텍스트 + 부서별로 그룹화
+  const textData: { [key: string]: { text: string; dept: string; vendor: string; amount: number; monthly: { [m: string]: number } } } = {};
+  
+  if (detailData[year]) {
+    for (const record of detailData[year]) {
+      if (record.account !== account) continue;
+      
+      const dept = normalizeTeamName(record.cctr);
+      const text = record.text || 'Unknown';
+      const groupKey = `${text}__${dept}`;
+      
+      if (!textData[groupKey]) {
+        textData[groupKey] = { text, dept, vendor: record.vendor || '', amount: 0, monthly: {} };
+        months.forEach(m => { textData[groupKey].monthly[m] = 0; });
+      }
+      
+      textData[groupKey].amount += record.amount;
+      textData[groupKey].monthly[record.month] += record.amount;
+    }
+  }
+  
+  // 정렬 및 변환
+  const items = Object.values(textData)
+    .map(item => ({
+      text: item.text,
+      dept: item.dept,
+      vendor: item.vendor,
+      total: Math.round(item.amount / 1_000_000),
+      totalRaw: item.amount,
+      monthly: Object.fromEntries(
+        Object.entries(item.monthly).map(([m, v]) => [m, Math.round(v / 1_000_000)])
+      ),
+    }))
+    .sort((a, b) => b.totalRaw - a.totalRaw);
+  
+  return NextResponse.json({
+    success: true,
+    year,
+    account,
+    accountShort: simplifyAccountName(account),
+    items,
+    grandTotal: Math.round(items.reduce((sum, i) => sum + i.totalRaw, 0) / 1_000_000),
     months,
   });
 }
