@@ -6579,8 +6579,8 @@ export default function Dashboard() {
                                   공통사업부 인원수
                                 </td>
                                 {itUsageData.months.map(m => {
-                                  // laborData.yearlyTotals는 '01', '02' 형식
-                                  const headcount = laborData?.yearlyTotals?.['2025']?.[m] || 0;
+                                  // laborData.yearlyTotals는 '01', '02' 형식 - itExpenseYear에 맞게 동적으로
+                                  const headcount = laborData?.yearlyTotals?.[itExpenseYear]?.[m] || 0;
                                   return (
                                     <td key={m} className="px-2 py-1 text-right text-xs text-gray-500">
                                       {headcount > 0 ? `${headcount}명` : '-'}
@@ -6589,11 +6589,11 @@ export default function Dashboard() {
                                 })}
                                 <td className="px-2 py-1 text-right text-xs font-medium text-gray-600">
                                   {(() => {
-                                    // 월별 인원수 합계 / 월 수 = 평균 인원수
-                                    const yearlyTotals = laborData?.yearlyTotals?.['2025'] || {};
-                                    const headcountValues = Object.values(yearlyTotals) as number[];
+                                    // 월별 인원수 합계 / 데이터 있는 월 수 = 평균 인원수
+                                    const yearlyTotals = laborData?.yearlyTotals?.[itExpenseYear] || {};
+                                    const headcountValues = (Object.values(yearlyTotals) as number[]).filter(v => v > 0);
                                     const totalHeadcount = headcountValues.reduce((a, b) => a + b, 0);
-                                    const monthCount = headcountValues.length || 12;
+                                    const monthCount = headcountValues.length || 1;
                                     const avgHeadcount = Math.round(totalHeadcount / monthCount);
                                     return avgHeadcount > 0 ? `${avgHeadcount}명` : '-';
                                   })()}
@@ -6605,7 +6605,7 @@ export default function Dashboard() {
                                   인당 사용료 (만원)
                                 </td>
                                 {itUsageData.months.map(m => {
-                                  const headcount = laborData?.yearlyTotals?.['2025']?.[m] || 0;
+                                  const headcount = laborData?.yearlyTotals?.[itExpenseYear]?.[m] || 0;
                                   const perPerson = item.monthly[m] && item.monthly[m] > 0 && headcount > 0
                                     ? Math.round((item.monthly[m] * 100) / headcount)  // 백만원 -> 만원 (x100), /인원
                                     : 0;
@@ -6617,13 +6617,13 @@ export default function Dashboard() {
                                 })}
                                 <td className="px-2 py-1 text-right text-xs font-medium text-gray-600">
                                   {(() => {
-                                    // 연합계 인당 사용료 = (연합계 금액 / 평균 인원수 * 100) / 12 = 월평균 인당 사용료
-                                    const yearlyTotals = laborData?.yearlyTotals?.['2025'] || {};
-                                    const headcountValues = Object.values(yearlyTotals) as number[];
+                                    // 연합계 인당 사용료 = (연합계 금액 / 평균 인원수 * 100) / 데이터 있는 월 수
+                                    const yearlyTotals = laborData?.yearlyTotals?.[itExpenseYear] || {};
+                                    const headcountValues = (Object.values(yearlyTotals) as number[]).filter(v => v > 0);
                                     const totalHeadcount = headcountValues.reduce((a, b) => a + b, 0);
-                                    const monthCount = headcountValues.length || 12;
+                                    const monthCount = headcountValues.length || 1;
                                     const avgHeadcount = totalHeadcount / monthCount;
-                                    return avgHeadcount > 0 ? Math.round((item.total * 100) / avgHeadcount / 12).toLocaleString() : '-';
+                                    return avgHeadcount > 0 ? Math.round((item.total * 100) / avgHeadcount / monthCount).toLocaleString() : '-';
                                   })()}
                                 </td>
                               </tr>

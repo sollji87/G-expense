@@ -73491,63 +73491,72 @@
   "2026": [
     {
       "month": "01",
-      "text": "26.01월_PLM 솔루션 연간 라이센스 비용",
+      "text": "PLM",
+      "original_text": "26.01월_PLM 솔루션 연간 라이센스 비용",
       "vendor": "",
       "cctr": "PI팀",
       "amount": 41637157.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 FNF통합 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 FNF통합 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 40731852.0
     },
     {
       "month": "01",
-      "text": "26.01월_M365 라이선스",
+      "text": "MS 365",
+      "original_text": "26.01월_M365 라이선스",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33678289.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 Dist 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 Dist 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 31279838.0
     },
     {
       "month": "01",
-      "text": "25.12.FNF AWS 인프라 사용료(웅진)",
+      "text": "AWS 인프라",
+      "original_text": "25.12.FNF AWS 인프라 사용료(웅진)",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 31130400.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 EC-Neo 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 EC-Neo 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 30994129.0
     },
     {
       "month": "01",
-      "text": "2025년 12월 AWS 이용료 전표 처리",
+      "text": "AWS 인프라",
+      "original_text": "2025년 12월 AWS 이용료 전표 처리",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 28069481.0
     },
     {
       "month": "01",
-      "text": "Alibaba Cloud 비용 25.12",
+      "text": "Alibaba Cloud",
+      "original_text": "Alibaba Cloud 비용 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 24133762.0
     },
     {
       "month": "01",
-      "text": "Datadog 모니터링 비용 - 2026.01",
+      "text": "Datadog 모니터링 비용 - 20",
+      "original_text": "Datadog 모니터링 비용 - 2026.01",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 22832258.0
@@ -73555,55 +73564,63 @@
     {
       "month": "01",
       "text": "Cloudflare 서비스 정산의 건(01월)",
+      "original_text": "Cloudflare 서비스 정산의 건(01월)",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 11501657.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 MMP 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 MMP 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 10450350.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 Ent-Bo 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 Ent-Bo 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 10303533.0
     },
     {
       "month": "01",
-      "text": "26.01월_세일즈포스 Marketing Cloud 사용료",
+      "text": "Salesforce",
+      "original_text": "26.01월_세일즈포스 Marketing Cloud 사용료",
       "vendor": "",
       "cctr": "PI팀",
       "amount": 9944585.0
     },
     {
       "month": "01",
-      "text": "26.01월_노션 사용료",
+      "text": "Notion",
+      "original_text": "26.01월_노션 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 9266986.0
     },
     {
       "month": "01",
-      "text": "26.01월_Retool 플랫폼 Enterprise Plan",
+      "text": "Retool",
+      "original_text": "26.01월_Retool 플랫폼 Enterprise Plan",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 9252331.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 DPL 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 DPL 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 8395187.0
     },
     {
       "month": "01",
-      "text": "26.01월_유로모니터 패스포트 서비스 이용료",
+      "text": "유로모니터 패스포트 서비스 이용료",
+      "original_text": "26.01월_유로모니터 패스포트 서비스 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 7964266.0
@@ -73611,174 +73628,199 @@
     {
       "month": "01",
       "text": "SAC Public Option 사용료3회차",
+      "original_text": "SAC Public Option 사용료3회차",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 6731634.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 EC 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 EC 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 6652928.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 S-Box 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 S-Box 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 6318855.0
     },
     {
       "month": "01",
-      "text": "26.01월_브랜드폴더 연간 서비스 이용료",
+      "text": "브랜드폴더 연간 서비스 이용료",
+      "original_text": "26.01월_브랜드폴더 연간 서비스 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 6046193.0
     },
     {
       "month": "01",
-      "text": "26.01월_브랜드폴더 연간 서비스 이용료",
+      "text": "브랜드폴더 연간 서비스 이용료",
+      "original_text": "26.01월_브랜드폴더 연간 서비스 이용료",
       "vendor": "",
       "cctr": "PI팀",
       "amount": 5805652.0
     },
     {
       "month": "01",
-      "text": "26.01월_Varco Art 서비스 이용료",
+      "text": "Varco Art 서비스 이용료",
+      "original_text": "26.01월_Varco Art 서비스 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 5732877.0
     },
     {
       "month": "01",
-      "text": "26.01월_스노우플레이크 소프트웨어 크레딧",
+      "text": "Snowflake",
+      "original_text": "26.01월_스노우플레이크 소프트웨어 크레딧",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 4822081.0
     },
     {
       "month": "01",
-      "text": "26년 01월 Atlassian 사용료",
+      "text": "Atlassian",
+      "original_text": "26년 01월 Atlassian 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 4587958.0
     },
     {
       "month": "01",
-      "text": "26.01월_마이다스아이티 채용 플랫폼",
+      "text": "마이다스아이티 채용 플랫폼",
+      "original_text": "26.01월_마이다스아이티 채용 플랫폼",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 4440381.0
     },
     {
       "month": "01",
-      "text": "OCI 클라우드 MSP 비용 -2026.01",
+      "text": "OCI 클라우드 MSP 비용 -20",
+      "original_text": "OCI 클라우드 MSP 비용 -2026.01",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 4408250.0
     },
     {
       "month": "01",
-      "text": "26.01월_스마트시트 연간 서비스 이용료",
+      "text": "스마트시트 연간 서비스 이용료",
+      "original_text": "26.01월_스마트시트 연간 서비스 이용료",
       "vendor": "",
       "cctr": "PI팀",
       "amount": 4156874.0
     },
     {
       "month": "01",
-      "text": "25년 12월 GA4 사용료",
+      "text": "GA4",
+      "original_text": "25년 12월 GA4 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 3955830.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 EC-A 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 EC-A 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 3824545.0
     },
     {
       "month": "01",
-      "text": "25년 12월 Naver Cloud 사용료",
+      "text": "Naver Cloud",
+      "original_text": "25년 12월 Naver Cloud 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 3811940.0
     },
     {
       "month": "01",
-      "text": "26년 01월 Google Cloud 사용료",
+      "text": "Google Cloud",
+      "original_text": "26년 01월 Google Cloud 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 3757610.0
     },
     {
       "month": "01",
-      "text": "26.01월_Power BI 라이선스",
+      "text": "Power BI",
+      "original_text": "26.01월_Power BI 라이선스",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 3657576.0
     },
     {
       "month": "01",
-      "text": "KINX Alibaba 사용료 26.01",
+      "text": "Alibaba Cloud",
+      "original_text": "KINX Alibaba 사용료 26.01",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 3360000.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 SCM 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 SCM 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 3326775.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 Audit 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 Audit 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 3279338.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 F-MKT 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 F-MKT 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 3186870.0
     },
     {
       "month": "01",
-      "text": "25.12 SAP ERP 시스템 유지보수의 건",
+      "text": "SAP",
+      "original_text": "25.12 SAP ERP 시스템 유지보수의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 3181660.0
     },
     {
       "month": "01",
-      "text": "26.01월_직원 의견조사 플랫폼 이용료",
+      "text": "직원 의견조사 플랫폼 이용료",
+      "original_text": "26.01월_직원 의견조사 플랫폼 이용료",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 2881835.0
     },
     {
       "month": "01",
-      "text": "26.01월_세일즈포스 Heroku 라이센스 사용료",
+      "text": "세일즈포스 Heroku 라이센스 사용료",
+      "original_text": "26.01월_세일즈포스 Heroku 라이센스 사용료",
       "vendor": "",
       "cctr": "PI팀",
       "amount": 2791324.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 DevOps 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 DevOps 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 2773194.0
     },
     {
       "month": "01",
-      "text": "26.01월_계정관리(Okta) 라이센스",
+      "text": "Okta",
+      "original_text": "26.01월_계정관리(Okta) 라이센스",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 2743695.0
@@ -73786,286 +73828,327 @@
     {
       "month": "01",
       "text": "IT 사용료 (크롤링 프록시 구독료)",
+      "original_text": "IT 사용료 (크롤링 프록시 구독료)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 2604308.0
     },
     {
       "month": "01",
-      "text": "26.01월_노션 이용료",
+      "text": "Notion",
+      "original_text": "26.01월_노션 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 2497068.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 VDI 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 VDI 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 2480516.0
     },
     {
       "month": "01",
-      "text": "26.01월_방화벽 라이선스",
+      "text": "방화벽",
+      "original_text": "26.01월_방화벽 라이선스",
       "vendor": "",
       "cctr": "정보보안팀",
       "amount": 2318358.0
     },
     {
       "month": "01",
-      "text": "26년 01월 자사몰 Vercel 사용료",
+      "text": "Vercel",
+      "original_text": "26년 01월 자사몰 Vercel 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 2098443.0
     },
     {
       "month": "01",
-      "text": "26년 01월 Google Cloud 사용료",
+      "text": "Google Cloud",
+      "original_text": "26년 01월 Google Cloud 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 2000000.0
     },
     {
       "month": "01",
-      "text": "26.01월_개발 업무용 소프트웨어(Jetbrain SW)",
+      "text": "JetBrains",
+      "original_text": "26.01월_개발 업무용 소프트웨어(Jetbrain SW)",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1873890.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 FNCOBO 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 FNCOBO 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1749054.0
     },
     {
       "month": "01",
-      "text": "AI 엔지니어링팀 Claude Team 플랜 정기결제",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 엔지니어링팀 Claude Team 플랜 정기결제",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 1722592.0
     },
     {
       "month": "01",
-      "text": "26.01월_온라인 정보사이트(WGSN)연간 이용료",
+      "text": "온라인 정보사이트(WGSN)",
+      "original_text": "26.01월_온라인 정보사이트(WGSN)연간 이용료",
       "vendor": "",
       "cctr": "소비자전략팀",
       "amount": 1698631.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 F-Comm 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 F-Comm 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1626317.0
     },
     {
       "month": "01",
-      "text": "26.01월_Atlassian 서비스 구독",
+      "text": "Atlassian",
+      "original_text": "26.01월_Atlassian 서비스 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1620750.0
     },
     {
       "month": "01",
-      "text": "26.01월_오라클DB 라이선스 갱신(OMS용)",
+      "text": "오라클DB 라이선스 갱신(OMS용)",
+      "original_text": "26.01월_오라클DB 라이선스 갱신(OMS용)",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1607754.0
     },
     {
       "month": "01",
-      "text": "26년 01월 Naver Cloud 사용료",
+      "text": "Naver Cloud",
+      "original_text": "26년 01월 Naver Cloud 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1542600.0
     },
     {
       "month": "01",
-      "text": "25년 12월 Google Cloud 사용료",
+      "text": "Google Cloud",
+      "original_text": "25년 12월 Google Cloud 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1484968.0
     },
     {
       "month": "01",
-      "text": "KINX CloudHub 26.01 지급의 건",
+      "text": "KINX CloudHub 지급의 건",
+      "original_text": "KINX CloudHub 26.01 지급의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1400000.0
     },
     {
       "month": "01",
-      "text": "26.01월_스마트시트 연간 서비스 이용료",
+      "text": "스마트시트 연간 서비스 이용료",
+      "original_text": "26.01월_스마트시트 연간 서비스 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 1398970.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 EC-Ext 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 EC-Ext 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1359865.0
     },
     {
       "month": "01",
-      "text": "26.01월_MS 365 License 추가 구매",
+      "text": "MS 365 License 추가 구매",
+      "original_text": "26.01월_MS 365 License 추가 구매",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1097877.0
     },
     {
       "month": "01",
-      "text": "26.01월_Slack SW 구독료",
+      "text": "Slack",
+      "original_text": "26.01월_Slack SW 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1060168.0
     },
     {
       "month": "01",
-      "text": "26.01월_Nox Influencer 솔루션",
+      "text": "Nox Influencer",
+      "original_text": "26.01월_Nox Influencer 솔루션",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 1027671.0
     },
     {
       "month": "01",
-      "text": "26.01 Sendbird 사용의 건",
+      "text": "Sendbird",
+      "original_text": "26.01 Sendbird 사용의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 912532.0
     },
     {
       "month": "01",
-      "text": "26.01월_Udemy Business 서비스 사용료",
+      "text": "Udemy Business 서비스 사용료",
+      "original_text": "26.01월_Udemy Business 서비스 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 863595.0
     },
     {
       "month": "01",
-      "text": "APIFY 사용료",
+      "text": "APIFY",
+      "original_text": "APIFY 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 854891.0
     },
     {
       "month": "01",
-      "text": "26.01월_한국평가데이터(기업정보 제공) 계약 비용",
+      "text": "한국평가데이터(기업정보 제공) 계약 비용",
+      "original_text": "26.01월_한국평가데이터(기업정보 제공) 계약 비용",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 849315.0
     },
     {
       "month": "01",
-      "text": "26.01월_MS Sharepoint 라이선스 구독료",
+      "text": "MS Sharepoint 라이선스 구독료",
+      "original_text": "26.01월_MS Sharepoint 라이선스 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 779500.0
     },
     {
       "month": "01",
-      "text": "26.01월_MS Sharepoint 추가 구매",
+      "text": "MS Sharepoint 추가 구매",
+      "original_text": "26.01월_MS Sharepoint 추가 구매",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 778338.0
     },
     {
       "month": "01",
-      "text": "26.01월_Office 365 Extra File Storage 프로그램",
+      "text": "MS 365",
+      "original_text": "26.01월_Office 365 Extra File Storage 프로그램",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 778039.0
     },
     {
       "month": "01",
-      "text": "Fingerprint 라이센스 사용료",
+      "text": "Fingerprint",
+      "original_text": "Fingerprint 라이센스 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 776474.0
     },
     {
       "month": "01",
-      "text": "ai 에이전트 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 에이전트 구독",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 736317.0
     },
     {
       "month": "01",
-      "text": "26.01월_2025년 디지털본부 개발 업무용 소프트웨어(Jetbrain SW) 라이센스",
+      "text": "JetBrains",
+      "original_text": "26.01월_2025년 디지털본부 개발 업무용 소프트웨어(Jetbrain SW) 라이센스",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 715342.0
     },
     {
       "month": "01",
-      "text": "26.01월_MS 라이센스 구독료",
+      "text": "MS 라이센스 구독료",
+      "original_text": "26.01월_MS 라이센스 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 702710.0
     },
     {
       "month": "01",
-      "text": "26.01월_MS 라이선스 구독료",
+      "text": "MS 라이선스 구독료",
+      "original_text": "26.01월_MS 라이선스 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 676754.0
     },
     {
       "month": "01",
-      "text": "26.01월_Figma 라이선스 사용료",
+      "text": "Figma",
+      "original_text": "26.01월_Figma 라이선스 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 612464.0
     },
     {
       "month": "01",
-      "text": "차트메트릭 월 구독료(FNF엔터)",
+      "text": "차트메트릭",
+      "original_text": "차트메트릭 월 구독료(FNF엔터)",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 567562.0
     },
     {
       "month": "01",
-      "text": "26.01월_Udemy Business 서비스 사용료",
+      "text": "Udemy Business 서비스 사용료",
+      "original_text": "26.01월_Udemy Business 서비스 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 535068.0
     },
     {
       "month": "01",
-      "text": "26.01월_Atlassian Guard 사용료",
+      "text": "Atlassian",
+      "original_text": "26.01월_Atlassian Guard 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 530271.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 FNCOSCM 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 FNCOSCM 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 522676.0
     },
     {
       "month": "01",
-      "text": "26.01 방문객QR 출입시스템 월 이용료",
+      "text": "방문객 QR시스템",
+      "original_text": "26.01 방문객QR 출입시스템 월 이용료",
       "vendor": "",
       "cctr": "총무",
       "amount": 520000.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 442026.0
     },
     {
       "month": "01",
-      "text": "26.01월_Miro(협업 플랫폼) 라이센스",
+      "text": "Miro",
+      "original_text": "26.01월_Miro(협업 플랫폼) 라이센스",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 414027.0
@@ -74073,69 +74156,79 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 385537.0
     },
     {
       "month": "01",
-      "text": "26.01월_1Password 사용료",
+      "text": "1Password",
+      "original_text": "26.01월_1Password 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 378853.0
     },
     {
       "month": "01",
-      "text": "팀 다이어그램 협업도구 - 미로",
+      "text": "Miro",
+      "original_text": "팀 다이어그램 협업도구 - 미로",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 361340.0
     },
     {
       "month": "01",
-      "text": "ax팀 IT 사용비(AI)_Gemini",
+      "text": "임직원 AI사용료",
+      "original_text": "ax팀 IT 사용비(AI)_Gemini",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 360000.0
     },
     {
       "month": "01",
-      "text": "26.01월_잡플래닛 기업서비스",
+      "text": "잡플래닛 기업서비스",
+      "original_text": "26.01월_잡플래닛 기업서비스",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 356713.0
     },
     {
       "month": "01",
-      "text": "26.01월_한국기업데이터 크레탑(CRETOP) 구독료",
+      "text": "한국기업데이터 크레탑(CRETOP) 구독료",
+      "original_text": "26.01월_한국기업데이터 크레탑(CRETOP) 구독료",
       "vendor": "",
       "cctr": "공통",
       "amount": 339726.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 331384.0
     },
     {
       "month": "01",
-      "text": "2026.01월 IT 구독료 정산(클로드)",
+      "text": "임직원 AI사용료",
+      "original_text": "2026.01월 IT 구독료 정산(클로드)",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 331384.0
     },
     {
       "month": "01",
-      "text": "Claude Code 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude Code 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 331228.0
     },
     {
       "month": "01",
-      "text": "업무용 Claude 비용 결제",
+      "text": "임직원 AI사용료",
+      "original_text": "업무용 Claude 비용 결제",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 330248.0
@@ -74143,13 +74236,15 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 329981.0
     },
     {
       "month": "01",
-      "text": "AI 코딩 어시스턴트 서비스 구독의 건",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 코딩 어시스턴트 서비스 구독의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 329291.0
@@ -74157,97 +74252,111 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 329291.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 316854.0
     },
     {
       "month": "01",
-      "text": "26.01 IT팀 IT사용료",
+      "text": "IT팀 IT사용료",
+      "original_text": "26.01 IT팀 IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 316109.0
     },
     {
       "month": "01",
-      "text": "26.01 IT팀 IT사용료",
+      "text": "IT팀 IT사용료",
+      "original_text": "26.01 IT팀 IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 315184.0
     },
     {
       "month": "01",
-      "text": "커서(AI 코딩 툴) 월 서브스립션",
+      "text": "임직원 AI사용료",
+      "original_text": "커서(AI 코딩 툴) 월 서브스립션",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 308529.0
     },
     {
       "month": "01",
-      "text": "26.01월_에프앤가이드 연간 구독 서비스",
+      "text": "에프앤가이드 연간 구독 서비스",
+      "original_text": "26.01월_에프앤가이드 연간 구독 서비스",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 305754.0
     },
     {
       "month": "01",
-      "text": "26.01월_EAI 서버 OS 연장 지원 서비스",
+      "text": "EAI 서버 OS 연장 지원 서비스",
+      "original_text": "26.01월_EAI 서버 OS 연장 지원 서비스",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 305753.0
     },
     {
       "month": "01",
-      "text": "26.01월_Office 365 Extra File Storage 구독료",
+      "text": "MS 365",
+      "original_text": "26.01월_Office 365 Extra File Storage 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 302644.0
     },
     {
       "month": "01",
-      "text": "26.01월 e-biz팀 CJ APP PUS",
+      "text": "e-biz팀 CJ APP PUS",
+      "original_text": "26.01월 e-biz팀 CJ APP PUS",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 300000.0
     },
     {
       "month": "01",
-      "text": "Cursor AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "Cursor AI 구독료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 299355.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 IT수수료",
+      "text": "IT팀 IT수수료",
+      "original_text": "2026.01 IT팀 IT수수료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 298886.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 Backup 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 Backup 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 297864.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 복리후생비",
+      "text": "IT팀 복리후생비",
+      "original_text": "2026.01 IT팀 복리후생비",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 296587.0
     },
     {
       "month": "01",
-      "text": "apify 구독료",
+      "text": "APIFY",
+      "original_text": "apify 구독료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 293509.0
@@ -74255,13 +74364,15 @@
     {
       "month": "01",
       "text": "클라우드 코드 관리",
+      "original_text": "클라우드 코드 관리",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 290815.0
     },
     {
       "month": "01",
-      "text": "26.01월_계정관리서비스 Okta 구독료",
+      "text": "Okta",
+      "original_text": "26.01월_계정관리서비스 Okta 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 272560.0
@@ -74269,55 +74380,63 @@
     {
       "month": "01",
       "text": "화상회의구독료",
+      "original_text": "화상회의구독료",
       "vendor": "",
       "cctr": "임원",
       "amount": 252780.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 244040.0
     },
     {
       "month": "01",
-      "text": "나노바나나 ai 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "나노바나나 ai 구독료",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 233241.0
     },
     {
       "month": "01",
-      "text": "26.01월_Miro 라이선스 구독료",
+      "text": "Miro",
+      "original_text": "26.01월_Miro 라이선스 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 231309.0
     },
     {
       "month": "01",
-      "text": "AWS Cloud 비용 Log 25.12",
+      "text": "AWS 인프라",
+      "original_text": "AWS Cloud 비용 Log 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 227680.0
     },
     {
       "month": "01",
-      "text": "26.01월_웹플랫폼팀 테스트 단말기 대여료",
+      "text": "웹플랫폼팀 테스트 단말기 대여료",
+      "original_text": "26.01월_웹플랫폼팀 테스트 단말기 대여료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 225857.0
     },
     {
       "month": "01",
-      "text": "AI 엔지니어링팀 Claude Team 플랜 정기결제-신규인원",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 엔지니어링팀 Claude Team 플랜 정기결제-신규인원",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 213741.0
     },
     {
       "month": "01",
-      "text": "26.01월 지급수수료(IT 사용료) 정산",
+      "text": "지급수수료(IT 사용료) 정산",
+      "original_text": "26.01월 지급수수료(IT 사용료) 정산",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 206335.0
@@ -74325,41 +74444,47 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 200000.0
     },
     {
       "month": "01",
-      "text": "2025년 12월 GCP 이용료 전표 처리",
+      "text": "Google Cloud",
+      "original_text": "2025년 12월 GCP 이용료 전표 처리",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 189572.0
     },
     {
       "month": "01",
-      "text": "26.01월 지급수수료_IT사용료 (Claude)_데이터 사용량 추가",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 지급수수료_IT사용료 (Claude)_데이터 사용량 추가",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 188222.0
     },
     {
       "month": "01",
-      "text": "중국법인 HR팀 클로드 max 20x업그레이드",
+      "text": "임직원 AI사용료",
+      "original_text": "중국법인 HR팀 클로드 max 20x업그레이드",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 186391.0
     },
     {
       "month": "01",
-      "text": "26년 01월 웹플랫폼팀 Vercel 사용료",
+      "text": "Vercel",
+      "original_text": "26년 01월 웹플랫폼팀 Vercel 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 185962.0
     },
     {
       "month": "01",
-      "text": "dcsai api 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "dcsai api 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 183092.0
@@ -74367,13 +74492,15 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 179508.0
     },
     {
       "month": "01",
-      "text": "2026.01 카카오엔터 알림톡 사용료",
+      "text": "카카오워크",
+      "original_text": "2026.01 카카오엔터 알림톡 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 168401.0
@@ -74381,13 +74508,15 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 166230.0
     },
     {
       "month": "01",
-      "text": "26.01월 지급수수료(IT 사용료) 정산",
+      "text": "지급수수료(IT 사용료) 정산",
+      "original_text": "26.01월 지급수수료(IT 사용료) 정산",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 166155.0
@@ -74395,6 +74524,7 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 166141.0
@@ -74402,6 +74532,7 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 165943.0
@@ -74409,69 +74540,79 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 165915.0
     },
     {
       "month": "01",
-      "text": "중국법인 HR팀 Claude max 플랜 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "중국법인 HR팀 Claude max 플랜 구독",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 165699.0
     },
     {
       "month": "01",
-      "text": "26.1_AI프로그램 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1_AI프로그램 구독료",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 165699.0
     },
     {
       "month": "01",
-      "text": "AI툴 사용료_클로드코드",
+      "text": "임직원 AI사용료",
+      "original_text": "AI툴 사용료_클로드코드",
       "vendor": "",
       "cctr": "경영개선팀",
       "amount": 165699.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI API 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI API 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 165621.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 IT수수료",
+      "text": "IT팀 IT수수료",
+      "original_text": "2026.01 IT팀 IT수수료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 165621.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료 (AI툴)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료 (AI툴)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 165276.0
     },
     {
       "month": "01",
-      "text": "Claude Code Pro 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude Code Pro 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 165276.0
     },
     {
       "month": "01",
-      "text": "CLAUDE 결제",
+      "text": "임직원 AI사용료",
+      "original_text": "CLAUDE 결제",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 165276.0
     },
     {
       "month": "01",
-      "text": "claude max ai 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "claude max ai 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 165131.0
@@ -74479,97 +74620,111 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 164652.0
     },
     {
       "month": "01",
-      "text": "26.01월 회계팀 클로드 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 회계팀 클로드 구독료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 164652.0
     },
     {
       "month": "01",
-      "text": "26.01월 지급수수료_IT사용료 (Claude)",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 지급수수료_IT사용료 (Claude)",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 164652.0
     },
     {
       "month": "01",
-      "text": "AI엔지니어링팀 SLACK 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI엔지니어링팀 SLACK 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 164064.0
     },
     {
       "month": "01",
-      "text": "Claude Max 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude Max 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 163705.0
     },
     {
       "month": "01",
-      "text": "anthropic api 비용 (dcs ai 프로젝트 개발용)",
+      "text": "임직원 AI사용료",
+      "original_text": "anthropic api 비용 (dcs ai 프로젝트 개발용)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 163644.0
     },
     {
       "month": "01",
-      "text": "26.01 IT 유료 계정 정산의 건",
+      "text": "IT 유료 계정 정산의 건",
+      "original_text": "26.01 IT 유료 계정 정산의 건",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 162926.0
     },
     {
       "month": "01",
-      "text": "IR파트 CLAUDE 월 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "IR파트 CLAUDE 월 구독료",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 162926.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료(Claude)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료(Claude)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 162703.0
     },
     {
       "month": "01",
-      "text": "IT 사용료 (클로드)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료 (클로드)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 162703.0
     },
     {
       "month": "01",
-      "text": "클로드 월 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "클로드 월 구독료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 162168.0
     },
     {
       "month": "01",
-      "text": "AI 이용료(클로드)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 이용료(클로드)",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 162168.0
     },
     {
       "month": "01",
-      "text": "DV_1월 AI구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "DV_1월 AI구독료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 162168.0
     },
     {
       "month": "01",
-      "text": "26.1월 통합영업팀 지급수수료",
+      "text": "통합영업팀 지급수수료",
+      "original_text": "26.1월 통합영업팀 지급수수료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 162168.0
@@ -74577,41 +74732,47 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 162089.0
     },
     {
       "month": "01",
-      "text": "AI툴 사용료_claude",
+      "text": "임직원 AI사용료",
+      "original_text": "AI툴 사용료_claude",
       "vendor": "",
       "cctr": "경영개선팀",
       "amount": 161366.0
     },
     {
       "month": "01",
-      "text": "AI 사용료(Claude Max)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 사용료(Claude Max)",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 160475.0
     },
     {
       "month": "01",
-      "text": "Claude Code 라이선스 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude Code 라이선스 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 157363.0
     },
     {
       "month": "01",
-      "text": "26.01월_정보보안팀 ChatGPT 1년 유료플랜 결제",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월_정보보안팀 ChatGPT 1년 유료플랜 결제",
       "vendor": "",
       "cctr": "정보보안팀",
       "amount": 154965.0
     },
     {
       "month": "01",
-      "text": "26.01월_Github SW 라이센스 사용료",
+      "text": "GitHub",
+      "original_text": "26.01월_Github SW 라이센스 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 154082.0
@@ -74619,6 +74780,7 @@
     {
       "month": "01",
       "text": "01.크레아 구독료",
+      "original_text": "01.크레아 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 154037.0
@@ -74626,6 +74788,7 @@
     {
       "month": "01",
       "text": "회계팀 AI솔루션 이용료",
+      "original_text": "회계팀 AI솔루션 이용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 153828.0
@@ -74633,97 +74796,111 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 152981.0
     },
     {
       "month": "01",
-      "text": "26.01 IT 유료 계정 정산의 건",
+      "text": "IT 유료 계정 정산의 건",
+      "original_text": "26.01 IT 유료 계정 정산의 건",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 151648.0
     },
     {
       "month": "01",
-      "text": "커서 추가 API 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 추가 API 사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 151212.0
     },
     {
       "month": "01",
-      "text": "dcsai api 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "dcsai api 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 150860.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료_Claude",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료_Claude",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 150652.0
     },
     {
       "month": "01",
-      "text": "26.01 claude 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 claude 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 150628.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI 툴 사용비",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI 툴 사용비",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 150628.0
     },
     {
       "month": "01",
-      "text": "커서 추가 API 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 추가 API 사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 150112.0
     },
     {
       "month": "01",
-      "text": "dcsai api 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "dcsai api 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 150095.0
     },
     {
       "month": "01",
-      "text": "Claude 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 149141.0
     },
     {
       "month": "01",
-      "text": "26년 01월 Readme 사용료",
+      "text": "Readme 사용료",
+      "original_text": "26년 01월 Readme 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 149125.0
     },
     {
       "month": "01",
-      "text": "26.01 IT사용료_썸트렌드",
+      "text": "IT사용료 썸트렌드",
+      "original_text": "26.01 IT사용료_썸트렌드",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 149000.0
     },
     {
       "month": "01",
-      "text": "26.01 claudeAI pro 모델 사용",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 claudeAI pro 모델 사용",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 148816.0
     },
     {
       "month": "01",
-      "text": "26년 1월 클로드AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26년 1월 클로드AI 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 147905.0
@@ -74731,6 +74908,7 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 147706.0
@@ -74738,55 +74916,63 @@
     {
       "month": "01",
       "text": "it 사용료",
+      "original_text": "it 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 147420.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스-AX팀 IT사용료",
+      "text": "프로세스-AX팀 IT사용료",
+      "original_text": "26.01 프로세스-AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 146907.0
     },
     {
       "month": "01",
-      "text": "dcsai api 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "dcsai api 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 146861.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI 툴 사용비",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI 툴 사용비",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 146690.0
     },
     {
       "month": "01",
-      "text": "Claude 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 146690.0
     },
     {
       "month": "01",
-      "text": "dcsai api 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "dcsai api 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 146347.0
     },
     {
       "month": "01",
-      "text": "dcsai api 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "dcsai api 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 146229.0
     },
     {
       "month": "01",
-      "text": "ax팀 IT 사용비(AI)_영상ai",
+      "text": "임직원 AI사용료",
+      "original_text": "ax팀 IT 사용비(AI)_영상ai",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 145123.0
@@ -74794,6 +74980,7 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 143684.0
@@ -74801,55 +74988,63 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 141137.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 140278.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스팀 지급수수료_IT사용료",
+      "text": "프로세스팀 지급수수료 IT사용료",
+      "original_text": "26.01 프로세스팀 지급수수료_IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 139315.0
     },
     {
       "month": "01",
-      "text": "Claude 1달 사용 (Max 업그레이드)",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude 1달 사용 (Max 업그레이드)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 133624.0
     },
     {
       "month": "01",
-      "text": "커서 추가 API 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 추가 API 사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 120615.0
     },
     {
       "month": "01",
-      "text": "26.01월_법무팀 로앤비(LAWnB) 이용료",
+      "text": "법무팀 로앤비(LAWnB) 이용료",
+      "original_text": "26.01월_법무팀 로앤비(LAWnB) 이용료",
       "vendor": "",
       "cctr": "법무팀",
       "amount": 119528.0
     },
     {
       "month": "01",
-      "text": "AI구독료(cursor)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독료(cursor)",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 119044.0
     },
     {
       "month": "01",
-      "text": "26.01월_Sentry 구독료",
+      "text": "Sentry",
+      "original_text": "26.01월_Sentry 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 115872.0
@@ -74857,6 +75052,7 @@
     {
       "month": "01",
       "text": "IT 사용료 (크롤링 프록시 구독료)",
+      "original_text": "IT 사용료 (크롤링 프록시 구독료)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 110568.0
@@ -74864,13 +75060,15 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 107338.0
     },
     {
       "month": "01",
-      "text": "ax팀 IT 사용비(AI)_Grok",
+      "text": "임직원 AI사용료",
+      "original_text": "ax팀 IT 사용비(AI)_Grok",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 103682.0
@@ -74878,13 +75076,15 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 100000.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 99421.0
@@ -74892,13 +75092,15 @@
     {
       "month": "01",
       "text": "디스커버리 마케팅팀 미드저니 구독료(1인)",
+      "original_text": "디스커버리 마케팅팀 미드저니 구독료(1인)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 99081.0
     },
     {
       "month": "01",
-      "text": "AI솔루션사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI솔루션사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 99000.0
@@ -74906,13 +75108,15 @@
     {
       "month": "01",
       "text": "01.미드저니 구독료",
+      "original_text": "01.미드저니 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 98446.0
     },
     {
       "month": "01",
-      "text": "AI구독료_미드저니(AI인턴 사용분)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독료_미드저니(AI인턴 사용분)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 97624.0
@@ -74920,118 +75124,135 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 97624.0
     },
     {
       "month": "01",
-      "text": "AI솔루션사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI솔루션사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 95150.0
     },
     {
       "month": "01",
-      "text": "26.01월 CURSOR 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 CURSOR 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 90377.0
     },
     {
       "month": "01",
-      "text": "AI구독료(cursor)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독료(cursor)",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 90335.0
     },
     {
       "month": "01",
-      "text": "26.01 IT사용료_커서",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 IT사용료_커서",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 90335.0
     },
     {
       "month": "01",
-      "text": "커서 추가 API 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 추가 API 사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 90235.0
     },
     {
       "month": "01",
-      "text": "25.01 CURSOR AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "25.01 CURSOR AI 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 89994.0
     },
     {
       "month": "01",
-      "text": "26.01 IT Cursor 라이선스 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 IT Cursor 라이선스 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 89994.0
     },
     {
       "month": "01",
-      "text": "디스커버리 마케팅팀 KREA 구독료(1인)",
+      "text": "임직원 AI사용료",
+      "original_text": "디스커버리 마케팅팀 KREA 구독료(1인)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 89805.0
     },
     {
       "month": "01",
-      "text": "cursor 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "cursor 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 89805.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스-AX팀 IT사용료",
+      "text": "프로세스-AX팀 IT사용료",
+      "original_text": "26.01 프로세스-AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 89805.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 89805.0
     },
     {
       "month": "01",
-      "text": "2026.01월 IT 구독료 정산(커서)",
+      "text": "임직원 AI사용료",
+      "original_text": "2026.01월 IT 구독료 정산(커서)",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 88901.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 88864.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 88864.0
     },
     {
       "month": "01",
-      "text": "AI사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI사용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 88834.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 88675.0
@@ -75039,6 +75260,7 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 88451.0
@@ -75046,27 +75268,31 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 88451.0
     },
     {
       "month": "01",
-      "text": "CURSOR AI",
+      "text": "임직원 AI사용료",
+      "original_text": "CURSOR AI",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 88451.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 88451.0
     },
     {
       "month": "01",
-      "text": "1월 팀Chat GPT 자동 결제 정산의 건",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 팀Chat GPT 자동 결제 정산의 건",
       "vendor": "",
       "cctr": "안전보건팀",
       "amount": 88451.0
@@ -75074,13 +75300,15 @@
     {
       "month": "01",
       "text": "회계팀 AI솔루션 이용료",
+      "original_text": "회계팀 AI솔루션 이용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 88123.0
     },
     {
       "month": "01",
-      "text": "26.01월 CURSOR 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 CURSOR 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 87653.0
@@ -75088,27 +75316,31 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 83270.0
     },
     {
       "month": "01",
-      "text": "ANTHROPIC_API사용료",
+      "text": "ANTHROPIC API사용료",
+      "original_text": "ANTHROPIC_API사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 83064.0
     },
     {
       "month": "01",
-      "text": "ANTHROPIC_API사용료",
+      "text": "ANTHROPIC API사용료",
+      "original_text": "ANTHROPIC_API사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 83001.0
     },
     {
       "month": "01",
-      "text": "ANTHROPIC_API사용료",
+      "text": "ANTHROPIC API사용료",
+      "original_text": "ANTHROPIC_API사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 82606.0
@@ -75116,6 +75348,7 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 81858.0
@@ -75123,48 +75356,55 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 81570.0
     },
     {
       "month": "01",
-      "text": "ANTHROPIC_API사용료",
+      "text": "ANTHROPIC API사용료",
+      "original_text": "ANTHROPIC_API사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 81552.0
     },
     {
       "month": "01",
-      "text": "ANTHROPIC_API사용료",
+      "text": "ANTHROPIC API사용료",
+      "original_text": "ANTHROPIC_API사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 81436.0
     },
     {
       "month": "01",
-      "text": "ANTHROPIC_API사용료",
+      "text": "ANTHROPIC API사용료",
+      "original_text": "ANTHROPIC_API사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 81392.0
     },
     {
       "month": "01",
-      "text": "AI엔지니어링팀 Bitbucket 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI엔지니어링팀 Bitbucket 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 78623.0
     },
     {
       "month": "01",
-      "text": "26.01월_API 개발용 REST 클라이언트 툴 구독료",
+      "text": "API 개발용 REST 클라이언트 툴 구독료",
+      "original_text": "26.01월_API 개발용 REST 클라이언트 툴 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 78019.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 77571.0
@@ -75172,118 +75412,135 @@
     {
       "month": "01",
       "text": "[MLT] AI 프로그램 HIGGSFIEL결제",
+      "original_text": "[MLT] AI 프로그램 HIGGSFIEL결제",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 75745.0
     },
     {
       "month": "01",
-      "text": "25년1월 해외사업부 이승혜 과장 AI분석툴",
+      "text": "해외사업부 이승혜 과장 AI분석툴",
+      "original_text": "25년1월 해외사업부 이승혜 과장 AI분석툴",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 73556.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI 툴 사용비",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI 툴 사용비",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 73446.0
     },
     {
       "month": "01",
-      "text": "26년 1월 공통법무팀_IT사용료",
+      "text": "공통법무팀 IT사용료",
+      "original_text": "26년 1월 공통법무팀_IT사용료",
       "vendor": "",
       "cctr": "법무팀",
       "amount": 69900.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀_트렌드 페이지 구독",
+      "text": "AX팀 트렌드 페이지 구독",
+      "original_text": "26.01 AX팀_트렌드 페이지 구독",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 66000.0
     },
     {
       "month": "01",
-      "text": "AI콘텐츠제작툴_나노바나나 PRO 플랜 구독건",
+      "text": "임직원 AI사용료",
+      "original_text": "AI콘텐츠제작툴_나노바나나 PRO 플랜 구독건",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 64803.0
     },
     {
       "month": "01",
-      "text": "AI 구독료(나노바나나)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 구독료(나노바나나)",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 64624.0
     },
     {
       "month": "01",
-      "text": "AI콘텐츠제작툴_나노바나나 크레딧 추가 결제건",
+      "text": "AI콘텐츠제작툴 나노바나나 크레딧 추가 결제건",
+      "original_text": "AI콘텐츠제작툴_나노바나나 크레딧 추가 결제건",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 64594.0
     },
     {
       "month": "01",
-      "text": "AI 구독료(나노바나나_토큰추가)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 구독료(나노바나나_토큰추가)",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 64351.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 63891.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI 툴 사용비",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI 툴 사용비",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 63248.0
     },
     {
       "month": "01",
-      "text": "ai 에이전트 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 에이전트 구독",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 62934.0
     },
     {
       "month": "01",
-      "text": "AI구독료(cursor)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독료(cursor)",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 62281.0
     },
     {
       "month": "01",
-      "text": "26.01월_MS Teams Premium 구매",
+      "text": "MS Teams Premium 구매",
+      "original_text": "26.01월_MS Teams Premium 구매",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 62111.0
     },
     {
       "month": "01",
-      "text": "cursor 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "cursor 구독료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 62095.0
     },
     {
       "month": "01",
-      "text": "26.01월_전자계약(모두싸인) 연간 이용권",
+      "text": "전자계약(모두싸인) 연간 이용권",
+      "original_text": "26.01월_전자계약(모두싸인) 연간 이용권",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 61048.0
     },
     {
       "month": "01",
-      "text": "커서 추가 API 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 추가 API 사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 60491.0
@@ -75291,20 +75548,23 @@
     {
       "month": "01",
       "text": "인테리어 마감재 플랫폼 구독(5인)",
+      "original_text": "인테리어 마감재 플랫폼 구독(5인)",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 60000.0
     },
     {
       "month": "01",
-      "text": "AI 구독료 (GEMINI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 구독료 (GEMINI)",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 59116.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 58004.0
@@ -75312,6 +75572,7 @@
     {
       "month": "01",
       "text": "01.런웨이 구독료",
+      "original_text": "01.런웨이 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 56463.0
@@ -75319,111 +75580,127 @@
     {
       "month": "01",
       "text": "생성형AI 힉스필드 이용료",
+      "original_text": "생성형AI 힉스필드 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 54139.0
     },
     {
       "month": "01",
-      "text": "DX 마케팅팀 Krea AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "DX 마케팅팀 Krea AI 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 52869.0
     },
     {
       "month": "01",
-      "text": "AI콘텐츠제작툴_KREA PRO플랜 구독건",
+      "text": "임직원 AI사용료",
+      "original_text": "AI콘텐츠제작툴_KREA PRO플랜 구독건",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 52698.0
     },
     {
       "month": "01",
-      "text": "ax팀 IT 사용비(AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "ax팀 IT 사용비(AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 52542.0
     },
     {
       "month": "01",
-      "text": "AI 툴 구독료_ 크레아",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 툴 구독료_ 크레아",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 52390.0
     },
     {
       "month": "01",
-      "text": "KREA AI 프로그램 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "KREA AI 프로그램 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 52390.0
     },
     {
       "month": "01",
-      "text": "KREA AI 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "KREA AI 구독",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 52390.0
     },
     {
       "month": "01",
-      "text": "26.1월 글로벌마케팅팀 Krea 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1월 글로벌마케팅팀 Krea 구독료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 52089.0
     },
     {
       "month": "01",
-      "text": "26.01 나노바나나 구독료",
+      "text": "나노바나나 구독료",
+      "original_text": "26.01 나노바나나 구독료",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 52089.0
     },
     {
       "month": "01",
-      "text": "AI KREA 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI KREA 이용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 51862.0
     },
     {
       "month": "01",
-      "text": "1월 Deevid AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 Deevid AI 구독료",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 51862.0
     },
     {
       "month": "01",
-      "text": "ai 에이전트 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 에이전트 구독",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 51770.0
     },
     {
       "month": "01",
-      "text": "MLB.MKT 1월 AI 구독_KREA",
+      "text": "임직원 AI사용료",
+      "original_text": "MLB.MKT 1월 AI 구독_KREA",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 51117.0
     },
     {
       "month": "01",
-      "text": "MLB.MKT 1월 AI 구독_KREA",
+      "text": "임직원 AI사용료",
+      "original_text": "MLB.MKT 1월 AI 구독_KREA",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 51088.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 50780.0
     },
     {
       "month": "01",
-      "text": "FNF엔터_작곡 AI 툴(추가 구독 X)",
+      "text": "임직원 AI사용료",
+      "original_text": "FNF엔터_작곡 AI 툴(추가 구독 X)",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 50759.0
@@ -75431,34 +75708,39 @@
     {
       "month": "01",
       "text": "미드저니 구독료(오예온 인턴)",
+      "original_text": "미드저니 구독료(오예온 인턴)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 49706.0
     },
     {
       "month": "01",
-      "text": "나노바나나 AI 프로그램 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "나노바나나 AI 프로그램 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 49539.0
     },
     {
       "month": "01",
-      "text": "ax팀 IT 사용비(AI)_Gemini",
+      "text": "임직원 AI사용료",
+      "original_text": "ax팀 IT 사용비(AI)_Gemini",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 49494.0
     },
     {
       "month": "01",
-      "text": "26년 1월 법무팀 지급수수료_IT사용료",
+      "text": "법무팀 지급수수료 IT사용료",
+      "original_text": "26년 1월 법무팀 지급수수료_IT사용료",
       "vendor": "",
       "cctr": "법무팀",
       "amount": 48930.0
     },
     {
       "month": "01",
-      "text": "AI 툴 구독료 _ 나노바나나",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 툴 구독료 _ 나노바나나",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 48693.0
@@ -75466,27 +75748,31 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 48693.0
     },
     {
       "month": "01",
-      "text": "IT구독료_미드저니(양수경)",
+      "text": "IT구독료 미드저니(양수경)",
+      "original_text": "IT구독료_미드저니(양수경)",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 48644.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 48161.0
     },
     {
       "month": "01",
-      "text": "26.01월_G.Suite 라이선스",
+      "text": "G.Suite 라이선스",
+      "original_text": "26.01월_G.Suite 라이선스",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 46345.0
@@ -75494,6 +75780,7 @@
     {
       "month": "01",
       "text": "IT 사용료 (n8n)",
+      "original_text": "IT 사용료 (n8n)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 45775.0
@@ -75501,6 +75788,7 @@
     {
       "month": "01",
       "text": "매출 대시보드 AI 분석 서비스 수수료",
+      "original_text": "매출 대시보드 AI 분석 서비스 수수료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 45066.0
@@ -75508,6 +75796,7 @@
     {
       "month": "01",
       "text": "매출 대시보드 AI 분석 서비스 수수료",
+      "original_text": "매출 대시보드 AI 분석 서비스 수수료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 44823.0
@@ -75515,13 +75804,15 @@
     {
       "month": "01",
       "text": "미드저니",
+      "original_text": "미드저니",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 44423.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 44423.0
@@ -75529,6 +75820,7 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 44423.0
@@ -75536,6 +75828,7 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 44416.0
@@ -75543,20 +75836,23 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 44392.0
     },
     {
       "month": "01",
-      "text": "IT 사용료 (그록ai)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료 (그록ai)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 44378.0
     },
     {
       "month": "01",
-      "text": "DX 마케팅 AI 미드저니 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "DX 마케팅 AI 미드저니 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 44232.0
@@ -75564,13 +75860,15 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 43658.0
     },
     {
       "month": "01",
-      "text": "26.1 법인카드 사용의건_소프트웨어(AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1 법인카드 사용의건_소프트웨어(AI)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 43566.0
@@ -75578,13 +75876,15 @@
     {
       "month": "01",
       "text": "회계팀 AI솔루션 이용료",
+      "original_text": "회계팀 AI솔루션 이용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 42747.0
     },
     {
       "month": "01",
-      "text": "Higgsfield AI 월구독",
+      "text": "임직원 AI사용료",
+      "original_text": "Higgsfield AI 월구독",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 42347.0
@@ -75592,13 +75892,15 @@
     {
       "month": "01",
       "text": "매출 대시보드 AI 분석 서비스 수수료",
+      "original_text": "매출 대시보드 AI 분석 서비스 수수료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 42124.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 41545.0
@@ -75606,6 +75908,7 @@
     {
       "month": "01",
       "text": "GenSpark 월 구독료",
+      "original_text": "GenSpark 월 구독료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 41401.0
@@ -75613,195 +75916,223 @@
     {
       "month": "01",
       "text": "it사용료",
+      "original_text": "it사용료",
       "vendor": "",
       "cctr": "무역팀",
       "amount": 41382.0
     },
     {
       "month": "01",
-      "text": "DV_1월 AI구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "DV_1월 AI구독료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 41382.0
     },
     {
       "month": "01",
-      "text": "1월 AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 AI 구독료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 41382.0
     },
     {
       "month": "01",
-      "text": "26.1 법인카드 사용의건_소프트웨어(AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1 법인카드 사용의건_소프트웨어(AI)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 41382.0
     },
     {
       "month": "01",
-      "text": "AI솔루션사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI솔루션사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 41295.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 41169.0
     },
     {
       "month": "01",
-      "text": "통합영업_IT사용료",
+      "text": "통합영업 IT사용료",
+      "original_text": "통합영업_IT사용료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 40694.0
     },
     {
       "month": "01",
-      "text": "26.1월 통합영업팀 지급수수료(파견 윤수빈 담당 사용 건)",
+      "text": "통합영업팀 지급수수료(파견 윤수빈 담당 사용 건)",
+      "original_text": "26.1월 통합영업팀 지급수수료(파견 윤수빈 담당 사용 건)",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 40096.0
     },
     {
       "month": "01",
-      "text": "개인정산_보고 효율화 목적 AI 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "개인정산_보고 효율화 목적 AI 구독",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 39648.0
     },
     {
       "month": "01",
-      "text": "커서 추가 API 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 추가 API 사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 38470.0
     },
     {
       "month": "01",
-      "text": "26.01월_소비자전략팀 미드저니 구독료",
+      "text": "소비자전략팀 미드저니 구독료",
+      "original_text": "26.01월_소비자전략팀 미드저니 구독료",
       "vendor": "",
       "cctr": "소비자전략팀",
       "amount": 38111.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 37652.0
     },
     {
       "month": "01",
-      "text": "ax팀 IT 사용비(AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "ax팀 IT 사용비(AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 37652.0
     },
     {
       "month": "01",
-      "text": "DV_1월 영업팀 IT사용료(AI툴)",
+      "text": "임직원 AI사용료",
+      "original_text": "DV_1월 영업팀 IT사용료(AI툴)",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 37620.0
     },
     {
       "month": "01",
-      "text": "25.12 SP지급수수료_IT사용료(쇼피파이)",
+      "text": "SP지급수수료 IT사용료(쇼피파이)",
+      "original_text": "25.12 SP지급수수료_IT사용료(쇼피파이)",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 37200.0
     },
     {
       "month": "01",
-      "text": "통합영업_1월 IT사용료",
+      "text": "통합영업 1월 IT사용료",
+      "original_text": "통합영업_1월 IT사용료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 37185.0
     },
     {
       "month": "01",
-      "text": "26.01월_MS Teams Premium구매",
+      "text": "MS Teams Premium구매",
+      "original_text": "26.01월_MS Teams Premium구매",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 37139.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 37037.0
     },
     {
       "month": "01",
-      "text": "AI Tool 구독의 건",
+      "text": "임직원 AI사용료",
+      "original_text": "AI Tool 구독의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 36851.0
     },
     {
       "month": "01",
-      "text": "26.01월_원격 지원 프로그램(이지헬프) 사용료",
+      "text": "원격 지원 프로그램(이지헬프) 사용료",
+      "original_text": "26.01월_원격 지원 프로그램(이지헬프) 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 36691.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 36216.0
     },
     {
       "month": "01",
-      "text": "26.01월_신사옥 방화벽 라이선스 구매 비용",
+      "text": "방화벽",
+      "original_text": "26.01월_신사옥 방화벽 라이선스 구매 비용",
       "vendor": "",
       "cctr": "정보보안팀",
       "amount": 34703.0
     },
     {
       "month": "01",
-      "text": "통합영업_IT사용료",
+      "text": "통합영업 IT사용료",
+      "original_text": "통합영업_IT사용료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 33236.0
     },
     {
       "month": "01",
-      "text": "1월 법인카드사용내역_ChatGPT사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 법인카드사용내역_ChatGPT사용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 33236.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스팀",
+      "text": "프로세스팀",
+      "original_text": "26.01 프로세스팀",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33236.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스팀 지급수수료_IT사용료",
+      "text": "프로세스팀 지급수수료 IT사용료",
+      "original_text": "26.01 프로세스팀 지급수수료_IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33236.0
     },
     {
       "month": "01",
-      "text": "AI구독료_GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독료_GPT",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33236.0
     },
     {
       "month": "01",
-      "text": "26.1월 무역팀 IT사용료",
+      "text": "무역팀 IT사용료",
+      "original_text": "26.1월 무역팀 IT사용료",
       "vendor": "",
       "cctr": "무역팀",
       "amount": 33236.0
@@ -75809,13 +76140,15 @@
     {
       "month": "01",
       "text": "01/공통/ES팀/IT사용료",
+      "original_text": "01/공통/ES팀/IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33225.0
     },
     {
       "month": "01",
-      "text": "26.01 IT사용료",
+      "text": "IT사용료",
+      "original_text": "26.01 IT사용료",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 33225.0
@@ -75823,20 +76156,23 @@
     {
       "month": "01",
       "text": "01/공통/ES팀/IT사용료",
+      "original_text": "01/공통/ES팀/IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33225.0
     },
     {
       "month": "01",
-      "text": "26.01월 공통 회계팀 IT 수수료",
+      "text": "공통 회계팀 IT 수수료",
+      "original_text": "26.01월 공통 회계팀 IT 수수료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 33225.0
     },
     {
       "month": "01",
-      "text": "26.1월 통합영업팀 지급수수료",
+      "text": "통합영업팀 지급수수료",
+      "original_text": "26.1월 통합영업팀 지급수수료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 33225.0
@@ -75844,83 +76180,95 @@
     {
       "month": "01",
       "text": "퍼플렉시티 월 구독료",
+      "original_text": "퍼플렉시티 월 구독료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 33225.0
     },
     {
       "month": "01",
-      "text": "IT 사용료 (ChatGPT)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료 (ChatGPT)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 33225.0
     },
     {
       "month": "01",
-      "text": "26.01 IT ChatGPT 라이선스 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 IT ChatGPT 라이선스 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33225.0
     },
     {
       "month": "01",
-      "text": "IT사용료-ChatGPT",
+      "text": "임직원 AI사용료",
+      "original_text": "IT사용료-ChatGPT",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 33225.0
     },
     {
       "month": "01",
-      "text": "업무용 챗 GPT 비용 결제",
+      "text": "임직원 AI사용료",
+      "original_text": "업무용 챗 GPT 비용 결제",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 33225.0
     },
     {
       "month": "01",
-      "text": "MLB MKT 업무 툴 - 챗GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "MLB MKT 업무 툴 - 챗GPT",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33225.0
     },
     {
       "month": "01",
-      "text": "AI CLAUDE 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI CLAUDE 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33147.0
     },
     {
       "month": "01",
-      "text": "AI 퍼플렉시티 구독(오예온 인턴)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 퍼플렉시티 구독(오예온 인턴)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33147.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 IT수수료",
+      "text": "IT팀 IT수수료",
+      "original_text": "2026.01 IT팀 IT수수료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33147.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33147.0
     },
     {
       "month": "01",
-      "text": "26.01월 공통 회계팀 IT사용료 정산",
+      "text": "공통 회계팀 IT사용료 정산",
+      "original_text": "26.01월 공통 회계팀 IT사용료 정산",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 33147.0
     },
     {
       "month": "01",
-      "text": "26.01 IT 사용료",
+      "text": "IT 사용료",
+      "original_text": "26.01 IT 사용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 33147.0
@@ -75928,6 +76276,7 @@
     {
       "month": "01",
       "text": "챗지피티 구독",
+      "original_text": "챗지피티 구독",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 33147.0
@@ -75935,111 +76284,127 @@
     {
       "month": "01",
       "text": "개발용 소프트웨어",
+      "original_text": "개발용 소프트웨어",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "쳇GPT구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "쳇GPT구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "26.01 업무소프트웨어",
+      "text": "업무소프트웨어",
+      "original_text": "26.01 업무소프트웨어",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "26.01. AI툴(CHAT GPT) 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01. AI툴(CHAT GPT) 이용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 IT수수료",
+      "text": "IT팀 IT수수료",
+      "original_text": "2026.01 IT팀 IT수수료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "26.01 ChatGPT 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 ChatGPT 이용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "26.01 IT팀 IT사용료",
+      "text": "IT팀 IT사용료",
+      "original_text": "26.01 IT팀 IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "26.01 챗지피티 월구독료",
+      "text": "챗지피티 월구독료",
+      "original_text": "26.01 챗지피티 월구독료",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "1월 AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 AI 구독료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "IT사용료 (26.1월)",
+      "text": "IT사용료 ()",
+      "original_text": "IT사용료 (26.1월)",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "챗GPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "챗GPT 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "26년 1월 IT 사용료",
+      "text": "IT 사용료",
+      "original_text": "26년 1월 IT 사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 구독료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "26.01 ChatGPT 결제",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 ChatGPT 결제",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33145.0
     },
     {
       "month": "01",
-      "text": "AI 툴 구독료_ GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 툴 구독료_ GPT",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 33130.0
@@ -76047,27 +76412,31 @@
     {
       "month": "01",
       "text": "it 사용료",
+      "original_text": "it 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료(ChatGPT)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료(ChatGPT)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료(Figma)",
+      "text": "Figma",
+      "original_text": "AX팀 IT사용료(Figma)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "26.01 IT팀 IT사용료",
+      "text": "IT팀 IT사용료",
+      "original_text": "26.01 IT팀 IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33130.0
@@ -76075,20 +76444,23 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "claude 월 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "claude 월 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "26년 1월 ChatGPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26년 1월 ChatGPT 구독료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33130.0
@@ -76096,97 +76468,111 @@
     {
       "month": "01",
       "text": "챗지피티 사용료",
+      "original_text": "챗지피티 사용료",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "26.1 법인카드 사용의건_소프트웨어(AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1 법인카드 사용의건_소프트웨어(AI)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "chatgpt 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "chatgpt 구독료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "Open AI ChatGPT",
+      "text": "임직원 AI사용료",
+      "original_text": "Open AI ChatGPT",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 IT수수료",
+      "text": "IT팀 IT수수료",
+      "original_text": "2026.01 IT팀 IT수수료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "Open AI ChatGPT",
+      "text": "임직원 AI사용료",
+      "original_text": "Open AI ChatGPT",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "MLB MKT 업무 툴 - 챗GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "MLB MKT 업무 툴 - 챗GPT",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료_FIGMA",
+      "text": "Figma",
+      "original_text": "AX팀 IT사용료_FIGMA",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "AI툴 사용료_chatGPT",
+      "text": "임직원 AI사용료",
+      "original_text": "AI툴 사용료_chatGPT",
       "vendor": "",
       "cctr": "경영개선팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "26.01월 지급수수료(IT 사용료) 정산",
+      "text": "지급수수료(IT 사용료) 정산",
+      "original_text": "26.01월 지급수수료(IT 사용료) 정산",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 33130.0
     },
     {
       "month": "01",
-      "text": "26.01월_CNSF 방화벽 라이선스",
+      "text": "방화벽",
+      "original_text": "26.01월_CNSF 방화벽 라이선스",
       "vendor": "",
       "cctr": "정보보안팀",
       "amount": 33123.0
     },
     {
       "month": "01",
-      "text": "IT 구독료(CURSOR)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 구독료(CURSOR)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 33102.0
     },
     {
       "month": "01",
-      "text": "클로드 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "클로드 이용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 33060.0
     },
     {
       "month": "01",
-      "text": "AI구독료_GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독료_GPT",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33060.0
@@ -76194,20 +76580,23 @@
     {
       "month": "01",
       "text": "개발용 소프트웨어",
+      "original_text": "개발용 소프트웨어",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33060.0
     },
     {
       "month": "01",
-      "text": "OPEN AI 챗GPT PLUS 플랜 구독 건",
+      "text": "임직원 AI사용료",
+      "original_text": "OPEN AI 챗GPT PLUS 플랜 구독 건",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 33060.0
     },
     {
       "month": "01",
-      "text": "Claude 1달 사용",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude 1달 사용",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33060.0
@@ -76215,132 +76604,151 @@
     {
       "month": "01",
       "text": "디스커버리 마케팅팀 클루드 구독료(1인)",
+      "original_text": "디스커버리 마케팅팀 클루드 구독료(1인)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33031.0
     },
     {
       "month": "01",
-      "text": "26.01 IT 유료 계정 정산의 건",
+      "text": "IT 유료 계정 정산의 건",
+      "original_text": "26.01 IT 유료 계정 정산의 건",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 33031.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스팀 지급수수료_IT사용료",
+      "text": "프로세스팀 지급수수료 IT사용료",
+      "original_text": "26.01 프로세스팀 지급수수료_IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33031.0
     },
     {
       "month": "01",
-      "text": "IR파트 ChatGPT 월 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "IR파트 ChatGPT 월 구독료",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 33031.0
     },
     {
       "month": "01",
-      "text": "챗 GPT 월 구독 비용",
+      "text": "임직원 AI사용료",
+      "original_text": "챗 GPT 월 구독 비용",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 33031.0
     },
     {
       "month": "01",
-      "text": "claude 월 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "claude 월 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33031.0
     },
     {
       "month": "01",
-      "text": "Claude Plus 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude Plus 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33031.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "26.1월 글로벌마케팅팀 Claude 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1월 글로벌마케팅팀 Claude 구독료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "26.1 ChatGPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1 ChatGPT 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "CHAT GPT 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "CHAT GPT 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "Figma 라이센스 구독의 건",
+      "text": "Figma",
+      "original_text": "Figma 라이센스 구독의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "CLAUDE 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "CLAUDE 구독",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "AI Tool 구독의 건",
+      "text": "임직원 AI사용료",
+      "original_text": "AI Tool 구독의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "Openai 월 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Openai 월 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "26.01 IT ChatGPT 라이선스 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 IT ChatGPT 라이선스 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 33003.0
     },
     {
       "month": "01",
-      "text": "26년 1월_IT사용료_퍼포먼스팀",
+      "text": "IT사용료 퍼포먼스팀",
+      "original_text": "26년 1월_IT사용료_퍼포먼스팀",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 33003.0
@@ -76348,69 +76756,79 @@
     {
       "month": "01",
       "text": "01.산돌구름 구독료",
+      "original_text": "01.산돌구름 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 33000.0
     },
     {
       "month": "01",
-      "text": "클로드 AI구독",
+      "text": "임직원 AI사용료",
+      "original_text": "클로드 AI구독",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32935.0
     },
     {
       "month": "01",
-      "text": "AI사용료(클로드)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI사용료(클로드)",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32935.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 월 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 월 구독료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 32935.0
     },
     {
       "month": "01",
-      "text": "DV_1월 AI구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "DV_1월 AI구독료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 32935.0
     },
     {
       "month": "01",
-      "text": "IT 사용료 (ChatGPT 구독료)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료 (ChatGPT 구독료)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32935.0
     },
     {
       "month": "01",
-      "text": "CHAT GPT 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "CHAT GPT 구독",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 32935.0
     },
     {
       "month": "01",
-      "text": "ChatGPT AI 프로그램 정기결제",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT AI 프로그램 정기결제",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32935.0
     },
     {
       "month": "01",
-      "text": "Claude pro 플랜 정기결제",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude pro 플랜 정기결제",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32803.0
     },
     {
       "month": "01",
-      "text": "Chatgpt 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Chatgpt 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32746.0
@@ -76418,48 +76836,55 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "디스커버리 마케팅팀 FIGMA 구독료(1인)",
+      "text": "Figma",
+      "original_text": "디스커버리 마케팅팀 FIGMA 구독료(1인)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "AI구독료(CHATGPT)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독료(CHATGPT)",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "챗지피티(ChatGPT) 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "챗지피티(ChatGPT) 구독료",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "26.1월 통합영업팀 지급수수료",
+      "text": "통합영업팀 지급수수료",
+      "original_text": "26.1월 통합영업팀 지급수수료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "26.01 회계팀 AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 회계팀 AI 구독료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스-AX팀 IT사용료",
+      "text": "프로세스-AX팀 IT사용료",
+      "original_text": "26.01 프로세스-AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32746.0
@@ -76467,146 +76892,167 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "26.01월 Chat GPT 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 Chat GPT 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "chatGPT 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "chatGPT 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "26.01 Claude AI 결제",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 Claude AI 결제",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "25.01 CLAUDE AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "25.01 CLAUDE AI 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "26.01 CHAT GPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 CHAT GPT 구독료",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "26.1월 공통 회계팀 지급수수료_IT사용료",
+      "text": "공통 회계팀 지급수수료 IT사용료",
+      "original_text": "26.1월 공통 회계팀 지급수수료_IT사용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "챗 GPT 구독 비용",
+      "text": "임직원 AI사용료",
+      "original_text": "챗 GPT 구독 비용",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "25.01 CHATGPT PRO 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "25.01 CHATGPT PRO 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "IT 사용료(CHATGPT)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료(CHATGPT)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "ChatGPT Plus 1달 사용",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT Plus 1달 사용",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "챗 GPT PLUS 플랜 라이선스 구매",
+      "text": "임직원 AI사용료",
+      "original_text": "챗 GPT PLUS 플랜 라이선스 구매",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "AI툴사용료_GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "AI툴사용료_GPT",
       "vendor": "",
       "cctr": "경영개선팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "Claude AI 월구독",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude AI 월구독",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "MLB MKT 업무 툴 - 챗GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "MLB MKT 업무 툴 - 챗GPT",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스-AX팀 IT사용료",
+      "text": "프로세스-AX팀 IT사용료",
+      "original_text": "26.01 프로세스-AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "1월 AI 구독료_CHATGPT",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 AI 구독료_CHATGPT",
       "vendor": "",
       "cctr": "총무",
       "amount": 32746.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 복리후생비",
+      "text": "IT팀 복리후생비",
+      "original_text": "2026.01 IT팀 복리후생비",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32734.0
     },
     {
       "month": "01",
-      "text": "1월 ChatGPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 ChatGPT 구독료",
       "vendor": "",
       "cctr": "법무팀",
       "amount": 32678.0
     },
     {
       "month": "01",
-      "text": "26.01 IT 사용료_블랙키위",
+      "text": "IT 사용료 블랙키위",
+      "original_text": "26.01 IT 사용료_블랙키위",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32670.0
     },
     {
       "month": "01",
-      "text": "chatGPT 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "chatGPT 이용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32602.0
@@ -76614,41 +77060,47 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32602.0
     },
     {
       "month": "01",
-      "text": "IT 사용료(CLAUDE)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료(CLAUDE)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32602.0
     },
     {
       "month": "01",
-      "text": "DV_1월 영업팀 IT사용료(AI툴)",
+      "text": "임직원 AI사용료",
+      "original_text": "DV_1월 영업팀 IT사용료(AI툴)",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 32602.0
     },
     {
       "month": "01",
-      "text": "Claude AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude AI 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32589.0
     },
     {
       "month": "01",
-      "text": "챗gpt 결제",
+      "text": "임직원 AI사용료",
+      "original_text": "챗gpt 결제",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 32589.0
     },
     {
       "month": "01",
-      "text": "MLB MKT 업무 툴 - 챗GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "MLB MKT 업무 툴 - 챗GPT",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32589.0
@@ -76656,48 +77108,55 @@
     {
       "month": "01",
       "text": "피그마 월 이용료",
+      "original_text": "피그마 월 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32589.0
     },
     {
       "month": "01",
-      "text": "챗GPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "챗GPT 구독료",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 32589.0
     },
     {
       "month": "01",
-      "text": "CHAT GPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "CHAT GPT 구독료",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 32589.0
     },
     {
       "month": "01",
-      "text": "ai_클로드_1월 결제",
+      "text": "임직원 AI사용료",
+      "original_text": "ai_클로드_1월 결제",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 32589.0
     },
     {
       "month": "01",
-      "text": "통합영업_1월 IT사용료",
+      "text": "통합영업 1월 IT사용료",
+      "original_text": "통합영업_1월 IT사용료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 32589.0
     },
     {
       "month": "01",
-      "text": "1월 법인카드사용내역_CLAUDE 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 법인카드사용내역_CLAUDE 사용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 32589.0
     },
     {
       "month": "01",
-      "text": "챗GPT구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "챗GPT구독료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 32578.0
@@ -76705,13 +77164,15 @@
     {
       "month": "01",
       "text": "개발용 소프트웨어",
+      "original_text": "개발용 소프트웨어",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32578.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI 툴 사용비",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI 툴 사용비",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32578.0
@@ -76719,13 +77180,15 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32578.0
     },
     {
       "month": "01",
-      "text": "CHAT GPT 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "CHAT GPT 이용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32578.0
@@ -76733,20 +77196,23 @@
     {
       "month": "01",
       "text": "it 사용료",
+      "original_text": "it 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32578.0
     },
     {
       "month": "01",
-      "text": "26.01 IT 유료 계정 정산의 건",
+      "text": "IT 유료 계정 정산의 건",
+      "original_text": "26.01 IT 유료 계정 정산의 건",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 32578.0
     },
     {
       "month": "01",
-      "text": "1월 IT 구독료_챗지피티",
+      "text": "IT 구독료 챗지피티",
+      "original_text": "1월 IT 구독료_챗지피티",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 32578.0
@@ -76754,216 +77220,247 @@
     {
       "month": "01",
       "text": "IT 사용료",
+      "original_text": "IT 사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "AI Tool 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI Tool 구독료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "26.01 지급수수료(IT 사용료) 정산",
+      "text": "지급수수료(IT 사용료) 정산",
+      "original_text": "26.01 지급수수료(IT 사용료) 정산",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "AI CLAUDE 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI CLAUDE 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "26.01 IT사용료_퍼플렉시티",
+      "text": "IT사용료 퍼플렉시티",
+      "original_text": "26.01 IT사용료_퍼플렉시티",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 구독료 (전월 미결제분)",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 구독료 (전월 미결제분)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "26.01월 Claude 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 Claude 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "26.01 IT팀 IT사용료",
+      "text": "IT팀 IT사용료",
+      "original_text": "26.01 IT팀 IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "AI 구독료(ChatGPT)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 구독료(ChatGPT)",
       "vendor": "",
       "cctr": "통합소싱팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "chatgpt AI 프로그램 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "chatgpt AI 프로그램 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "26.01 DV/ST MKT_퍼플렉시티 구독",
+      "text": "DV/ST MKT 퍼플렉시티 구독",
+      "original_text": "26.01 DV/ST MKT_퍼플렉시티 구독",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "중국PI팀 팀원 Claude 월 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "중국PI팀 팀원 Claude 월 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "26.01월 Chat GPT 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 Chat GPT 사용료",
       "vendor": "",
       "cctr": "무역팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "1월 쳇GPT구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 쳇GPT구독료",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 32545.0
     },
     {
       "month": "01",
-      "text": "25년 1월 IT 사용료",
+      "text": "IT 사용료",
+      "original_text": "25년 1월 IT 사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32521.0
     },
     {
       "month": "01",
-      "text": "AI솔루션사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI솔루션사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 32521.0
     },
     {
       "month": "01",
-      "text": "26.01 ChatGPT 사용료 정산",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 ChatGPT 사용료 정산",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 32521.0
     },
     {
       "month": "01",
-      "text": "25년 1월 IT 사용료",
+      "text": "IT 사용료",
+      "original_text": "25년 1월 IT 사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32521.0
     },
     {
       "month": "01",
-      "text": "26.01 MKT 챗지피티 사용료",
+      "text": "MKT 챗지피티 사용료",
+      "original_text": "26.01 MKT 챗지피티 사용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32521.0
     },
     {
       "month": "01",
-      "text": "Claude AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude AI 구독료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32521.0
     },
     {
       "month": "01",
-      "text": "chatGPT 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "chatGPT 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32454.0
     },
     {
       "month": "01",
-      "text": "AI구독료(chatgpt)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독료(chatgpt)",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32454.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 구독료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32454.0
     },
     {
       "month": "01",
-      "text": "Figma 1달 사용",
+      "text": "Figma",
+      "original_text": "Figma 1달 사용",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32454.0
     },
     {
       "month": "01",
-      "text": "26.01 chatGPT plus 모델 사용",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 chatGPT plus 모델 사용",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "CHAT GPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "CHAT GPT 구독료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "26.01/ES팀/지급수수료",
+      "text": "/ES팀/지급수수료",
+      "original_text": "26.01/ES팀/지급수수료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "AI 구독료(ChatGPT)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 구독료(ChatGPT)",
       "vendor": "",
       "cctr": "통합소싱팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "Chat gpt 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "Chat gpt 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "26.01 IT팀 IT사용료",
+      "text": "IT팀 IT사용료",
+      "original_text": "26.01 IT팀 IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "Perplexity AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "Perplexity AI 구독료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32439.0
@@ -76971,27 +77468,31 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "CHAT GPT 사용",
+      "text": "임직원 AI사용료",
+      "original_text": "CHAT GPT 사용",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "ai 에이전트 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 에이전트 구독",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "Claude 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude 사용료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 32439.0
@@ -76999,41 +77500,47 @@
     {
       "month": "01",
       "text": "개발용 소프트웨어",
+      "original_text": "개발용 소프트웨어",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "26.01/ES팀/지급수수료",
+      "text": "/ES팀/지급수수료",
+      "original_text": "26.01/ES팀/지급수수료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "챗 GPT PLUS 플랜 라이선스 구매",
+      "text": "임직원 AI사용료",
+      "original_text": "챗 GPT PLUS 플랜 라이선스 구매",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "AI Tool 구독의 건",
+      "text": "임직원 AI사용료",
+      "original_text": "AI Tool 구독의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "26.1월 AI 챗GPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1월 AI 챗GPT 구독료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32439.0
@@ -77041,20 +77548,23 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "26.1월 통합영업팀 지급수수료(파견직 윤수빈 담당 사용 건)",
+      "text": "통합영업팀 지급수수료(파견직 윤수빈 담당 사용 건)",
+      "original_text": "26.1월 통합영업팀 지급수수료(파견직 윤수빈 담당 사용 건)",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "CLAUDE 월 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "CLAUDE 월 구독료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 32439.0
@@ -77062,6 +77572,7 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
@@ -77069,62 +77580,71 @@
     {
       "month": "01",
       "text": "IT사용료 (결제누락)",
+      "original_text": "IT사용료 (결제누락)",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI사용료_Claude",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI사용료_Claude",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "IT 사용료(Figma)",
+      "text": "Figma",
+      "original_text": "IT 사용료(Figma)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "AI 구독료(ChatGPT)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 구독료(ChatGPT)",
       "vendor": "",
       "cctr": "통합소싱팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "26년 1월 OPEN AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26년 1월 OPEN AI 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "Figma AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "Figma AI 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "ai 에이전트 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 에이전트 구독",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "Chat GPT 결제의 건",
+      "text": "임직원 AI사용료",
+      "original_text": "Chat GPT 결제의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
@@ -77132,6 +77652,7 @@
     {
       "month": "01",
       "text": "it사용료",
+      "original_text": "it사용료",
       "vendor": "",
       "cctr": "무역팀",
       "amount": 32439.0
@@ -77139,6 +77660,7 @@
     {
       "month": "01",
       "text": "IT 사용료",
+      "original_text": "IT 사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32439.0
@@ -77146,20 +77668,23 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "26.01 chatGPT 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 chatGPT 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32439.0
     },
     {
       "month": "01",
-      "text": "chatGPT 정기결제",
+      "text": "임직원 AI사용료",
+      "original_text": "chatGPT 정기결제",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32423.0
@@ -77167,55 +77692,63 @@
     {
       "month": "01",
       "text": "01.챗지피티 구독료",
+      "original_text": "01.챗지피티 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32423.0
     },
     {
       "month": "01",
-      "text": "디스커버리 마케팅팀 GPT 구독료(1인)",
+      "text": "임직원 AI사용료",
+      "original_text": "디스커버리 마케팅팀 GPT 구독료(1인)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32319.0
     },
     {
       "month": "01",
-      "text": "26.01_IT 사용료_클로드",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01_IT 사용료_클로드",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32319.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32319.0
     },
     {
       "month": "01",
-      "text": "ai사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "ai사용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32319.0
     },
     {
       "month": "01",
-      "text": "26.1월 통합영업팀 지급수수료",
+      "text": "통합영업팀 지급수수료",
+      "original_text": "26.1월 통합영업팀 지급수수료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 32319.0
     },
     {
       "month": "01",
-      "text": "AI구독_클러드",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독_클러드",
       "vendor": "",
       "cctr": "경영개선팀",
       "amount": 32281.0
     },
     {
       "month": "01",
-      "text": "IT사용료-Claude",
+      "text": "임직원 AI사용료",
+      "original_text": "IT사용료-Claude",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32277.0
@@ -77223,146 +77756,167 @@
     {
       "month": "01",
       "text": "IT 사용료",
+      "original_text": "IT 사용료",
       "vendor": "",
       "cctr": "무역팀",
       "amount": 32277.0
     },
     {
       "month": "01",
-      "text": "클로드 정기결제",
+      "text": "임직원 AI사용료",
+      "original_text": "클로드 정기결제",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 32277.0
     },
     {
       "month": "01",
-      "text": "26년 1월_IT사용료_퍼포먼스팀",
+      "text": "IT사용료 퍼포먼스팀",
+      "original_text": "26년 1월_IT사용료_퍼포먼스팀",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32277.0
     },
     {
       "month": "01",
-      "text": "26.01월 공통 소비자전략팀 IT 사용료",
+      "text": "공통 소비자전략팀 IT 사용료",
+      "original_text": "26.01월 공통 소비자전략팀 IT 사용료",
       "vendor": "",
       "cctr": "소비자전략팀",
       "amount": 32277.0
     },
     {
       "month": "01",
-      "text": "챗GPT 정기결제",
+      "text": "임직원 AI사용료",
+      "original_text": "챗GPT 정기결제",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 32277.0
     },
     {
       "month": "01",
-      "text": "Claude 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude 이용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32277.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 라이선스 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 라이선스 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32277.0
     },
     {
       "month": "01",
-      "text": "DV_1월 영업팀 IT사용료(AI툴)",
+      "text": "임직원 AI사용료",
+      "original_text": "DV_1월 영업팀 IT사용료(AI툴)",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 32277.0
     },
     {
       "month": "01",
-      "text": "26년 1월_IT사용료_퍼포먼스팀",
+      "text": "IT사용료 퍼포먼스팀",
+      "original_text": "26년 1월_IT사용료_퍼포먼스팀",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32277.0
     },
     {
       "month": "01",
-      "text": "AI구독_CHAT GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독_CHAT GPT",
       "vendor": "",
       "cctr": "경영개선팀",
       "amount": 32268.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 복리후생비",
+      "text": "IT팀 복리후생비",
+      "original_text": "2026.01 IT팀 복리후생비",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32268.0
     },
     {
       "month": "01",
-      "text": "챗 GPT 마케팅",
+      "text": "임직원 AI사용료",
+      "original_text": "챗 GPT 마케팅",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 32224.0
     },
     {
       "month": "01",
-      "text": "ChatGPT 월 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "ChatGPT 월 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32224.0
     },
     {
       "month": "01",
-      "text": "CHATGPT 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "CHATGPT 구독",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 32135.0
     },
     {
       "month": "01",
-      "text": "지급수수료_IT 서비스",
+      "text": "지급수수료 IT 서비스",
+      "original_text": "지급수수료_IT 서비스",
       "vendor": "",
       "cctr": "통합소싱팀",
       "amount": 32135.0
     },
     {
       "month": "01",
-      "text": "26.01 업무소프트웨어",
+      "text": "업무소프트웨어",
+      "original_text": "26.01 업무소프트웨어",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32135.0
     },
     {
       "month": "01",
-      "text": "26.01 GPT 유료 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 GPT 유료 이용료",
       "vendor": "",
       "cctr": "통합소싱팀",
       "amount": 32135.0
     },
     {
       "month": "01",
-      "text": "OPENAI_사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "OPENAI_사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 32135.0
     },
     {
       "month": "01",
-      "text": "AI 구독료(CLAUDE)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 구독료(CLAUDE)",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 32135.0
     },
     {
       "month": "01",
-      "text": "12월 ChatGPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "12월 ChatGPT 구독료",
       "vendor": "",
       "cctr": "법무팀",
       "amount": 32119.0
     },
     {
       "month": "01",
-      "text": "26년 1월_IT사용료_퍼포먼스팀",
+      "text": "IT사용료 퍼포먼스팀",
+      "original_text": "26년 1월_IT사용료_퍼포먼스팀",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32099.0
@@ -77370,76 +77924,87 @@
     {
       "month": "01",
       "text": "IT 사용료",
+      "original_text": "IT 사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 32099.0
     },
     {
       "month": "01",
-      "text": "CHAT GPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "CHAT GPT 구독료",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 32099.0
     },
     {
       "month": "01",
-      "text": "CLAUDE AI 구독 비용",
+      "text": "임직원 AI사용료",
+      "original_text": "CLAUDE AI 구독 비용",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 32099.0
     },
     {
       "month": "01",
-      "text": "dcsai api 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "dcsai api 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 32000.0
     },
     {
       "month": "01",
-      "text": "Cursor Pro 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Cursor Pro 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 31614.0
     },
     {
       "month": "01",
-      "text": "26.01 커서ai 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 커서ai 사용료",
       "vendor": "",
       "cctr": "통합소싱팀",
       "amount": 31614.0
     },
     {
       "month": "01",
-      "text": "26.01월 지급수수료(IT 사용료) 정산",
+      "text": "지급수수료(IT 사용료) 정산",
+      "original_text": "26.01월 지급수수료(IT 사용료) 정산",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 31478.0
     },
     {
       "month": "01",
-      "text": "커서 사용료(AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 사용료(AI)",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 31368.0
     },
     {
       "month": "01",
-      "text": "25.01 IT 사용료",
+      "text": "IT 사용료",
+      "original_text": "25.01 IT 사용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 31172.0
     },
     {
       "month": "01",
-      "text": "26.01월 회계팀 커서 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 회계팀 커서 구독료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 31171.0
     },
     {
       "month": "01",
-      "text": "커서 추가 API 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 추가 API 사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 30510.0
@@ -77447,76 +78012,87 @@
     {
       "month": "01",
       "text": "회계팀 AI솔루션 이용료",
+      "original_text": "회계팀 AI솔루션 이용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 30472.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 IT수수료",
+      "text": "IT팀 IT수수료",
+      "original_text": "2026.01 IT팀 IT수수료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 30452.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI 툴 사용비",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI 툴 사용비",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 30208.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 30208.0
     },
     {
       "month": "01",
-      "text": "26.01. AI툴(CURSOR) 월 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01. AI툴(CURSOR) 월 이용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 30198.0
     },
     {
       "month": "01",
-      "text": "클로드 정기결제의 건",
+      "text": "임직원 AI사용료",
+      "original_text": "클로드 정기결제의 건",
       "vendor": "",
       "cctr": "안전보건팀",
       "amount": 30198.0
     },
     {
       "month": "01",
-      "text": "IT 사용료 (Cursor 구독료)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료 (Cursor 구독료)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 30198.0
     },
     {
       "month": "01",
-      "text": "AI이용료(커서)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI이용료(커서)",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 30155.0
     },
     {
       "month": "01",
-      "text": "2026.01 IT팀 IT수수료",
+      "text": "IT팀 IT수수료",
+      "original_text": "2026.01 IT팀 IT수수료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 30127.0
     },
     {
       "month": "01",
-      "text": "AI이용료(커서)",
+      "text": "임직원 AI사용료",
+      "original_text": "AI이용료(커서)",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 30127.0
     },
     {
       "month": "01",
-      "text": "챗GPT PLUS 플랜 라이선스 구매",
+      "text": "임직원 AI사용료",
+      "original_text": "챗GPT PLUS 플랜 라이선스 구매",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 30125.0
@@ -77524,20 +78100,23 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 30125.0
     },
     {
       "month": "01",
-      "text": "26.1월 통합영업팀 지급수수료",
+      "text": "통합영업팀 지급수수료",
+      "original_text": "26.1월 통합영업팀 지급수수료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 30125.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 클로드 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 AX팀 클로드 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 30125.0
@@ -77545,27 +78124,31 @@
     {
       "month": "01",
       "text": "회계팀 AI솔루션 이용료",
+      "original_text": "회계팀 AI솔루션 이용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 30125.0
     },
     {
       "month": "01",
-      "text": "디스커버리 마케팅팀 챗GPT 구독료(1인)",
+      "text": "임직원 AI사용료",
+      "original_text": "디스커버리 마케팅팀 챗GPT 구독료(1인)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 30125.0
     },
     {
       "month": "01",
-      "text": "경영기획팀 AI(CURSOR) 구독비용",
+      "text": "임직원 AI사용료",
+      "original_text": "경영기획팀 AI(CURSOR) 구독비용",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 30125.0
     },
     {
       "month": "01",
-      "text": "26.1월 공통 회계팀 지급수수료_IT사용료",
+      "text": "공통 회계팀 지급수수료 IT사용료",
+      "original_text": "26.1월 공통 회계팀 지급수수료_IT사용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 30125.0
@@ -77573,20 +78156,23 @@
     {
       "month": "01",
       "text": "Cursur AI 프로그램 정기결제",
+      "original_text": "Cursur AI 프로그램 정기결제",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 30111.0
     },
     {
       "month": "01",
-      "text": "26년 1월_IT사용료_퍼포먼스팀",
+      "text": "IT사용료 퍼포먼스팀",
+      "original_text": "26년 1월_IT사용료_퍼포먼스팀",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 30111.0
     },
     {
       "month": "01",
-      "text": "1월 법인카드사용내역_Cursor사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 법인카드사용내역_Cursor사용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 30111.0
@@ -77594,174 +78180,199 @@
     {
       "month": "01",
       "text": "컴피UI 월 이용료",
+      "original_text": "컴피UI 월 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 30022.0
     },
     {
       "month": "01",
-      "text": "ai 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 30022.0
     },
     {
       "month": "01",
-      "text": "26.01월 지급수수료_IT사용료 (Cursor)",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 지급수수료_IT사용료 (Cursor)",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 30022.0
     },
     {
       "month": "01",
-      "text": "AI Tool 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI Tool 구독료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 30000.0
     },
     {
       "month": "01",
-      "text": "2026년 1월 cursor ai 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "2026년 1월 cursor ai 구독료",
       "vendor": "",
       "cctr": "정보보안팀",
       "amount": 29998.0
     },
     {
       "month": "01",
-      "text": "CHAT GPT 결제",
+      "text": "임직원 AI사용료",
+      "original_text": "CHAT GPT 결제",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 29998.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스팀 지급수수료_IT사용료",
+      "text": "프로세스팀 지급수수료 IT사용료",
+      "original_text": "26.01 프로세스팀 지급수수료_IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29998.0
     },
     {
       "month": "01",
-      "text": "CHATGPT구독",
+      "text": "임직원 AI사용료",
+      "original_text": "CHATGPT구독",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 29934.0
     },
     {
       "month": "01",
-      "text": "AI Tool 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI Tool 구독료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 29934.0
     },
     {
       "month": "01",
-      "text": "26년 1월 IT 사용료",
+      "text": "IT 사용료",
+      "original_text": "26년 1월 IT 사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 29934.0
     },
     {
       "month": "01",
-      "text": "Chat GPT 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Chat GPT 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 29934.0
     },
     {
       "month": "01",
-      "text": "25년 12월 Sentry 사용료",
+      "text": "Sentry",
+      "original_text": "25년 12월 Sentry 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29934.0
     },
     {
       "month": "01",
-      "text": "Chat GPT AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "Chat GPT AI 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29762.0
     },
     {
       "month": "01",
-      "text": "chatgpt 월구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "chatgpt 월구독료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 29762.0
     },
     {
       "month": "01",
-      "text": "26.1월 통합영업팀 지급수수료",
+      "text": "통합영업팀 지급수수료",
+      "original_text": "26.1월 통합영업팀 지급수수료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 29762.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29762.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료 (AI툴)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료 (AI툴)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29762.0
     },
     {
       "month": "01",
-      "text": "챗 GPT사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "챗 GPT사용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 29762.0
     },
     {
       "month": "01",
-      "text": "openai 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "openai 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29702.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29638.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료_Cursor",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료_Cursor",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29633.0
     },
     {
       "month": "01",
-      "text": "2026.01월 IT 구독료 정산(GPT)",
+      "text": "임직원 AI사용료",
+      "original_text": "2026.01월 IT 구독료 정산(GPT)",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 29633.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29621.0
     },
     {
       "month": "01",
-      "text": "IT 사용료(CURSOR)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료(CURSOR)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 29621.0
     },
     {
       "month": "01",
-      "text": "chatGPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "chatGPT 구독료",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 29611.0
@@ -77769,6 +78380,7 @@
     {
       "month": "01",
       "text": "[MLT] AI 프로그램 HIGGSFIEL 결",
+      "original_text": "[MLT] AI 프로그램 HIGGSFIEL 결",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 29611.0
@@ -77776,41 +78388,47 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29581.0
     },
     {
       "month": "01",
-      "text": "26년 1월 커서AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26년 1월 커서AI 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29581.0
     },
     {
       "month": "01",
-      "text": "커서 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 이용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 29581.0
     },
     {
       "month": "01",
-      "text": "26.01 DX 글로벌몰 이메일 마케팅앱 구독",
+      "text": "DX 글로벌몰 이메일 마케팅앱 구독",
+      "original_text": "26.01 DX 글로벌몰 이메일 마케팅앱 구독",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 29557.0
     },
     {
       "month": "01",
-      "text": "26.1월 글로벌마케팅팀 Cursor 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1월 글로벌마케팅팀 Cursor 구독료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 29557.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29557.0
@@ -77818,34 +78436,39 @@
     {
       "month": "01",
       "text": "IT 사용료",
+      "original_text": "IT 사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 29557.0
     },
     {
       "month": "01",
-      "text": "DX 마케팅팀 챗gpt 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "DX 마케팅팀 챗gpt 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 29557.0
     },
     {
       "month": "01",
-      "text": "26.01월 공통 회계팀 IT 수수료",
+      "text": "공통 회계팀 IT 수수료",
+      "original_text": "26.01월 공통 회계팀 IT 수수료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 29497.0
     },
     {
       "month": "01",
-      "text": "IT 사용료 (CursorAI)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료 (CursorAI)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 29497.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 커서사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 AX팀 커서사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29497.0
@@ -77853,41 +78476,47 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29483.0
     },
     {
       "month": "01",
-      "text": "CURSOR AI 구독 비용",
+      "text": "임직원 AI사용료",
+      "original_text": "CURSOR AI 구독 비용",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 29483.0
     },
     {
       "month": "01",
-      "text": "IT 사용료(CURSOR)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료(CURSOR)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 29483.0
     },
     {
       "month": "01",
-      "text": "26.01 cursorAI pro 모델 사용",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 cursorAI pro 모델 사용",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29483.0
     },
     {
       "month": "01",
-      "text": "26.01 IT사용료_GPT",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 IT사용료_GPT",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 29483.0
     },
     {
       "month": "01",
-      "text": "Figma 구독",
+      "text": "Figma",
+      "original_text": "Figma 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29483.0
@@ -77895,6 +78524,7 @@
     {
       "month": "01",
       "text": "it 사용료",
+      "original_text": "it 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 29483.0
@@ -77902,41 +78532,47 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29374.0
     },
     {
       "month": "01",
-      "text": "26.01월 공통 회계팀 IT사용료 정산",
+      "text": "공통 회계팀 IT사용료 정산",
+      "original_text": "26.01월 공통 회계팀 IT사용료 정산",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 29374.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료_Gemini",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료_Gemini",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29359.0
     },
     {
       "month": "01",
-      "text": "26.1월 챗GPT 구독료 (IT 지급)",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1월 챗GPT 구독료 (IT 지급)",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 29337.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스-AX팀 IT사용료",
+      "text": "프로세스-AX팀 IT사용료",
+      "original_text": "26.01 프로세스-AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29337.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스-AX팀 IT사용료",
+      "text": "프로세스-AX팀 IT사용료",
+      "original_text": "26.01 프로세스-AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29337.0
@@ -77944,90 +78580,103 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29240.0
     },
     {
       "month": "01",
-      "text": "cursor ai 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "cursor ai 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 29208.0
     },
     {
       "month": "01",
-      "text": "DV_1월 영업팀 IT사용료(AI툴)",
+      "text": "임직원 AI사용료",
+      "original_text": "DV_1월 영업팀 IT사용료(AI툴)",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 29176.0
     },
     {
       "month": "01",
-      "text": "cursor 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "cursor 구독료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 29176.0
     },
     {
       "month": "01",
-      "text": "ai 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 29089.0
     },
     {
       "month": "01",
-      "text": "26.01 업무소프트웨어",
+      "text": "업무소프트웨어",
+      "original_text": "26.01 업무소프트웨어",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "Gemini 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Gemini 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "제미나이 월 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "제미나이 월 구독료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "제미나이 AI 프로그램 정기결제",
+      "text": "임직원 AI사용료",
+      "original_text": "제미나이 AI 프로그램 정기결제",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.1월 글로벌마케팅팀 제미나이 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1월 글로벌마케팅팀 제미나이 구독료",
       "vendor": "",
       "cctr": "해외사업팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "AI구독료_제미나이",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독료_제미나이",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "구글 제미나이 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "구글 제미나이 구독료",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "Gemini 1달 사용",
+      "text": "임직원 AI사용료",
+      "original_text": "Gemini 1달 사용",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
@@ -78035,34 +78684,39 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.01 제미나이 유료 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 제미나이 유료 사용료",
       "vendor": "",
       "cctr": "통합소싱팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.01 Gemini 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 Gemini 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "AI구독_제미나이",
+      "text": "임직원 AI사용료",
+      "original_text": "AI구독_제미나이",
       "vendor": "",
       "cctr": "경영개선팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "Google AI Pro 요금제 ( gemini, gemini cli )",
+      "text": "임직원 AI사용료",
+      "original_text": "Google AI Pro 요금제 ( gemini, gemini cli )",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 29000.0
@@ -78070,27 +78724,31 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26년 1월_IT사용료_퍼포먼스팀",
+      "text": "IT사용료 퍼포먼스팀",
+      "original_text": "26년 1월_IT사용료_퍼포먼스팀",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 Gemini 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 AX팀 Gemini 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료 (AI툴)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료 (AI툴)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
@@ -78098,6 +78756,7 @@
     {
       "month": "01",
       "text": "[MKT] AI프로그램 결제",
+      "original_text": "[MKT] AI프로그램 결제",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 29000.0
@@ -78105,27 +78764,31 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.01 AX팀 IT사용료",
+      "text": "AX팀 IT사용료",
+      "original_text": "26.01 AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "챗GPT이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "챗GPT이용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "Gemini 결제의 건",
+      "text": "임직원 AI사용료",
+      "original_text": "Gemini 결제의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29000.0
@@ -78133,27 +78796,31 @@
     {
       "month": "01",
       "text": "회계팀 AI솔루션 이용료",
+      "original_text": "회계팀 AI솔루션 이용료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스-AX팀 IT사용료",
+      "text": "프로세스-AX팀 IT사용료",
+      "original_text": "26.01 프로세스-AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.1월 무역팀 IT사용료",
+      "text": "무역팀 IT사용료",
+      "original_text": "26.1월 무역팀 IT사용료",
       "vendor": "",
       "cctr": "무역팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "Google Gemini 라이센스 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Google Gemini 라이센스 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29000.0
@@ -78161,76 +78828,87 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "Gemini 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "Gemini 구독",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스-AX팀 IT사용료",
+      "text": "프로세스-AX팀 IT사용료",
+      "original_text": "26.01 프로세스-AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료(Gemini)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료(Gemini)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "IR파트 제미나이 월 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "IR파트 제미나이 월 구독료",
       "vendor": "",
       "cctr": "자금팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "Chat GPT 월구독",
+      "text": "임직원 AI사용료",
+      "original_text": "Chat GPT 월구독",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "Google Gemini 라이센스 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Google Gemini 라이센스 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.01월 회계팀 챗GPT 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 회계팀 챗GPT 구독료",
       "vendor": "",
       "cctr": "회계팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "DX 마케팅팀 구글AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "DX 마케팅팀 구글AI 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "1월 AI 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 AI 사용료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.1 Gemini 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.1 Gemini 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29000.0
@@ -78238,34 +78916,39 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "퍼포먼스마케팅팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "챗gpt이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "챗gpt이용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.01 프로세스-AX팀 IT사용료",
+      "text": "프로세스-AX팀 IT사용료",
+      "original_text": "26.01 프로세스-AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "26.01 IT Google AI 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 IT Google AI 구독",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 29000.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI 툴 사용비",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI 툴 사용비",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 29000.0
@@ -78273,76 +78956,87 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 27837.0
     },
     {
       "month": "01",
-      "text": "26.01월_E-LAW Chatbot 서비스 구독료",
+      "text": "E-LAW Chatbot 서비스 구독료",
+      "original_text": "26.01월_E-LAW Chatbot 서비스 구독료",
       "vendor": "",
       "cctr": "법무팀",
       "amount": 27517.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 27009.0
     },
     {
       "month": "01",
-      "text": "ai 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 26542.0
     },
     {
       "month": "01",
-      "text": "AI솔루션사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI솔루션사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 26400.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 25679.0
     },
     {
       "month": "01",
-      "text": "AI콘텐츠제작툴_나노바나나 베이직 플랜 구독건",
+      "text": "임직원 AI사용료",
+      "original_text": "AI콘텐츠제작툴_나노바나나 베이직 플랜 구독건",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 24558.0
     },
     {
       "month": "01",
-      "text": "클로드 API사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "클로드 API사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 24441.0
     },
     {
       "month": "01",
-      "text": "1월 IT 구독료_제미나이",
+      "text": "임직원 AI사용료",
+      "original_text": "1월 IT 구독료_제미나이",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 24409.0
     },
     {
       "month": "01",
-      "text": "nanobanana.ai구독료(서정화)",
+      "text": "임직원 AI사용료",
+      "original_text": "nanobanana.ai구독료(서정화)",
       "vendor": "",
       "cctr": "e-BIZ팀",
       "amount": 24074.0
     },
     {
       "month": "01",
-      "text": "26.01월_Miro 라이선스 구독료",
+      "text": "Miro",
+      "original_text": "26.01월_Miro 라이선스 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 23689.0
@@ -78350,13 +79044,15 @@
     {
       "month": "01",
       "text": "파워오토메이트 정기 결제의 건",
+      "original_text": "파워오토메이트 정기 결제의 건",
       "vendor": "",
       "cctr": "안전보건팀",
       "amount": 22984.0
     },
     {
       "month": "01",
-      "text": "openai_api비용",
+      "text": "임직원 AI사용료",
+      "original_text": "openai_api비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 22461.0
@@ -78364,27 +79060,31 @@
     {
       "month": "01",
       "text": "DX 마케팅팀 폰트 추가 구독료",
+      "original_text": "DX 마케팅팀 폰트 추가 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 22000.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료(Slack)",
+      "text": "Slack",
+      "original_text": "AX팀 IT사용료(Slack)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 21816.0
     },
     {
       "month": "01",
-      "text": "26.01월_Miro(협업 플랫폼) 라이센스",
+      "text": "Miro",
+      "original_text": "26.01월_Miro(협업 플랫폼) 라이센스",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 21206.0
     },
     {
       "month": "01",
-      "text": "26.01월_Miro(협업 플랫폼) 라이선스",
+      "text": "Miro",
+      "original_text": "26.01월_Miro(협업 플랫폼) 라이선스",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 21090.0
@@ -78392,41 +79092,47 @@
     {
       "month": "01",
       "text": "동영상편집툴(컴캣) - 월 구독료",
+      "original_text": "동영상편집툴(컴캣) - 월 구독료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 20423.0
     },
     {
       "month": "01",
-      "text": "경영기획팀 AI(GENSPARK) 구독비용",
+      "text": "임직원 AI사용료",
+      "original_text": "경영기획팀 AI(GENSPARK) 구독비용",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 20261.0
     },
     {
       "month": "01",
-      "text": "26.01월_Github SW 라이선스",
+      "text": "GitHub",
+      "original_text": "26.01월_Github SW 라이선스",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 19237.0
     },
     {
       "month": "01",
-      "text": "openai_api비용",
+      "text": "임직원 AI사용료",
+      "original_text": "openai_api비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 18995.0
     },
     {
       "month": "01",
-      "text": "디스커버리 마케팅팀 노션 구독료(1인)",
+      "text": "Notion",
+      "original_text": "디스커버리 마케팅팀 노션 구독료(1인)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 18930.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 18679.0
@@ -78434,104 +79140,119 @@
     {
       "month": "01",
       "text": "중국 데이터 수집 테스트 비용(가상번호발급)",
+      "original_text": "중국 데이터 수집 테스트 비용(가상번호발급)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 18551.0
     },
     {
       "month": "01",
-      "text": "openai_api비용",
+      "text": "임직원 AI사용료",
+      "original_text": "openai_api비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 17479.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 17463.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 17463.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 17359.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 17285.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI 툴 사용비",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI 툴 사용비",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 17000.0
     },
     {
       "month": "01",
-      "text": "openai_api비용",
+      "text": "임직원 AI사용료",
+      "original_text": "openai_api비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 16827.0
     },
     {
       "month": "01",
-      "text": "openai_api비용",
+      "text": "임직원 AI사용료",
+      "original_text": "openai_api비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 16797.0
     },
     {
       "month": "01",
-      "text": "openai_api비용",
+      "text": "임직원 AI사용료",
+      "original_text": "openai_api비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 16779.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 16767.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 16663.0
     },
     {
       "month": "01",
-      "text": "26.01월 Claude 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 Claude 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 16612.0
     },
     {
       "month": "01",
-      "text": "26.01월 Claude 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 Claude 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 16612.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 16608.0
@@ -78539,20 +79260,23 @@
     {
       "month": "01",
       "text": "미드저니 AI 프로그램 정기결제",
+      "original_text": "미드저니 AI 프로그램 정기결제",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 16572.0
     },
     {
       "month": "01",
-      "text": "경영기획팀 AI(ChatGPT) 구독비용",
+      "text": "임직원 AI사용료",
+      "original_text": "경영기획팀 AI(ChatGPT) 구독비용",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 16571.0
     },
     {
       "month": "01",
-      "text": "26.01 IT사용료_미드저니",
+      "text": "IT사용료 미드저니",
+      "original_text": "26.01 IT사용료_미드저니",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 16571.0
@@ -78560,48 +79284,55 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 16501.0
     },
     {
       "month": "01",
-      "text": "openai_api비용",
+      "text": "임직원 AI사용료",
+      "original_text": "openai_api비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 16482.0
     },
     {
       "month": "01",
-      "text": "ai 에이전트 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 에이전트 구독",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 16372.0
     },
     {
       "month": "01",
-      "text": "AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI 구독료",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 16288.0
     },
     {
       "month": "01",
-      "text": "openai_api비용",
+      "text": "임직원 AI사용료",
+      "original_text": "openai_api비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 16270.0
     },
     {
       "month": "01",
-      "text": "claude 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "claude 구독료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 16259.0
     },
     {
       "month": "01",
-      "text": "openai_api비용",
+      "text": "임직원 AI사용료",
+      "original_text": "openai_api비용",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 16233.0
@@ -78609,34 +79340,39 @@
     {
       "month": "01",
       "text": "API 유료 배포 서비스 사용료",
+      "original_text": "API 유료 배포 서비스 사용료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 16067.0
     },
     {
       "month": "01",
-      "text": "AI콘텐츠제작툴_미드저니 베이직 플랜 구독건",
+      "text": "임직원 AI사용료",
+      "original_text": "AI콘텐츠제작툴_미드저니 베이직 플랜 구독건",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 16067.0
     },
     {
       "month": "01",
-      "text": "26.01 공통 무역팀 IT사용료 (제미나이)",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 공통 무역팀 IT사용료 (제미나이)",
       "vendor": "",
       "cctr": "무역팀",
       "amount": 16000.0
     },
     {
       "month": "01",
-      "text": "AI Krea 툴 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI Krea 툴 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 15111.0
     },
     {
       "month": "01",
-      "text": "copilot 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "copilot 구독",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 15069.0
@@ -78644,20 +79380,23 @@
     {
       "month": "01",
       "text": "개발용 소프트웨어",
+      "original_text": "개발용 소프트웨어",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 15062.0
     },
     {
       "month": "01",
-      "text": "cursor 월 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "cursor 월 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 15062.0
     },
     {
       "month": "01",
-      "text": "KREA BASIC 플랜 라이선스 구매",
+      "text": "임직원 AI사용료",
+      "original_text": "KREA BASIC 플랜 라이선스 구매",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 15006.0
@@ -78665,41 +79404,47 @@
     {
       "month": "01",
       "text": "ax팀 IT 사용비(AX)",
+      "original_text": "ax팀 IT 사용비(AX)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 14976.0
     },
     {
       "month": "01",
-      "text": "26.01 지급수수료(IT 사용료) 정산",
+      "text": "지급수수료(IT 사용료) 정산",
+      "original_text": "26.01 지급수수료(IT 사용료) 정산",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 14900.0
     },
     {
       "month": "01",
-      "text": "Github Copilot 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Github Copilot 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 14888.0
     },
     {
       "month": "01",
-      "text": "MLB MKT 업무 툴 - KREA",
+      "text": "임직원 AI사용료",
+      "original_text": "MLB MKT 업무 툴 - KREA",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 14755.0
     },
     {
       "month": "01",
-      "text": "25.01 KREA AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "25.01 KREA AI 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 14694.0
     },
     {
       "month": "01",
-      "text": "INF MKT - AI 업무 툴 (KREA)",
+      "text": "임직원 AI사용료",
+      "original_text": "INF MKT - AI 업무 툴 (KREA)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 14694.0
@@ -78707,6 +79452,7 @@
     {
       "month": "01",
       "text": "Obsidian 구독비",
+      "original_text": "Obsidian 구독비",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 14675.0
@@ -78714,27 +79460,31 @@
     {
       "month": "01",
       "text": "AX팀 IT사용료",
+      "original_text": "AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 14595.0
     },
     {
       "month": "01",
-      "text": "보고용  AI 이미지 생성",
+      "text": "보고용 AI 이미지 생성",
+      "original_text": "보고용  AI 이미지 생성",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 14549.0
     },
     {
       "month": "01",
-      "text": "26.01 지급수수료(IT 사용료) 정산",
+      "text": "지급수수료(IT 사용료) 정산",
+      "original_text": "26.01 지급수수료(IT 사용료) 정산",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 14526.0
     },
     {
       "month": "01",
-      "text": "제미나이 pro 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "제미나이 pro 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 14500.0
@@ -78742,20 +79492,23 @@
     {
       "month": "01",
       "text": "Datagrip 월 이용료",
+      "original_text": "Datagrip 월 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 14240.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 13552.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 13264.0
@@ -78763,41 +79516,47 @@
     {
       "month": "01",
       "text": "AX팀 IT툴 사용료",
+      "original_text": "AX팀 IT툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 13220.0
     },
     {
       "month": "01",
-      "text": "DX 마케팅팀 힉스필드 AI 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "DX 마케팅팀 힉스필드 AI 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 13214.0
     },
     {
       "month": "01",
-      "text": "MESHY-AI 3D 모델링 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "MESHY-AI 3D 모델링 구독료",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 13122.0
     },
     {
       "month": "01",
-      "text": "ai 에이전트 구독",
+      "text": "임직원 AI사용료",
+      "original_text": "ai 에이전트 구독",
       "vendor": "",
       "cctr": "통합온라인채널팀",
       "amount": 12972.0
     },
     {
       "month": "01",
-      "text": "26.01 지급수수료(IT 사용료) 정산",
+      "text": "지급수수료(IT 사용료) 정산",
+      "original_text": "26.01 지급수수료(IT 사용료) 정산",
       "vendor": "",
       "cctr": "HR팀",
       "amount": 12614.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 12600.0
@@ -78805,20 +79564,23 @@
     {
       "month": "01",
       "text": "캡컷 월 이용료",
+      "original_text": "캡컷 월 이용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 12518.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT사용료 (AI툴)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT사용료 (AI툴)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 12000.0
     },
     {
       "month": "01",
-      "text": "26.01월_Font Awesome Pro 구독료",
+      "text": "Font Awesome Pro 구독료",
+      "original_text": "26.01월_Font Awesome Pro 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 11985.0
@@ -78826,27 +79588,31 @@
     {
       "month": "01",
       "text": "구글 드라이브",
+      "original_text": "구글 드라이브",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 11900.0
     },
     {
       "month": "01",
-      "text": "cursor 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "cursor 구독료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 11405.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 11345.0
     },
     {
       "month": "01",
-      "text": "25년 1월 AI 툴 사용비",
+      "text": "임직원 AI사용료",
+      "original_text": "25년 1월 AI 툴 사용비",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 11100.0
@@ -78854,20 +79620,23 @@
     {
       "month": "01",
       "text": "DX 마케팅팀 산돌구름 폰트 구독료",
+      "original_text": "DX 마케팅팀 산돌구름 폰트 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 11000.0
     },
     {
       "month": "01",
-      "text": "26.01월_Apple Developer Program 구독료",
+      "text": "Apple Developer Program 구독료",
+      "original_text": "26.01월_Apple Developer Program 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 10956.0
     },
     {
       "month": "01",
-      "text": "Jet Brains DataGrip 1달 사용",
+      "text": "임직원 AI사용료",
+      "original_text": "Jet Brains DataGrip 1달 사용",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 10770.0
@@ -78875,6 +79644,7 @@
     {
       "month": "01",
       "text": "AX팀 IT사용료",
+      "original_text": "AX팀 IT사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 10640.0
@@ -78882,27 +79652,31 @@
     {
       "month": "01",
       "text": "파이참 월 구독료(파이썬)",
+      "original_text": "파이참 월 구독료(파이썬)",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 10594.0
     },
     {
       "month": "01",
-      "text": "MESHY-AI 3D 모델링 구독료(추가구매)",
+      "text": "임직원 AI사용료",
+      "original_text": "MESHY-AI 3D 모델링 구독료(추가구매)",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 10497.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 10214.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 10155.0
@@ -78910,160 +79684,183 @@
     {
       "month": "01",
       "text": "canva프로그램 1월 정기결제의 건",
+      "original_text": "canva프로그램 1월 정기결제의 건",
       "vendor": "",
       "cctr": "안전보건팀",
       "amount": 9900.0
     },
     {
       "month": "01",
-      "text": "26.01월_Mermaid Chart 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월_Mermaid Chart 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 9645.0
     },
     {
       "month": "01",
-      "text": "gemini 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "gemini 구독료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 9500.0
     },
     {
       "month": "01",
-      "text": "AI솔루션사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AI솔루션사용료",
       "vendor": "",
       "cctr": "경영기획팀",
       "amount": 9500.0
     },
     {
       "month": "01",
-      "text": "공통 총무 AI사용료(GEMINI)",
+      "text": "임직원 AI사용료",
+      "original_text": "공통 총무 AI사용료(GEMINI)",
       "vendor": "",
       "cctr": "총무",
       "amount": 9500.0
     },
     {
       "month": "01",
-      "text": "1월 IT 구독료_나노바나나",
+      "text": "IT 구독료 나노바나나",
+      "original_text": "1월 IT 구독료_나노바나나",
       "vendor": "",
       "cctr": "공간기획팀",
       "amount": 9500.0
     },
     {
       "month": "01",
-      "text": "26.1월 통합영업팀 지급수수료",
+      "text": "통합영업팀 지급수수료",
+      "original_text": "26.1월 통합영업팀 지급수수료",
       "vendor": "",
       "cctr": "통합영업팀",
       "amount": 9500.0
     },
     {
       "month": "01",
-      "text": "디스커버리 마케팅팀 제미나이 구독료(1인)",
+      "text": "임직원 AI사용료",
+      "original_text": "디스커버리 마케팅팀 제미나이 구독료(1인)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 9500.0
     },
     {
       "month": "01",
-      "text": "IT 사용료 (gemini 구독료)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료 (gemini 구독료)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 9500.0
     },
     {
       "month": "01",
-      "text": "26.1월 무역팀 it사용료",
+      "text": "무역팀 it사용료",
+      "original_text": "26.1월 무역팀 it사용료",
       "vendor": "",
       "cctr": "무역팀",
       "amount": 9500.0
     },
     {
       "month": "01",
-      "text": "디스커버리 마케팅팀 제미나이 구독료(1인)",
+      "text": "임직원 AI사용료",
+      "original_text": "디스커버리 마케팅팀 제미나이 구독료(1인)",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 9500.0
     },
     {
       "month": "01",
-      "text": "26.01 IT Cursor 라이선스 구독 - 업그레이드 요금 차액",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01 IT Cursor 라이선스 구독 - 업그레이드 요금 차액",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 9483.0
     },
     {
       "month": "01",
-      "text": "26.01 Sendbird 사용의 건",
+      "text": "Sendbird",
+      "original_text": "26.01 Sendbird 사용의 건",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 8874.0
     },
     {
       "month": "01",
-      "text": "26.01월 Claude 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 Claude 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 8305.0
     },
     {
       "month": "01",
-      "text": "AX팀 AI툴 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 AI툴 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 8305.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 8283.0
     },
     {
       "month": "01",
-      "text": "클로드 API사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "클로드 API사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 8281.0
     },
     {
       "month": "01",
-      "text": "26.01월 Claude 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "26.01월 Claude 사용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 8249.0
     },
     {
       "month": "01",
-      "text": "Claude AI 추가 코딩 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude AI 추가 코딩 사용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 8146.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 8146.0
     },
     {
       "month": "01",
-      "text": "claude 구독료",
+      "text": "임직원 AI사용료",
+      "original_text": "claude 구독료",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 8129.0
     },
     {
       "month": "01",
-      "text": "Claude AI 추가 코딩 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude AI 추가 코딩 사용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 8112.0
     },
     {
       "month": "01",
-      "text": "Claude AI 추가 코딩 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "Claude AI 추가 코딩 사용료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 8112.0
@@ -79071,6 +79868,7 @@
     {
       "month": "01",
       "text": "중국 데이터 수집 테스트 비용(가상번호발급)",
+      "original_text": "중국 데이터 수집 테스트 비용(가상번호발급)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 8027.0
@@ -79078,6 +79876,7 @@
     {
       "month": "01",
       "text": "Grok API",
+      "original_text": "Grok API",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 7544.0
@@ -79085,6 +79884,7 @@
     {
       "month": "01",
       "text": "미디엄구독",
+      "original_text": "미디엄구독",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 7501.0
@@ -79092,6 +79892,7 @@
     {
       "month": "01",
       "text": "IT 사용료 (미디엄)",
+      "original_text": "IT 사용료 (미디엄)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 7495.0
@@ -79099,13 +79900,15 @@
     {
       "month": "01",
       "text": "Obsidian 구독료",
+      "original_text": "Obsidian 구독료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 7436.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 7436.0
@@ -79113,13 +79916,15 @@
     {
       "month": "01",
       "text": "OBSIDIAN 결제",
+      "original_text": "OBSIDIAN 결제",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 7339.0
     },
     {
       "month": "01",
-      "text": "제미나이 API 사용료",
+      "text": "임직원 AI사용료",
+      "original_text": "제미나이 API 사용료",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 5201.0
@@ -79127,13 +79932,15 @@
     {
       "month": "01",
       "text": "IT사용료",
+      "original_text": "IT사용료",
       "vendor": "",
       "cctr": "Process담당",
       "amount": 4887.0
     },
     {
       "month": "01",
-      "text": "AX팀 IT 사용비 (AI)",
+      "text": "임직원 AI사용료",
+      "original_text": "AX팀 IT 사용비 (AI)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 3107.0
@@ -79141,13 +79948,15 @@
     {
       "month": "01",
       "text": "Cloud Document AI API",
+      "original_text": "Cloud Document AI API",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 2618.0
     },
     {
       "month": "01",
-      "text": "커서 이용료",
+      "text": "임직원 AI사용료",
+      "original_text": "커서 이용료",
       "vendor": "",
       "cctr": "경영관리팀",
       "amount": 1724.0
@@ -79155,13 +79964,15 @@
     {
       "month": "01",
       "text": "IT 사용료(Upstage API)",
+      "original_text": "IT 사용료(Upstage API)",
       "vendor": "",
       "cctr": "AI 엔지니어링팀",
       "amount": 1542.0
     },
     {
       "month": "01",
-      "text": "Azure Cloud 비용 25.12",
+      "text": "Azure Cloud 비용",
+      "original_text": "Azure Cloud 비용 25.12",
       "vendor": "",
       "cctr": "IT팀",
       "amount": 1009.0
@@ -79169,69 +79980,79 @@
     {
       "month": "01",
       "text": "01.크레아 구독료",
+      "original_text": "01.크레아 구독료",
       "vendor": "",
       "cctr": "마케팅본부",
       "amount": 775.0
     },
     {
       "month": "01",
-      "text": "GCP 사용에 따른 클루커스 빌링",
+      "text": "Google Cloud",
+      "original_text": "GCP 사용에 따른 클루커스 빌링",
       "vendor": "",
       "cctr": "AX팀",
       "amount": 10.0
     },
     {
       "month": "01",
-      "text": "2025.12 IT팀 IT수수료 부분취소",
+      "text": "IT팀 IT수수료 부분취소",
+      "original_text": "2025.12 IT팀 IT수수료 부분취소",
       "vendor": "",
       "cctr": "IT팀",
       "amount": -148.0
     },
     {
       "month": "01",
-      "text": "IT 사용료 (Geminai pro)",
+      "text": "임직원 AI사용료",
+      "original_text": "IT 사용료 (Geminai pro)",
       "vendor": "",
       "cctr": "AX팀",
       "amount": -214840.0
     },
     {
       "month": "01",
-      "text": "Miro 연간 구독 환불",
+      "text": "Miro",
+      "original_text": "Miro 연간 구독 환불",
       "vendor": "",
       "cctr": "AX팀",
       "amount": -262038.0
     },
     {
       "month": "01",
-      "text": "Miro 연간 구독 환불",
+      "text": "Miro",
+      "original_text": "Miro 연간 구독 환불",
       "vendor": "",
       "cctr": "AX팀",
       "amount": -266647.0
     },
     {
       "month": "01",
-      "text": "25년 12월 Google Cloud 사용료",
+      "text": "Google Cloud",
+      "original_text": "25년 12월 Google Cloud 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": -1484968.0
     },
     {
       "month": "01",
-      "text": "Miro 연간 구독 환불",
+      "text": "Miro",
+      "original_text": "Miro 연간 구독 환불",
       "vendor": "",
       "cctr": "AX팀",
       "amount": -2072683.0
     },
     {
       "month": "01",
-      "text": "25년 12월 Google Cloud 사용료",
+      "text": "Google Cloud",
+      "original_text": "25년 12월 Google Cloud 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": -3811940.0
     },
     {
       "month": "01",
-      "text": "26년 01월 Google Cloud 사용료",
+      "text": "Google Cloud",
+      "original_text": "26년 01월 Google Cloud 사용료",
       "vendor": "",
       "cctr": "IT팀",
       "amount": -4133371.0
