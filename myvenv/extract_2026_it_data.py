@@ -10,27 +10,54 @@ def is_ai_usage(text):
         return False
     lower = text.lower()
     
-    # AI 도구 직접 키워드
-    ai_keywords = [
+    # AI 도구 직접 키워드 (영문)
+    ai_keywords_en = [
         'chatgpt', 'chat gpt', 'gpt', 'openai',
-        'claude', '클로드',
-        'cursor', '커서',
-        'copilot', '코파일럿',
-        'gemini', '제미나이',
-        'krea',
-        'ai 코딩', 'ai코딩',
-        'ai 에이전트', 'ai에이전트',
-        'ai 구독', 'ai구독',
-        'ai 사용', 'ai사용', 'ai툴', 'ai 툴',
-        'ai 서비스 구독',
+        'claude', 'anthropic',
+        'cursor', 'cursur',  # 오타 포함
+        'copilot', 'gemini',
+        'krea', 'midjourney',
+        'runway', 'higgsfiel', 'comfyui',
+        'genspark', 'perplexity',
+        'grok',
     ]
     
-    for kw in ai_keywords:
+    # AI 도구 직접 키워드 (한글)
+    ai_keywords_kr = [
+        '클로드', '클루드',  # 오타 포함
+        '커서', '코파일럿', '제미나이',
+        '챗지피티', '챗GPT',
+        '미드저니', '퍼플렉시티',
+        '런웨이', '힉스필드', '컴피UI',
+        '크레아',
+    ]
+    
+    for kw in ai_keywords_en:
         if kw in lower:
             return True
     
+    for kw in ai_keywords_kr:
+        if kw in text:
+            return True
+    
     # "IT 사용비(AI)" 같은 패턴
-    if 'ai' in lower and ('사용' in lower or '구독' in lower or '비용' in lower):
+    if 'ai' in lower and ('사용' in lower or '구독' in lower or '비용' in lower or '결제' in lower or '프로그램' in lower):
+        return True
+    
+    # "AI 코딩", "AI 이미지" 등
+    if 'ai 코딩' in lower or 'ai코딩' in lower:
+        return True
+    if 'ai 에이전트' in lower or 'ai에이전트' in lower:
+        return True
+    if 'ai 분석' in lower or 'ai분석' in lower:
+        return True
+    if 'ai 이미지' in lower or '생성형ai' in lower or '생성형 ai' in lower:
+        return True
+    if 'ai솔루션' in lower or 'ai 솔루션' in lower:
+        return True
+    
+    # "보고용 AI 이미지 생성" 패턴
+    if 'ai' in lower and '이미지' in lower:
         return True
     
     return False
@@ -47,50 +74,116 @@ def normalize_usage_text(text, vendor=''):
     text = re.sub(r'^\d{4}년도?\s*\d{0,2}월?\s*', '', text)
     text = re.sub(r'^\d{1,2}월\s*', '', text)
     text = re.sub(r'\d{2}\.\d{1,2}월?\s*', '', text)
+    text = re.sub(r'^\d{2}\s+', '', text)  # "26 " 등
     text = text.replace('_', ' ').strip()
     text = re.sub(r'\s+', ' ', text)
     
     lower = text.lower()
     
-    if 'aws' in lower: return 'AWS 인프라'
+    # --- 클라우드 인프라 ---
+    if 'aws' in lower: return 'AWS'
     if 'alibaba' in lower: return 'Alibaba Cloud'
-    if '1password' in lower: return '1Password'
+    if 'google cloud' in lower or 'gcp' in lower: return 'Google Cloud'
+    if 'naver cloud' in lower or '네이버 클라우드' in text: return 'Naver Cloud'
+    if 'azure' in lower: return 'Azure'
+    if 'oci' in lower and ('클라우드' in text or 'msp' in lower): return 'OCI 클라우드'
+    if 'cloudflare' in lower: return 'Cloudflare'
+    if 'vercel' in lower: return 'Vercel'
+    if 'datadog' in lower: return 'Datadog'
+    if 'kinx' in lower: return 'KINX CloudHub'
+    if 'heroku' in lower: return 'Salesforce'
+    
+    # --- 협업/생산성 도구 ---
+    if 'm365' in lower or 'ms365' in lower or 'office 365' in lower: return 'MS 365'
+    if 'sharepoint' in lower: return 'MS 365'
+    if 'ms 라이' in lower or 'ms라이' in lower: return 'MS 365'
+    if 'teams premium' in lower: return 'MS 365'
+    if 'slack' in lower: return 'Slack'
+    if 'notion' in lower or '노션' in text: return 'Notion'
     if 'atlassian' in lower: return 'Atlassian'
     if 'miro' in lower or '미로' in text: return 'Miro'
-    if 'retool' in lower: return 'Retool'
-    if 'm365' in lower or 'ms365' in lower or 'office 365' in lower: return 'MS 365'
-    if 'slack' in lower: return 'Slack'
-    if 'plm' in lower: return 'PLM'
-    if 'ga4' in lower: return 'GA4'
-    if 'github' in lower: return 'GitHub'
-    if 'jetbrain' in lower: return 'JetBrains'
+    if 'zoom' in lower or '화상회의' in text: return 'Zoom'
     if '카카오' in text: return '카카오워크'
-    if 'marketing cloud' in lower: return 'Salesforce'
-    if 'okta' in lower: return 'Okta'
-    if 'oracle' in lower: return 'Oracle'
-    if 'sap' in lower: return 'SAP'
-    if 'sfdc' in lower or 'salesforce' in lower: return 'Salesforce'
-    if 'tibco' in lower: return 'Tibco'
-    if 'figma' in lower: return 'Figma'
-    if 'docusign' in lower: return 'DocuSign'
-    if 'powerbi' in lower or 'power bi' in lower: return 'Power BI'
-    if 'zoom' in lower: return 'Zoom'
+    if 'figma' in lower or '피그마' in text: return 'Figma'
+    if 'g.suite' in lower or 'gsuite' in lower or '구글 드라이브' in text: return 'Google Workspace'
+    if '모두싸인' in text: return '전자계약(모두싸인)'
+    
+    # --- 개발 도구 ---
+    if 'github' in lower: return 'GitHub'
+    if 'jetbrain' in lower or '파이참' in lower or 'pycharm' in lower: return 'JetBrains'
     if 'sentry' in lower: return 'Sentry'
-    if 'adobe' in lower: return 'Adobe'
-    if 'notion' in lower or '노션' in text: return 'Notion'
-    if 'naver cloud' in lower or '네이버 클라우드' in text: return 'Naver Cloud'
-    if 'vercel' in lower: return 'Vercel'
-    if 'google cloud' in lower or 'gcp' in lower: return 'Google Cloud'
     if 'sendbird' in lower: return 'Sendbird'
-    if 'snowflake' in lower or '스노우플레이크' in text: return 'Snowflake'
     if 'fingerprint' in lower: return 'Fingerprint'
     if 'apify' in lower: return 'APIFY'
+    if 'readme' in lower: return 'Readme'
+    if 'n8n' in lower: return 'n8n'
+    if 'obsidian' in lower: return 'Obsidian'
+    if 'datagrip' in lower: return 'JetBrains'
+    if 'rest 클라이언트' in lower or 'postman' in lower: return 'Postman'
+    if 'font awesome' in lower: return 'Font Awesome'
+    if 'apple developer' in lower: return 'Apple Developer'
+    if '파워오토메이트' in text or 'power automate' in lower: return 'Power Automate'
+    
+    # --- 데이터/분석 ---
+    if 'snowflake' in lower or '스노우플레이크' in text: return 'Snowflake'
+    if 'power bi' in lower or 'powerbi' in lower: return 'Power BI'
+    if 'ga4' in lower: return 'GA4'
+    if 'retool' in lower: return 'Retool'
+    if '차트메트릭' in text: return '차트메트릭'
+    if '썸트렌드' in text: return '썸트렌드'
+    if '블랙키위' in text: return '블랙키위'
+    if '미디엄' in text or 'medium' in lower: return 'Medium'
+    
+    # --- SaaS/비즈니스 ---
+    if 'salesforce' in lower or 'sfdc' in lower or '세일즈포스' in text: return 'Salesforce'
+    if 'marketing cloud' in lower: return 'Salesforce'
+    if 'sap' in lower: return 'SAP'
+    if 'oracle' in lower or '오라클' in text: return 'Oracle'
+    if 'okta' in lower: return 'Okta'
+    if 'docusign' in lower: return 'DocuSign'
+    if '1password' in lower: return '1Password'
+    if 'tibco' in lower: return 'Tibco'
+    if 'adobe' in lower: return 'Adobe'
+    if 'plm' in lower: return 'PLM'
+    if 'sac' in lower: return 'SAC Public Option'
+    
+    # --- 특수 서비스 ---
+    if '브랜드폴더' in text or 'brandfolder' in lower: return '브랜드폴더'
+    if '스마트시트' in text or 'smartsheet' in lower: return '스마트시트'
+    if '유로모니터' in text or 'euromonitor' in lower: return '유로모니터'
     if 'nox' in lower or 'influencer' in lower: return 'Nox Influencer'
     if '인플루언서' in text: return '인플루언서시스템'
-    if '차트메트릭' in text: return '차트메트릭'
+    if 'wgsn' in lower or '온라인 정보' in text: return '온라인 정보사이트(WGSN)'
+    if 'udemy' in lower: return 'Udemy'
+    if '채용플랫폼' in text or '잡플래닛' in text or 'jobplanet' in lower or '마이다스아이티' in text: return '채용플랫폼'
+    if '직원 의견' in text or '직원의견' in text: return '채용플랫폼'
+    if '한국평가데이터' in text or 'cretop' in lower or '크레탑' in text: return '기업정보 서비스'
+    if '에프앤가이드' in text: return '에프앤가이드'
+    if '로앤비' in text or 'lawnb' in lower: return '법률정보 서비스'
+    if '쇼피파이' in text or 'shopify' in lower: return 'Shopify'
+    if '한국기업데이터' in text: return '기업정보 서비스'
+    if '산돌' in text: return '산돌구름 폰트'
+    if 'canva' in lower: return 'Canva'
+    if '캡컷' in text: return '캡컷'
+    if '나노바나나' in text: return '나노바나나'
+    if 'varco' in lower: return 'Varco Art'
+    if '이지헬프' in text or '원격 지원' in text: return '원격지원 프로그램'
+    
+    # --- 보안 ---
     if '방화벽' in text: return '방화벽'
-    if '방문객' in text or 'qr' in lower: return '방문객 QR시스템'
-    if 'wgsn' in lower: return '온라인 정보사이트(WGSN)'
+    if '방문객' in text or 'qr' in lower or '엔로비' in text: return '방문객 QR시스템'
+    
+    # --- 크롤링 ---
+    if '크롤링' in text: return '크롤링 프록시'
+    
+    # --- CJ APP ---
+    if 'cj app' in lower or 'cjapp' in lower: return 'CJ APP'
+    
+    # --- EAI ---
+    if 'eai' in lower: return 'EAI'
+    
+    # --- E-LAW ---
+    if 'e-law' in lower: return 'E-LAW Chatbot'
     
     return text.strip() if text.strip() else (vendor if vendor else 'Unknown')
 
