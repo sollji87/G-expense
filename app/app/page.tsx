@@ -1032,6 +1032,27 @@ export default function Dashboard() {
     
     loadAllocationCriteria();
     loadLaborInsight();
+    
+    // 인원수 데이터 초기 로드 (필터에서 코스트센터별 인원수 표시에 필요)
+    const loadInitialLaborData = async () => {
+      try {
+        const response = await fetch('/api/labor?year=2026');
+        const result = await response.json();
+        if (result.success) {
+          setLaborData({
+            months: result.months,
+            yearlyTotals: result.yearlyTotals,
+            divisions: result.divisions.map((d: any) => ({
+              ...d,
+              subDivisions: d.subDivisions || [],
+            })),
+          });
+        }
+      } catch (error) {
+        console.error('초기 인원수 데이터 로드 실패:', error);
+      }
+    };
+    loadInitialLaborData();
   }, []);
 
   useEffect(() => {
@@ -2741,18 +2762,40 @@ export default function Dashboard() {
                           if (laborData?.divisions) {
                             const yyyymm = `${selectedYear}${selectedMonth.padStart(2, '0')}`;
                             laborData.divisions.forEach((div) => {
+                              let divTotal = 0;
                               // 부문 직속 팀
                               div.teams?.forEach((team) => {
                                 const hc = team.monthly?.[yyyymm] || 0;
-                                if (hc > 0) teamHeadcountMap[team.deptNm] = (teamHeadcountMap[team.deptNm] || 0) + hc;
+                                if (hc > 0) {
+                                  teamHeadcountMap[team.deptNm] = (teamHeadcountMap[team.deptNm] || 0) + hc;
+                                  divTotal += hc;
+                                }
                               });
                               // 하위부문 팀
                               div.subDivisions?.forEach((sub) => {
+                                let subTotal = 0;
                                 sub.teams?.forEach((team) => {
                                   const hc = team.monthly?.[yyyymm] || 0;
-                                  if (hc > 0) teamHeadcountMap[team.deptNm] = (teamHeadcountMap[team.deptNm] || 0) + hc;
+                                  if (hc > 0) {
+                                    teamHeadcountMap[team.deptNm] = (teamHeadcountMap[team.deptNm] || 0) + hc;
+                                    subTotal += hc;
+                                    divTotal += hc;
+                                  }
                                 });
+                                // 하위부문명도 매핑 (예: "IT담당" → IT부문)
+                                if (subTotal > 0 && sub.name) {
+                                  teamHeadcountMap[sub.name] = (teamHeadcountMap[sub.name] || 0) + subTotal;
+                                }
                               });
+                              // 부문명도 매핑 (예: "IT담당" → "IT부문")
+                              if (divTotal > 0 && div.divisionName) {
+                                teamHeadcountMap[div.divisionName] = (teamHeadcountMap[div.divisionName] || 0) + divTotal;
+                                // 부문명 변환 (담당 → 부문)
+                                const altName = div.divisionName.replace('담당', '부문');
+                                if (altName !== div.divisionName) {
+                                  teamHeadcountMap[altName] = (teamHeadcountMap[altName] || 0) + divTotal;
+                                }
+                              }
                             });
                           }
                           
