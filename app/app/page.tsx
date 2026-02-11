@@ -2735,67 +2735,100 @@ export default function Dashboard() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">코스트센터</label>
                     <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
                       {costCenterOptions.length > 0 ? (
-                        <>
-                          {/* 인원이 있는 코스트센터 */}
-                          {costCenterOptions.filter(cc => cc.hasHeadcount).length > 0 && (
-                            <div className="mb-2">
-                              {costCenterOptions.filter(cc => cc.hasHeadcount).map((cc) => (
-                                <label key={cc.name} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedCostCenters.includes(cc.name)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedCostCenters([...selectedCostCenters, cc.name]);
-                                      } else {
-                                        setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc.name));
-                                      }
-                                    }}
-                                    className="w-4 h-4 text-indigo-900 border-gray-300 rounded focus:ring-indigo-700"
-                                  />
-                                  <span className="text-sm text-gray-700">{cc.name} <span className="text-gray-400">({cc.headcount}명)</span></span>
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                          {/* 인원이 없는 코스트센터 (접기/펼치기) */}
-                          {costCenterOptions.filter(cc => !cc.hasHeadcount).length > 0 && (
-                            <div className="border-t pt-2">
-                              <button
-                                type="button"
-                                onClick={() => setIsNoHeadcountExpanded(!isNoHeadcountExpanded)}
-                                className="flex items-center gap-1 text-xs text-gray-400 font-medium mb-1 px-1 hover:text-gray-600 w-full"
-                              >
-                                <svg 
-                                  className={`w-3 h-3 transition-transform ${isNoHeadcountExpanded ? 'rotate-90' : ''}`} 
-                                  fill="none" 
-                                  stroke="currentColor" 
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                                인원 없음 (비용만) ({costCenterOptions.filter(cc => !cc.hasHeadcount).length}개)
-                              </button>
-                              {isNoHeadcountExpanded && costCenterOptions.filter(cc => !cc.hasHeadcount).map((cc) => (
-                                <label key={cc.name} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedCostCenters.includes(cc.name)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedCostCenters([...selectedCostCenters, cc.name]);
-                                      } else {
-                                        setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc.name));
-                                      }
-                                    }}
-                                    className="w-4 h-4 text-indigo-900 border-gray-300 rounded focus:ring-indigo-700"
-                                  />
-                                  <span className="text-sm text-gray-500">{cc.name}</span>
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                        </>
+                        (() => {
+                          // laborData에서 팀별 인원수 맵 생성 (선택된 연/월 기준)
+                          const teamHeadcountMap: { [name: string]: number } = {};
+                          if (laborData?.divisions) {
+                            const yyyymm = `${selectedYear}${selectedMonth.padStart(2, '0')}`;
+                            laborData.divisions.forEach((div) => {
+                              // 부문 직속 팀
+                              div.teams?.forEach((team) => {
+                                const hc = team.monthly?.[yyyymm] || 0;
+                                if (hc > 0) teamHeadcountMap[team.deptNm] = (teamHeadcountMap[team.deptNm] || 0) + hc;
+                              });
+                              // 하위부문 팀
+                              div.subDivisions?.forEach((sub) => {
+                                sub.teams?.forEach((team) => {
+                                  const hc = team.monthly?.[yyyymm] || 0;
+                                  if (hc > 0) teamHeadcountMap[team.deptNm] = (teamHeadcountMap[team.deptNm] || 0) + hc;
+                                });
+                              });
+                            });
+                          }
+                          
+                          // 인원이 있는 코스트센터와 없는 코스트센터 분리
+                          const withHeadcount = costCenterOptions.filter(cc => {
+                            const hc = teamHeadcountMap[cc.name] || cc.headcount || 0;
+                            return hc > 0;
+                          });
+                          const withoutHeadcount = costCenterOptions.filter(cc => {
+                            const hc = teamHeadcountMap[cc.name] || cc.headcount || 0;
+                            return hc === 0;
+                          });
+                          
+                          return (
+                            <>
+                              {/* 인원이 있는 코스트센터 */}
+                              {withHeadcount.map((cc) => {
+                                const hc = teamHeadcountMap[cc.name] || cc.headcount || 0;
+                                return (
+                                  <label key={cc.name} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedCostCenters.includes(cc.name)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setSelectedCostCenters([...selectedCostCenters, cc.name]);
+                                        } else {
+                                          setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc.name));
+                                        }
+                                      }}
+                                      className="w-4 h-4 text-indigo-900 border-gray-300 rounded focus:ring-indigo-700"
+                                    />
+                                    <span className="text-sm text-gray-700">{cc.name} <span className="text-gray-400">({hc}명)</span></span>
+                                  </label>
+                                );
+                              })}
+                              {/* 인원이 없는 코스트센터 (접기/펼치기) */}
+                              {withoutHeadcount.length > 0 && (
+                                <div className={withHeadcount.length > 0 ? 'border-t pt-2 mt-1' : ''}>
+                                  <button
+                                    type="button"
+                                    onClick={() => setIsNoHeadcountExpanded(!isNoHeadcountExpanded)}
+                                    className="flex items-center gap-1 text-xs text-gray-400 font-medium mb-1 px-1 hover:text-gray-600 w-full"
+                                  >
+                                    <svg 
+                                      className={`w-3 h-3 transition-transform ${isNoHeadcountExpanded ? 'rotate-90' : ''}`} 
+                                      fill="none" 
+                                      stroke="currentColor" 
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                    인원 없음 (비용만) ({withoutHeadcount.length}개)
+                                  </button>
+                                  {isNoHeadcountExpanded && withoutHeadcount.map((cc) => (
+                                    <label key={cc.name} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedCostCenters.includes(cc.name)}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            setSelectedCostCenters([...selectedCostCenters, cc.name]);
+                                          } else {
+                                            setSelectedCostCenters(selectedCostCenters.filter(c => c !== cc.name));
+                                          }
+                                        }}
+                                        className="w-4 h-4 text-indigo-900 border-gray-300 rounded focus:ring-indigo-700"
+                                      />
+                                      <span className="text-sm text-gray-500">{cc.name}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()
                       ) : (
                         <div className="text-xs text-gray-400 p-2">로딩 중...</div>
                       )}
