@@ -130,6 +130,7 @@ export default function Dashboard() {
       subDivisions: { name: string; teams: { deptNm: string; monthly: { [key: string]: number } }[]; monthly: { [key: string]: number } }[];
       monthly: { [key: string]: number };
     }[];
+    cctrHeadcount?: { [cctrCd: string]: { [yyyymm: string]: number } };
   } | null>(null);
   const [laborLoading, setLaborLoading] = useState(false);
   const [itExpenseData, setItExpenseData] = useState<{
@@ -370,7 +371,7 @@ export default function Dashboard() {
   // 필터 상태
   const [selectedCostCenters, setSelectedCostCenters] = useState<string[]>([]); // 표시명 기준
   const [selectedMajorCategories, setSelectedMajorCategories] = useState<string[]>([]);
-  const [costCenterOptions, setCostCenterOptions] = useState<{ name: string; hasHeadcount: boolean; headcount: number; originalNames: string[] }[]>([]);
+  const [costCenterOptions, setCostCenterOptions] = useState<{ name: string; hasHeadcount: boolean; headcount: number; originalNames: string[]; cctrCodes: string[] }[]>([]);
   const [majorCategoryOptions, setMajorCategoryOptions] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isNoHeadcountExpanded, setIsNoHeadcountExpanded] = useState(false); // 인원 없음 섹션 접기/펼치기
@@ -617,6 +618,7 @@ export default function Dashboard() {
             ...d,
             subDivisions: d.subDivisions || [],
           })),
+          cctrHeadcount: result.cctrHeadcount || {},
         });
       }
       
@@ -751,6 +753,7 @@ export default function Dashboard() {
               ...d,
               subDivisions: d.subDivisions || [],
             })),
+            cctrHeadcount: laborResult.cctrHeadcount || {},
           });
         }
       }
@@ -1046,6 +1049,7 @@ export default function Dashboard() {
               ...d,
               subDivisions: d.subDivisions || [],
             })),
+            cctrHeadcount: result.cctrHeadcount || {},
           });
         }
       } catch (error) {
@@ -2757,76 +2761,27 @@ export default function Dashboard() {
                     <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
                       {costCenterOptions.length > 0 ? (
                         (() => {
-                          // laborData에서 팀별 인원수 맵 생성 (선택된 연/월 기준)
-                          const teamHeadcountMap: { [name: string]: number } = {};
-                          if (laborData?.divisions) {
-                            const yyyymm = `${selectedYear}${selectedMonth.padStart(2, '0')}`;
-                            laborData.divisions.forEach((div) => {
-                              let divTotal = 0;
-                              // 부문 직속 팀
-                              div.teams?.forEach((team) => {
-                                const hc = team.monthly?.[yyyymm] || 0;
-                                if (hc > 0) {
-                                  teamHeadcountMap[team.deptNm] = (teamHeadcountMap[team.deptNm] || 0) + hc;
-                                  divTotal += hc;
-                                }
-                              });
-                              // 하위부문 팀
-                              div.subDivisions?.forEach((sub) => {
-                                let subTotal = 0;
-                                sub.teams?.forEach((team) => {
-                                  const hc = team.monthly?.[yyyymm] || 0;
-                                  if (hc > 0) {
-                                    teamHeadcountMap[team.deptNm] = (teamHeadcountMap[team.deptNm] || 0) + hc;
-                                    subTotal += hc;
-                                    divTotal += hc;
-                                  }
-                                });
-                                // 하위부문명도 매핑 (예: "IT담당" → IT부문)
-                                if (subTotal > 0 && sub.name) {
-                                  teamHeadcountMap[sub.name] = (teamHeadcountMap[sub.name] || 0) + subTotal;
-                                }
-                              });
-                              // 부문명도 매핑 (예: "IT담당" → "IT부문")
-                              if (divTotal > 0 && div.divisionName) {
-                                teamHeadcountMap[div.divisionName] = (teamHeadcountMap[div.divisionName] || 0) + divTotal;
-                                // 부문명 변환 (담당 → 부문)
-                                const altName = div.divisionName.replace('담당', '부문');
-                                if (altName !== div.divisionName) {
-                                  teamHeadcountMap[altName] = (teamHeadcountMap[altName] || 0) + divTotal;
-                                }
-                              }
-                            });
-                            // 복합 이름 매핑 (여러 팀의 인원을 합산)
-                            const compositeMap: { [key: string]: string[] } = {
-                              '총무/비서팀': ['총무팀', '비서팀', 'HR총무담당'],
-                              'IT부문': ['Web Platform팀', 'Enterprise Solution팀', 'Enterprise Architecture팀', 'IT담당', '디지털본부담당', '디지털전략팀'],
-                              'Process부문': ['AX팀', 'AI Engineering팀', 'Process담당', 'PI팀', '데이터팀', '데이터기획팀', '데이터엔지니어링팀', '프로세스팀'],
-                              '마케팅본부': ['마케팅본부담당', '온라인마케팅팀', '인플루언서마케팅팀', 'DV/ST마케팅팀', 'DX마케팅팀', 'MK마케팅팀', 'MLB마케팅팀'],
-                              '해외사업팀': ['해외사업담당', '글로벌마케팅팀', 'Commercial팀', 'Operation팀'],
-                              '경영기획팀': ['경영기획'],
-                            };
-                            Object.entries(compositeMap).forEach(([composite, parts]) => {
-                              const total = parts.reduce((sum, p) => sum + (teamHeadcountMap[p] || 0), 0);
-                              if (total > 0) teamHeadcountMap[composite] = total;
-                            });
-                          }
+                          // 코스트센터 코드 기반 인원수 계산 (laborData.cctrHeadcount 사용)
+                          const yyyymm = `${selectedYear}${selectedMonth.padStart(2, '0')}`;
+                          const cctrHC = laborData?.cctrHeadcount || {};
+                          
+                          const getHeadcount = (cc: any) => {
+                            const codes: string[] = cc.cctrCodes || [];
+                            if (codes.length === 0) return 0;
+                            return codes.reduce((sum: number, code: string) => {
+                              return sum + (cctrHC[code]?.[yyyymm] || 0);
+                            }, 0);
+                          };
                           
                           // 인원이 있는 코스트센터와 없는 코스트센터 분리
-                          const withHeadcount = costCenterOptions.filter(cc => {
-                            const hc = teamHeadcountMap[cc.name] || cc.headcount || 0;
-                            return hc > 0;
-                          });
-                          const withoutHeadcount = costCenterOptions.filter(cc => {
-                            const hc = teamHeadcountMap[cc.name] || cc.headcount || 0;
-                            return hc === 0;
-                          });
+                          const withHeadcount = costCenterOptions.filter(cc => getHeadcount(cc) > 0);
+                          const withoutHeadcount = costCenterOptions.filter(cc => getHeadcount(cc) === 0);
                           
                           return (
                             <>
                               {/* 인원이 있는 코스트센터 */}
                               {withHeadcount.map((cc) => {
-                                const hc = teamHeadcountMap[cc.name] || cc.headcount || 0;
+                                const hc = getHeadcount(cc);
                                 return (
                                   <label key={cc.name} className="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer">
                                     <input

@@ -442,6 +442,15 @@ export async function GET(request: Request) {
       yearlyTotals[rowYear][month] += row.HEADCOUNT;
     });
     
+    // 코스트센터 코드별 월별 인원수 집계 (필터 코스트센터 인원 표시용)
+    const cctrHeadcount: { [cctrCd: string]: { [yyyymm: string]: number } } = {};
+    rows.forEach((row) => {
+      const cctrCd = row.CCTR_CD;
+      if (!cctrCd) return;
+      if (!cctrHeadcount[cctrCd]) cctrHeadcount[cctrCd] = {};
+      cctrHeadcount[cctrCd][row.YYYYMM] = (cctrHeadcount[cctrCd][row.YYYYMM] || 0) + row.HEADCOUNT;
+    });
+    
     // 정렬된 부문 배열 생성
     const divisions = divisionOrder
       .filter(div => divisionMap.has(div))
@@ -824,6 +833,7 @@ export async function GET(request: Request) {
       months,
       divisions: categoryDivisions,
       yearlyTotals,
+      cctrHeadcount,
     });
     
   } catch (error) {
