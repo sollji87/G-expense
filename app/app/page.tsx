@@ -2797,6 +2797,14 @@ export default function Dashboard() {
                                 }
                               }
                             });
+                            // 복합 이름 매핑 (총무/비서팀 = 총무팀 + 비서팀 등)
+                            const compositeMap: { [key: string]: string[] } = {
+                              '총무/비서팀': ['총무팀', '비서팀'],
+                            };
+                            Object.entries(compositeMap).forEach(([composite, parts]) => {
+                              const total = parts.reduce((sum, p) => sum + (teamHeadcountMap[p] || 0), 0);
+                              if (total > 0) teamHeadcountMap[composite] = total;
+                            });
                           }
                           
                           // 인원이 있는 코스트센터와 없는 코스트센터 분리
