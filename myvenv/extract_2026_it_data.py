@@ -54,7 +54,7 @@ def extract_2026_it_data():
                 'amount': amount  # 이미 원 단위
             })
     
-    # IT유지보수비 추출
+    # IT유지보수비 추출 (주의: 유지보수비 JSON은 백만원 단위로 저장해야 함 - API에서 변환 없이 그대로 표시)
     maintenance_mask = df['G/L 계정 설명'].astype(str).str.contains('IT유지보수비', na=False)
     maintenance_filtered = df[maintenance_mask].copy()
     print(f"IT유지보수비 rows: {len(maintenance_filtered)}")
@@ -78,7 +78,7 @@ def extract_2026_it_data():
                 'text': text,
                 'vendor': vendor,
                 'cctr': cctr.replace('공통_', '').replace('[CLSD]공통_', '').replace('[CLSD]', ''),
-                'amount': amount
+                'amount': round(amount / 1_000_000)  # 백만원 단위 (유지보수비 API는 변환 없이 표시)
             })
     
     # JSON 파일 저장
