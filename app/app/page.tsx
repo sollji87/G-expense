@@ -327,6 +327,20 @@ export default function Dashboard() {
   const [editingAiInsight, setEditingAiInsight] = useState<boolean>(false);
   const [tempAiInsight, setTempAiInsight] = useState<string>('');
   
+  // 구조화된 인사이트 편집용 state
+  interface StructuredInsightEdit {
+    summary: string[];
+    findings: string[];
+    risks: string[];
+    actions: string[];
+  }
+  const [tempStructuredInsight, setTempStructuredInsight] = useState<StructuredInsightEdit>({
+    summary: [],
+    findings: [],
+    risks: [],
+    actions: []
+  });
+  
   // 구조화된 인사이트
   interface InsightItem {
     id: string;
@@ -472,6 +486,18 @@ export default function Dashboard() {
   const saveAiInsight = async () => {
     try {
       const insightKey = getAiInsightKey();
+      
+      // 빈 항목 제거
+      const cleanedInsight = {
+        summary: tempStructuredInsight.summary.filter(s => s.trim()),
+        findings: tempStructuredInsight.findings.filter(s => s.trim()),
+        risks: tempStructuredInsight.risks.filter(s => s.trim()),
+        actions: tempStructuredInsight.actions.filter(s => s.trim()),
+      };
+      
+      // JSON 형태로 저장 (불릿 단위 보존)
+      const insightText = JSON.stringify(cleanedInsight);
+      
       const response = await fetch('/api/descriptions', {
         method: 'POST',
         headers: {
@@ -479,7 +505,7 @@ export default function Dashboard() {
         },
         body: JSON.stringify({
           accountId: insightKey,
-          description: tempAiInsight
+          description: insightText
         })
       });
       
@@ -487,7 +513,7 @@ export default function Dashboard() {
       
       if (result.success) {
         // 로컬 상태 즉시 업데이트
-        setAiInsight(tempAiInsight);
+        setAiInsight(insightText);
         if (result.data) {
           setDescriptions(prev => ({
             ...prev,
@@ -496,6 +522,12 @@ export default function Dashboard() {
         }
         setEditingAiInsight(false);
         setTempAiInsight('');
+        setTempStructuredInsight({
+          summary: [],
+          findings: [],
+          risks: [],
+          actions: []
+        });
         console.log(`✅ AI 인사이트 저장 완료 (${insightKey})`);
       } else {
         console.error('❌ AI 인사이트 저장 실패:', result.error);
@@ -509,12 +541,21 @@ export default function Dashboard() {
   const startEditAiInsight = () => {
     setEditingAiInsight(true);
     setTempAiInsight(aiInsight);
+    // 현재 인사이트를 구조화된 형태로 파싱
+    const parsed = parseStructuredInsight(aiInsight);
+    setTempStructuredInsight(parsed);
   };
 
   // AI 인사이트 편집 취소
   const cancelEditAiInsight = () => {
     setEditingAiInsight(false);
     setTempAiInsight('');
+    setTempStructuredInsight({
+      summary: [],
+      findings: [],
+      risks: [],
+      actions: []
+    });
   };
 
   // AI 인사이트 자동 생성 (계층형 분석 코멘트 기반)
@@ -1530,6 +1571,30 @@ export default function Dashboard() {
     
     let text = `📊 ${selectedMonth}월 비용 분석 인사이트\n\n`;
     
+    // 구조화된 인사이트가 없으면 불릿 형태의 AI 인사이트를 내보내기
+    if (critical.length === 0 && warning.length === 0 && positive.length === 0) {
+      const structured = parseStructuredInsight(aiInsight);
+      
+      if (structured.summary.length > 0) {
+        text += `📊 전체 요약\n${'─'.repeat(40)}\n`;
+        structured.summary.forEach((item: string) => { text += `• ${item}\n`; });
+        text += `\n`;
+      }
+      if (structured.findings.length > 0) {
+        text += `🔍 주요 발견사항\n${'─'.repeat(40)}\n`;
+        structured.findings.forEach((item: string) => { text += `• ${item}\n`; });
+        text += `\n`;
+      }
+      if (structured.risks.length > 0) {
+        text += `⚠️ 리스크 요인\n${'─'.repeat(40)}\n`;
+        structured.risks.forEach((item: string) => { text += `• ${item}\n`; });
+        text += `\n`;
+      }
+      if (structured.actions.length > 0) {
+        text += `✅ 권장 액션\n${'─'.repeat(40)}\n`;
+        structured.actions.forEach((item: string) => { text += `• ${item}\n`; });
+      }
+    } else {
     if (critical.length > 0) {
       text += `🚨 즉시 확인 필요 (YOY ±50% 이상)\n`;
       text += `${'─'.repeat(40)}\n`;
@@ -1559,6 +1624,7 @@ export default function Dashboard() {
         text += `• ${item.name}: ${item.changePercent.toFixed(1)}% (${Math.round(item.previous)} → ${Math.round(item.current)}백만원)\n`;
         if (item.description) text += `  원인: ${item.description}\n`;
       });
+    }
     }
     
     navigator.clipboard.writeText(text).then(() => {
@@ -2450,6 +2516,73 @@ export default function Dashboard() {
     return text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   };
 
+  // AI 인사이트를 구조화된 형식으로 파싱
+  const parseStructuredInsight = (text: string) => {
+    // 1) JSON 형태로 저장된 경우 바로 파싱
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed === 'object' && Array.isArray(parsed.summary)) {
+        return {
+          summary: parsed.summary || [],
+          findings: parsed.findings || [],
+          risks: parsed.risks || [],
+          actions: parsed.actions || []
+        };
+      }
+    } catch {
+      // JSON 파싱 실패 → 기존 줄글 텍스트로 fallback
+    }
+
+    // 2) 기존 줄글 텍스트 파싱 (레거시 호환)
+    const sentences = text.split(/\n\n|\. (?=[A-Z가-힣])/g).map(s => s.trim()).filter(s => s.length > 0);
+    
+    const structured = {
+      summary: [] as string[],
+      findings: [] as string[],
+      risks: [] as string[],
+      actions: [] as string[]
+    };
+
+    // 첫 1-2 문장을 요약으로
+    if (sentences.length > 0) {
+      structured.summary.push(sentences[0]);
+      if (sentences.length > 1 && sentences[1].length < 150) {
+        structured.summary.push(sentences[1]);
+      }
+    }
+
+    // 나머지 문장들을 주요 발견사항으로
+    const remainingSentences = sentences.slice(structured.summary.length);
+    
+    remainingSentences.forEach(sentence => {
+      if (sentence.includes('증가') || sentence.includes('감소') || sentence.includes('변동')) {
+        if (sentence.includes('주의') || sentence.includes('모니터링') || sentence.includes('필요') || 
+            sentence.includes('리스크') || sentence.includes('우려') || sentence.includes('증가가')) {
+          structured.risks.push(sentence);
+        } else {
+          structured.findings.push(sentence);
+        }
+      }
+      else if (sentence.includes('권장') || sentence.includes('검토') || sentence.includes('개선') || 
+               sentence.includes('조치') || sentence.includes('필요합니다')) {
+        structured.actions.push(sentence);
+      }
+      else {
+        structured.findings.push(sentence);
+      }
+    });
+
+    if (structured.actions.length === 0 && structured.risks.length > 0) {
+      structured.actions.push('리스크 요인에 대한 모니터링 및 대응 방안 수립이 필요합니다');
+    }
+
+    if (structured.findings.length > 5) {
+      structured.findings = structured.findings.slice(0, 5);
+    }
+
+    return structured;
+  };
+
   const getChangeColor = (change: number) => {
     if (change > 0) return 'text-red-600';
     if (change < 0) return 'text-indigo-900';
@@ -3179,24 +3312,24 @@ export default function Dashboard() {
         </div>
 
         {/* AI 인사이트 요약 - 구조화된 형태 */}
-        <Card className="mb-8 border-2 border-purple-200">
-          <CardHeader className="pb-2 bg-gradient-to-r from-purple-50 to-indigo-50">
+        <Card className="mb-8">
+          <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                <div className="flex-shrink-0 w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-purple-900">AI 인사이트</h3>
+                  <h3 className="text-lg font-bold text-gray-800">AI 인사이트</h3>
                   <p className="text-xs text-gray-500">우선순위별 액션 가이드</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={exportInsights}
-                  className="px-3 py-1.5 text-xs bg-white border border-purple-300 text-purple-700 hover:bg-purple-50 rounded-lg transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-1"
                   title="인사이트 텍스트로 복사"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3206,7 +3339,7 @@ export default function Dashboard() {
                 </button>
                 <button
                   onClick={startEditAiInsight}
-                  className="p-1.5 rounded-md hover:bg-purple-200 text-purple-600 transition-colors"
+                  className="p-1.5 rounded-md hover:bg-gray-200 text-gray-600 transition-colors"
                   title="AI 인사이트 편집"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3220,13 +3353,81 @@ export default function Dashboard() {
             {(() => {
               const { critical, warning, positive } = getCategorizedInsights();
               
-              // 인사이트가 없는 경우 기존 텍스트 표시
+              // 인사이트가 없는 경우 구조화된 텍스트 표시
               if (critical.length === 0 && warning.length === 0 && positive.length === 0) {
+                const structured = parseStructuredInsight(aiInsight);
+                
                 return (
-                  <p 
-                    className="text-sm text-gray-700 leading-relaxed whitespace-pre-line"
-                    dangerouslySetInnerHTML={{ __html: formatMarkdownBold(aiInsight) }}
-                  />
+                  <div className="space-y-4">
+                    {/* 전체 요약 */}
+                    {structured.summary.length > 0 && (
+                      <div className="pb-3 border-b border-gray-200">
+                        <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                          <span className="text-base">📊</span>
+                          전체 요약
+                        </h4>
+                        <div className="text-sm text-gray-700 leading-relaxed space-y-1">
+                          {structured.summary.map((item: string, idx: number) => (
+                            <p key={idx}>{item}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 주요 발견사항 */}
+                    {structured.findings.length > 0 && (
+                      <div className="pb-3 border-b border-gray-200">
+                        <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                          <span className="text-base">🔍</span>
+                          주요 발견사항
+                        </h4>
+                        <ul className="space-y-2 text-sm text-gray-700">
+                          {structured.findings.map((item: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="text-gray-500 mt-1 flex-shrink-0">•</span>
+                              <span className="leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 리스크 요인 */}
+                    {structured.risks.length > 0 && (
+                      <div className="pb-3 border-b border-gray-200">
+                        <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                          <span className="text-base">⚠️</span>
+                          리스크 요인
+                        </h4>
+                        <ul className="space-y-2 text-sm text-gray-700">
+                          {structured.risks.map((item: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="text-gray-500 mt-1 flex-shrink-0">•</span>
+                              <span className="leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 권장 액션 */}
+                    {structured.actions.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                          <span className="text-base">✅</span>
+                          권장 액션
+                        </h4>
+                        <ul className="space-y-2 text-sm text-gray-700">
+                          {structured.actions.map((item: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="text-gray-500 mt-1 flex-shrink-0">•</span>
+                              <span className="leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 );
               }
               
@@ -3458,7 +3659,7 @@ export default function Dashboard() {
         {/* AI 인사이트 편집 다이얼로그 */}
         {editingAiInsight && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
               <div className="flex items-center justify-between p-4 border-b">
                 <h3 className="text-lg font-bold text-gray-800">💡 AI 인사이트 편집</h3>
                 <button
@@ -3470,13 +3671,190 @@ export default function Dashboard() {
                   </svg>
                 </button>
               </div>
-              <div className="p-4 flex-1 overflow-auto">
-                <textarea
-                  value={tempAiInsight}
-                  onChange={(e) => setTempAiInsight(e.target.value)}
-                  className="w-full h-80 p-4 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="AI 인사이트 내용을 입력하세요..."
-                />
+              <div className="p-4 flex-1 overflow-auto space-y-6">
+                {/* 전체 요약 */}
+                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                      <span>📊</span>
+                      전체 요약
+                    </h4>
+                    <button
+                      onClick={() => setTempStructuredInsight(prev => ({
+                        ...prev,
+                        summary: [...prev.summary, '']
+                      }))}
+                      className="px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors"
+                    >
+                      + 추가
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {tempStructuredInsight.summary.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="text-gray-600 mt-2 flex-shrink-0">•</span>
+                        <input
+                          type="text"
+                          value={item}
+                          onChange={(e) => {
+                            const newSummary = [...tempStructuredInsight.summary];
+                            newSummary[idx] = e.target.value;
+                            setTempStructuredInsight(prev => ({ ...prev, summary: newSummary }));
+                          }}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                          placeholder="요약 내용을 입력하세요"
+                        />
+                        <button
+                          onClick={() => {
+                            const newSummary = tempStructuredInsight.summary.filter((_, i) => i !== idx);
+                            setTempStructuredInsight(prev => ({ ...prev, summary: newSummary }));
+                          }}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 주요 발견사항 */}
+                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                      <span>🔍</span>
+                      주요 발견사항
+                    </h4>
+                    <button
+                      onClick={() => setTempStructuredInsight(prev => ({
+                        ...prev,
+                        findings: [...prev.findings, '']
+                      }))}
+                      className="px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors"
+                    >
+                      + 추가
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {tempStructuredInsight.findings.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="text-gray-600 mt-2 flex-shrink-0">•</span>
+                        <input
+                          type="text"
+                          value={item}
+                          onChange={(e) => {
+                            const newFindings = [...tempStructuredInsight.findings];
+                            newFindings[idx] = e.target.value;
+                            setTempStructuredInsight(prev => ({ ...prev, findings: newFindings }));
+                          }}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                          placeholder="발견사항을 입력하세요"
+                        />
+                        <button
+                          onClick={() => {
+                            const newFindings = tempStructuredInsight.findings.filter((_, i) => i !== idx);
+                            setTempStructuredInsight(prev => ({ ...prev, findings: newFindings }));
+                          }}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 리스크 요인 */}
+                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                      <span>⚠️</span>
+                      리스크 요인
+                    </h4>
+                    <button
+                      onClick={() => setTempStructuredInsight(prev => ({
+                        ...prev,
+                        risks: [...prev.risks, '']
+                      }))}
+                      className="px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors"
+                    >
+                      + 추가
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {tempStructuredInsight.risks.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="text-gray-600 mt-2 flex-shrink-0">•</span>
+                        <input
+                          type="text"
+                          value={item}
+                          onChange={(e) => {
+                            const newRisks = [...tempStructuredInsight.risks];
+                            newRisks[idx] = e.target.value;
+                            setTempStructuredInsight(prev => ({ ...prev, risks: newRisks }));
+                          }}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                          placeholder="리스크 요인을 입력하세요"
+                        />
+                        <button
+                          onClick={() => {
+                            const newRisks = tempStructuredInsight.risks.filter((_, i) => i !== idx);
+                            setTempStructuredInsight(prev => ({ ...prev, risks: newRisks }));
+                          }}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 권장 액션 */}
+                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                      <span>✅</span>
+                      권장 액션
+                    </h4>
+                    <button
+                      onClick={() => setTempStructuredInsight(prev => ({
+                        ...prev,
+                        actions: [...prev.actions, '']
+                      }))}
+                      className="px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors"
+                    >
+                      + 추가
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {tempStructuredInsight.actions.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="text-gray-600 mt-2 flex-shrink-0">•</span>
+                        <input
+                          type="text"
+                          value={item}
+                          onChange={(e) => {
+                            const newActions = [...tempStructuredInsight.actions];
+                            newActions[idx] = e.target.value;
+                            setTempStructuredInsight(prev => ({ ...prev, actions: newActions }));
+                          }}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+                          placeholder="권장 액션을 입력하세요"
+                        />
+                        <button
+                          onClick={() => {
+                            const newActions = tempStructuredInsight.actions.filter((_, i) => i !== idx);
+                            setTempStructuredInsight(prev => ({ ...prev, actions: newActions }));
+                          }}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="flex justify-end gap-2 p-4 border-t bg-gray-50">
                 <button
@@ -3487,7 +3865,7 @@ export default function Dashboard() {
                 </button>
                 <button
                   onClick={saveAiInsight}
-                  className="px-4 py-2 text-sm bg-purple-600 text-white hover:bg-purple-700 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm bg-gray-800 text-white hover:bg-gray-900 rounded-lg transition-colors"
                 >
                   저장
                 </button>
